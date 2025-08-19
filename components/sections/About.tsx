@@ -3,15 +3,6 @@
 import { motion } from 'framer-motion'
 import { CheckCircleIcon } from '@heroicons/react/24/outline'
 
-const values = [
-  'Biblical teaching and spiritual guidance',
-  'Environmental stewardship and creation care',
-  'Inclusive community and authentic relationships',
-  'Personal growth and transformation',
-  'Service to others and outreach',
-  'Excellence in all we do',
-]
-
 const stats = [
   { number: '25+', label: 'Years of Ministry' },
   { number: '1000+', label: 'Lives Transformed' },
@@ -19,7 +10,11 @@ const stats = [
   { number: '100%', label: 'Christ-Centered' },
 ]
 
-export default function About() {
+interface AboutProps {
+  showCTA?: boolean
+}
+
+export default function About({ showCTA = true }: AboutProps) {
   return (
     <section className="section-padding bg-white">
       <div className="max-w-7xl mx-auto container-padding">
@@ -32,67 +27,91 @@ export default function About() {
             transition={{ duration: 0.8 }}
             className="space-y-8"
           >
+            {/* Mission */}
             <div>
               <h2 className="text-3xl md:text-4xl lg:text-5xl font-display font-bold text-secondary-900 mb-6">
                 Our{' '}
                 <span className="text-primary-600">Mission</span>
               </h2>
               <p className="text-lg text-secondary-600 leading-relaxed mb-6">
-                ClearView Retreat exists to provide a sacred space where individuals and groups can 
-                encounter God, experience spiritual renewal, and build authentic community in the 
-                midst of His beautiful creation.
-              </p>
-              <p className="text-lg text-secondary-600 leading-relaxed">
-                We believe that time spent in nature, away from the distractions of daily life, 
-                creates the perfect environment for spiritual growth, personal reflection, and 
-                meaningful connections with others.
+                Intentional Intimacy International, a nonprofit organization, uses biblical teaching to draw people to Christ and promotes intentional intimacy within and among families through seminars, workshops, and retreats.
               </p>
             </div>
 
-            {/* Values */}
+            {/* Vision */}
             <div>
-              <h3 className="text-2xl font-display font-semibold text-secondary-900 mb-6">
-                Our Core Values
+              <h3 className="text-2xl font-display font-semibold text-secondary-900 mb-4">
+                Our Vision
               </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {values.map((value, index) => (
-                  <motion.div
-                    key={index}
-                    initial={{ opacity: 0, x: -20 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.6, delay: index * 0.1 }}
-                    className="flex items-start space-x-3"
-                  >
-                    <CheckCircleIcon className="h-6 w-6 text-primary-600 mt-0.5 flex-shrink-0" />
-                    <span className="text-secondary-700">{value}</span>
-                  </motion.div>
-                ))}
+              <p className="text-lg text-secondary-600 leading-relaxed mb-6">
+                To build intimacy and accountability in groups of families by providing skills and encouragement in order to revolutionize the way families and communities relate to one another.
+              </p>
+            </div>
+
+            {/* Passion */}
+            <div>
+              <h3 className="text-2xl font-display font-semibold text-secondary-900 mb-4">
+                Our Passion
+              </h3>
+              <p className="text-lg text-secondary-600 leading-relaxed mb-6">
+                Intentional intimacy — living life with passion.
+              </p>
+            </div>
+
+            {/* Commission */}
+            <div>
+              <h3 className="text-2xl font-display font-semibold text-secondary-900 mb-4">
+                Our Commission
+              </h3>
+              <p className="text-lg text-secondary-600 leading-relaxed mb-4">
+                We are called by God…
+              </p>
+              <div className="space-y-3 mb-6">
+                <div className="flex items-start space-x-3">
+                  <CheckCircleIcon className="h-5 w-5 text-primary-600 mt-1 flex-shrink-0" />
+                  <span className="text-secondary-700">
+                    …to demonstrate the love and hope of Christ through "one another" living
+                  </span>
+                </div>
+                <div className="flex items-start space-x-3">
+                  <CheckCircleIcon className="h-5 w-5 text-primary-600 mt-1 flex-shrink-0" />
+                  <span className="text-secondary-700">
+                    …to minister to others who are hurting and struggling to understand what God meant when He spoke of "living life abundantly"
+                  </span>
+                </div>
+                <div className="flex items-start space-x-3">
+                  <CheckCircleIcon className="h-5 w-5 text-primary-600 mt-1 flex-shrink-0" />
+                  <span className="text-secondary-700">
+                    …to encourage believers to trust God with their relationships and interactions
+                  </span>
+                </div>
               </div>
             </div>
 
-            {/* CTA */}
-            <div className="pt-4">
-              <a
-                href="/about"
-                className="btn-primary text-lg px-8 py-4 inline-flex items-center group"
-              >
-                Learn More About Us
-                <svg
-                  className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform duration-200"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
+            {/* CTA - Only show when showCTA is true */}
+            {showCTA && (
+              <div className="pt-4">
+                <a
+                  href="/about"
+                  className="btn-primary text-lg px-8 py-4 inline-flex items-center group"
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M17 8l4 4m0 0l-4 4m4-4H3"
-                  />
-                </svg>
-              </a>
-            </div>
+                  Learn More About Us
+                  <svg
+                    className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform duration-200"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M17 8l4 4m0 0l-4 4m4-4H3"
+                    />
+                  </svg>
+                </a>
+              </div>
+            )}
           </motion.div>
 
           {/* Image and Stats */}

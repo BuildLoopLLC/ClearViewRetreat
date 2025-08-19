@@ -12,6 +12,34 @@ const navigation = {
     { name: 'Privacy Policy', href: '/privacy' },
     { name: 'Terms of Service', href: '/terms' },
   ],
+  about: [
+    { name: 'History', href: '/about/history' },
+    { name: 'Beliefs', href: '/about/beliefs' },
+    { name: 'Board of Trustees', href: '/about/board' },
+    { name: 'Founders', href: '/about/founders' },
+    { name: 'With Gratitude', href: '/about/gratitude' },
+  ],
+  events: [
+    { name: 'Upcoming Events', href: '/events/upcoming' },
+    { name: 'Past Events', href: '/events/past' },
+    { name: 'Event Registration', href: '/events/register' },
+    { name: 'Event Types', href: '/events/types' },
+    { name: 'Testimonials', href: '/events/testimonials' },
+  ],
+  contact: [
+    { name: 'Get in Touch', href: '/contact/contact-us' },
+    { name: 'Location & Directions', href: '/contact/location' },
+    { name: 'Staff Directory', href: '/contact/staff' },
+    { name: 'Volunteer Opportunities', href: '/contact/volunteer' },
+    { name: 'Prayer Requests', href: '/contact/prayer' },
+  ],
+  gallery: [
+    { name: 'Retreat Center', href: '/gallery/retreat-center' },
+    { name: 'Event Photos', href: '/gallery/events' },
+    { name: 'Nature & Grounds', href: '/gallery/nature' },
+    { name: 'Community Life', href: '/gallery/community' },
+    { name: 'Testimonials Gallery', href: '/gallery/testimonials' },
+  ],
   social: [
     {
       name: 'Facebook',
@@ -59,9 +87,9 @@ export default function Footer() {
   return (
     <footer className="bg-secondary-900">
       <div className="mx-auto max-w-7xl overflow-hidden px-6 py-20 sm:py-24 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-12">
           {/* Brand and Description */}
-          <div className="space-y-6">
+          <div className="lg:col-span-2 space-y-6">
             <div className="flex items-center space-x-2">
               <div className="w-12 h-12 bg-primary-600 rounded-lg flex items-center justify-center">
                 <AFrameIcon className="text-white" size="md" />
@@ -86,15 +114,15 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Quick Links */}
+          {/* About Section */}
           <div className="space-y-6">
-            <h3 className="text-lg font-semibold text-white">Quick Links</h3>
+            <h3 className="text-lg font-semibold text-white">About Us</h3>
             <ul className="space-y-3">
-              {navigation.main.map((item) => (
+              {navigation.about.map((item) => (
                 <li key={item.name}>
                   <Link
                     href={item.href}
-                    className="text-secondary-300 hover:text-primary-400 transition-colors duration-200"
+                    className="text-secondary-300 hover:text-primary-400 transition-colors duration-200 text-sm"
                   >
                     {item.name}
                   </Link>
@@ -103,36 +131,109 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Contact Information */}
+          {/* Events Section */}
           <div className="space-y-6">
-            <h3 className="text-lg font-semibold text-white">Contact Us</h3>
+            <h3 className="text-lg font-semibold text-white">Events</h3>
+            <ul className="space-y-3">
+              {navigation.events.map((item) => (
+                <li key={item.name}>
+                  <Link
+                    href={item.href}
+                    className="text-secondary-300 hover:text-primary-400 transition-colors duration-200 text-sm"
+                  >
+                    {item.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Contact Section */}
+          <div className="space-y-6">
+            <h3 className="text-lg font-semibold text-white">Contact</h3>
+            <ul className="space-y-3">
+              {navigation.contact.map((item) => (
+                <li key={item.name}>
+                  <Link
+                    href={item.href}
+                    className="text-secondary-300 hover:text-primary-400 transition-colors duration-200 text-sm"
+                  >
+                    {item.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+
+        {/* Additional Navigation Row */}
+        <div className="mt-16 pt-8 border-t border-secondary-800">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {/* Gallery Section */}
             <div className="space-y-4">
-              <div className="flex items-start space-x-3">
-                <MapPinIcon className="h-6 w-6 text-primary-400 mt-0.5 flex-shrink-0" />
-                <div>
-                  <p className="text-secondary-300">
-                    123 Retreat Lane<br />
-                    Mountain View, CA 94041
-                  </p>
+              <h3 className="text-lg font-semibold text-white">Gallery</h3>
+              <ul className="space-y-2">
+                {navigation.gallery.map((item) => (
+                  <li key={item.name}>
+                    <Link
+                      href={item.href}
+                      className="text-secondary-300 hover:text-primary-400 transition-colors duration-200 text-sm"
+                    >
+                      {item.name}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Quick Links */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold text-white">Quick Links</h3>
+              <ul className="space-y-2">
+                {navigation.main.map((item) => (
+                  <li key={item.name}>
+                    <Link
+                      href={item.href}
+                      className="text-secondary-300 hover:text-primary-400 transition-colors duration-200 text-sm"
+                    >
+                      {item.name}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Contact Information */}
+            <div className="space-y-4 lg:col-span-2">
+              <h3 className="text-lg font-semibold text-white">Get In Touch</h3>
+              <div className="space-y-3">
+                <div className="flex items-start space-x-3">
+                  <MapPinIcon className="h-5 w-5 text-primary-400 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <p className="text-secondary-300 text-sm">
+                      123 Retreat Lane<br />
+                      Mountain View, CA 94041
+                    </p>
+                  </div>
                 </div>
-              </div>
-              <div className="flex items-center space-x-3">
-                <PhoneIcon className="h-6 w-6 text-primary-400 flex-shrink-0" />
-                <a
-                  href="tel:+1-555-123-4567"
-                  className="text-secondary-300 hover:text-primary-400 transition-colors duration-200"
-                >
-                  (555) 123-4567
-                </a>
-              </div>
-              <div className="flex items-center space-x-3">
-                <EnvelopeIcon className="h-6 w-6 text-primary-400 flex-shrink-0" />
-                <a
-                  href="mailto:info@clearviewretreat.org"
-                  className="text-secondary-300 hover:text-primary-400 transition-colors duration-200"
-                >
-                  info@clearviewretreat.org
-                </a>
+                <div className="flex items-center space-x-3">
+                  <PhoneIcon className="h-5 w-5 text-primary-400 flex-shrink-0" />
+                  <a
+                    href="tel:+1-555-123-4567"
+                    className="text-secondary-300 hover:text-primary-400 transition-colors duration-200 text-sm"
+                  >
+                    (555) 123-4567
+                  </a>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <EnvelopeIcon className="h-5 w-5 text-primary-400 flex-shrink-0" />
+                  <a
+                    href="mailto:info@clearviewretreat.org"
+                    className="text-secondary-300 hover:text-primary-400 transition-colors duration-200 text-sm"
+                  >
+                    info@clearviewretreat.org
+                  </a>
+                </div>
               </div>
             </div>
           </div>

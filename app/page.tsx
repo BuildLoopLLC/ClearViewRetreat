@@ -11,8 +11,8 @@ export default function Home() {
     <>
       <Hero />
       <Features />
-      <About />
-      <Events />
+      <About showCTA={true} />
+      <Events showCTA={true} />
       <Gallery />
       <Testimonials />
       <Contact />

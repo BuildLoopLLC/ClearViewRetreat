@@ -58,6 +58,10 @@
     @apply text-primary-700;
     text-decoration-thickness: 3px;
   }
+
+  button:hover{
+    color: #fff;
+  }
   
   /* Focus states for keyboard navigation */
   a:focus,
@@ -107,6 +111,7 @@
   
   .btn-primary:hover {
     background-color: #0369a1; /* primary-700 */
+    color: #ffffff; /* Ensure text remains white on hover */
   }
   
   .btn-outline {

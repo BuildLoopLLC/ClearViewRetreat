@@ -2,60 +2,23 @@
 
 import { motion } from 'framer-motion'
 import { StarIcon, ChatBubbleLeftRightIcon } from '@heroicons/react/24/solid'
+import { useWebsiteContent } from '@/hooks/useWebsiteContent'
 
-// Mock testimonials data - in real app this would come from the database
-const testimonials = [
-  {
-    id: 1,
-    name: 'Sarah Johnson',
-    role: 'Youth Group Leader',
-    content: 'ClearView Retreat provided the perfect setting for our youth group to grow spiritually and build deeper relationships. The natural beauty and peaceful atmosphere created an environment where God\'s presence was truly felt.',
-    rating: 5,
-    image: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80',
-  },
-  {
-    id: 2,
-    name: 'Michael Chen',
-    role: 'Retreat Participant',
-    content: 'I came to ClearView feeling spiritually drained and left completely renewed. The combination of outdoor activities, meaningful worship, and authentic community helped me reconnect with God in a profound way.',
-    rating: 5,
-    image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80',
-  },
-  {
-    id: 3,
-    name: 'Emily Rodriguez',
-    role: 'Family Camp Attendee',
-    content: 'Our family has been coming to ClearView for three years now, and it\'s become our favorite tradition. The kids love the outdoor activities, and we appreciate the spiritual focus that makes it more than just a vacation.',
-    rating: 5,
-    image: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80',
-  },
-  {
-    id: 4,
-    name: 'David Thompson',
-    role: 'Church Elder',
-    content: 'As a church leader, I\'ve organized many retreats, but ClearView stands out for their attention to detail and genuine care for guests. They truly understand how to create an environment conducive to spiritual growth.',
-    rating: 5,
-    image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80',
-  },
-  {
-    id: 5,
-    name: 'Lisa Wang',
-    role: 'Solo Retreat Guest',
-    content: 'I was nervous about attending a retreat alone, but the staff and other guests made me feel so welcome. The solitude I found in nature combined with the warm community was exactly what my soul needed.',
-    rating: 5,
-    image: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80',
-  },
-  {
-    id: 6,
-    name: 'Robert Martinez',
-    role: 'Men\'s Group Leader',
-    content: 'The wilderness challenge retreat was exactly what our men\'s group needed. It pushed us physically while deepening our spiritual bonds. The staff went above and beyond to make it a meaningful experience.',
-    rating: 5,
-    image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80',
-  },
-]
+// Testimonials are now loaded dynamically from the database
 
 export default function Testimonials() {
+  const { getContentValue, getMetadata, loading } = useWebsiteContent('testimonials')
+
+  if (loading) {
+    return (
+      <section className="section-padding bg-gradient-to-b from-white to-secondary-50">
+        <div className="max-w-7xl mx-auto container-padding text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
+        </div>
+      </section>
+    )
+  }
+
   return (
     <section className="section-padding bg-gradient-to-b from-white to-secondary-50">
       <div className="max-w-7xl mx-auto container-padding">
@@ -67,61 +30,77 @@ export default function Testimonials() {
             transition={{ duration: 0.6 }}
           >
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-display font-bold text-secondary-900 mb-6">
-              What Our{' '}
-              <span className="text-primary-600">Guests Say</span>
+              {getContentValue('title')}
             </h2>
             <p className="text-xl text-secondary-600 max-w-3xl mx-auto leading-relaxed">
-              Don't just take our word for it. Hear from the many guests who have experienced 
-              transformation and renewal at ClearView Retreat.
+              {getContentValue('subtitle')}
             </p>
           </motion.div>
         </div>
 
         {/* Testimonials Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {testimonials.map((testimonial, index) => (
-            <motion.div
-              key={testimonial.id}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: index * 0.1 }}
-              className="group"
-            >
-              <div className="card h-full p-8 hover:shadow-2xl transition-all duration-300 group-hover:-translate-y-2">
-                {/* Quote Icon */}
-                <div className="mb-6">
-                  <ChatBubbleLeftRightIcon className="h-8 w-8 text-primary-200" />
-                </div>
-
-                {/* Rating */}
-                <div className="flex items-center mb-4">
-                  {[...Array(testimonial.rating)].map((_, i) => (
-                    <StarIcon key={i} className="h-5 w-5 text-yellow-400" />
-                  ))}
-                </div>
-
-                {/* Content */}
-                <p className="text-secondary-700 leading-relaxed mb-6 text-lg">
-                  "{testimonial.content}"
-                </p>
-
-                {/* Author */}
-                <div className="flex items-center space-x-4">
-                  <div className="w-12 h-12 rounded-full overflow-hidden">
-                    <div 
-                      className="w-full h-full bg-cover bg-center bg-no-repeat"
-                      style={{ backgroundImage: `url('${testimonial.image}')` }}
-                    />
+          {(() => {
+            // Dynamically generate testimonials from database content
+            const dynamicTestimonials = []
+            for (let i = 1; i <= 3; i++) {
+              const content = getContentValue(`testimonial-${i}`)
+              const metadata = getMetadata(`testimonial-${i}`)
+              
+              if (content && metadata) {
+                dynamicTestimonials.push({
+                  id: i,
+                  content,
+                  author: metadata.author || 'Guest',
+                  role: metadata.role || 'Retreat Participant',
+                  rating: 5
+                })
+              }
+            }
+            
+            return dynamicTestimonials.map((testimonial, index) => (
+              <motion.div
+                key={testimonial.id}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: index * 0.1 }}
+                className="group"
+              >
+                <div className="card h-full p-8 hover:shadow-2xl transition-all duration-300 group-hover:-translate-y-2">
+                  {/* Quote Icon */}
+                  <div className="mb-6">
+                    <ChatBubbleLeftRightIcon className="h-8 w-8 text-primary-200" />
                   </div>
-                  <div>
-                    <h4 className="font-semibold text-secondary-900">{testimonial.name}</h4>
-                    <p className="text-sm text-secondary-600">{testimonial.role}</p>
+
+                  {/* Rating */}
+                  <div className="flex items-center mb-4">
+                    {[...Array(testimonial.rating)].map((_, i) => (
+                      <StarIcon key={i} className="h-5 w-5 text-yellow-400" />
+                    ))}
+                  </div>
+
+                  {/* Content */}
+                  <p className="text-secondary-700 leading-relaxed mb-6 text-lg">
+                    "{testimonial.content}"
+                  </p>
+
+                  {/* Author */}
+                  <div className="flex items-center space-x-4">
+                    <div className="w-12 h-12 rounded-full overflow-hidden bg-secondary-200 flex items-center justify-center">
+                      <span className="text-2xl text-secondary-600 font-bold">
+                        {testimonial.author.charAt(0)}
+                      </span>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-secondary-900">{testimonial.author}</h4>
+                      <p className="text-sm text-secondary-600">{testimonial.role}</p>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </motion.div>
-          ))}
+              </motion.div>
+            ))
+          })()}
         </div>
 
         {/* Stats Section */}

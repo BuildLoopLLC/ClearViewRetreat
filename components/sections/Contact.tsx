@@ -9,8 +9,10 @@ import {
   ClockIcon,
   CheckCircleIcon 
 } from '@heroicons/react/24/outline'
+import { useWebsiteContent } from '@/hooks/useWebsiteContent'
 
 export default function Contact() {
+  const { getContentValue, loading } = useWebsiteContent('contact')
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -45,6 +47,16 @@ export default function Contact() {
     }))
   }
 
+  if (loading) {
+    return (
+      <section className="section-padding bg-white">
+        <div className="max-w-7xl mx-auto container-padding text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
+        </div>
+      </section>
+    )
+  }
+
   return (
     <section className="section-padding bg-white">
       <div className="max-w-7xl mx-auto container-padding">
@@ -56,12 +68,10 @@ export default function Contact() {
             transition={{ duration: 0.6 }}
           >
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-display font-bold text-secondary-900 mb-6">
-              Get in{' '}
-              <span className="text-primary-600">Touch</span>
+              {getContentValue('title')}
             </h2>
             <p className="text-xl text-secondary-600 max-w-3xl mx-auto leading-relaxed">
-              Have questions about our retreats? Want to plan a custom event? 
-              We'd love to hear from you and help you plan your perfect retreat experience.
+              {getContentValue('subtitle')}
             </p>
           </motion.div>
         </div>
@@ -216,8 +226,7 @@ export default function Contact() {
                 <div>
                   <h4 className="font-semibold text-secondary-900 mb-1">Address</h4>
                   <p className="text-secondary-600">
-                    123 Retreat Lane<br />
-                    Mountain View, CA 94041
+                    {getContentValue('address')}
                   </p>
                 </div>
               </div>
@@ -229,10 +238,10 @@ export default function Contact() {
                 <div>
                   <h4 className="font-semibold text-secondary-900 mb-1">Phone</h4>
                   <a
-                    href="tel:+1-555-123-4567"
+                    href={`tel:${getContentValue('phone')}`}
                     className="text-secondary-600 hover:text-primary-600 transition-colors duration-200"
                   >
-                    (555) 123-4567
+                    {getContentValue('phone')}
                   </a>
                 </div>
               </div>
@@ -244,10 +253,10 @@ export default function Contact() {
                 <div>
                   <h4 className="font-semibold text-secondary-900 mb-1">Email</h4>
                   <a
-                    href="mailto:info@clearviewretreat.org"
+                    href={`mailto:${getContentValue('email')}`}
                     className="text-secondary-600 hover:text-primary-600 transition-colors duration-200"
                   >
-                    info@clearviewretreat.org
+                    {getContentValue('email')}
                   </a>
                 </div>
               </div>
@@ -259,9 +268,7 @@ export default function Contact() {
                 <div>
                   <h4 className="font-semibold text-secondary-900 mb-1">Office Hours</h4>
                   <p className="text-secondary-600">
-                    Monday - Friday: 9:00 AM - 5:00 PM<br />
-                    Saturday: 10:00 AM - 2:00 PM<br />
-                    Sunday: Closed
+                    {getContentValue('hours')}
                   </p>
                 </div>
               </div>

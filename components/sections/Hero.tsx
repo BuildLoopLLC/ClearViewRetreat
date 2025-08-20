@@ -4,12 +4,22 @@ import { motion } from 'framer-motion'
 import { ArrowRightIcon, PlayIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import { useState } from 'react'
 import AFrameIcon from '@/components/ui/AFrameIcon'
+import { useWebsiteContent } from '@/hooks/useWebsiteContent'
 
 export default function Hero() {
   const [isVideoModalOpen, setIsVideoModalOpen] = useState(false)
+  const { getContentValue, getMetadata, loading } = useWebsiteContent('hero')
 
   const openVideoModal = () => setIsVideoModalOpen(true)
   const closeVideoModal = () => setIsVideoModalOpen(false)
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+      </div>
+    )
+  }
 
   return (
     <>
@@ -40,8 +50,8 @@ export default function Hero() {
             className="mb-6"
           >
             <span className="inline-flex items-center px-4 py-2 rounded-full text-sm font-medium bg-white/20 backdrop-blur-sm text-white border border-white/30">
-            ✨
-              A Place of Peace & Renewal
+              <AFrameIcon size="sm" className="mr-2" />
+              {getContentValue('tagline')}
             </span>
           </motion.div>
 
@@ -53,10 +63,8 @@ export default function Hero() {
             transition={{ duration: 0.8, delay: 0.3 }}
             className="text-4xl sm:text-5xl lg:text-7xl font-display font-bold leading-tight text-balance text-white"
           >
-            Discover{' '}
-            <span className="text-primary-300">ClearView</span><br/> Retreat
+            {getContentValue('headline')}
           </motion.h1>
-            <br/>
 
           {/* Description */}
           <motion.p
@@ -65,7 +73,7 @@ export default function Hero() {
             transition={{ duration: 0.8, delay: 0.4 }}
             className="text-xl md:text-2xl text-white/95 max-w-4xl mx-auto mb-12 leading-relaxed"
           >
-            Experience spiritual renewal in the heart of nature. Connect with God, community, and creation through our transformative retreats and outdoor activities.
+            {getContentValue('description')}
           </motion.p>
 
           {/* CTA Buttons */}
@@ -80,7 +88,7 @@ export default function Hero() {
               aria-label="Explore upcoming events and retreats"
               onClick={() => window.location.href = '/events'}
             >
-              <span>Explore Events</span>
+              <span>{getContentValue('cta-primary')}</span>
               <ArrowRightIcon className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform duration-200" aria-hidden="true" />
             </button>
             
@@ -90,7 +98,7 @@ export default function Hero() {
               aria-label="Watch our retreat center video"
             >
               <PlayIcon className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform duration-200" aria-hidden="true" />
-              <span>Watch Video</span>
+              <span>{getContentValue('cta-secondary')}</span>
             </button>
           </motion.div>
 
@@ -153,7 +161,7 @@ export default function Hero() {
             {/* Video Content */}
             <div className="relative aspect-video bg-black">
               <iframe
-                src="https://www.youtube.com/embed/NhQS3WRAnPE?autoplay=1"
+                src={`https://www.youtube.com/embed/${getMetadata('cta-secondary')?.videoUrl?.split('/').pop()}?autoplay=1`}
                 title="ClearView Retreat Video"
                 className="w-full h-full"
                 frameBorder="0"

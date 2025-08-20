@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion'
 import { useState, useEffect } from 'react'
 import { XMarkIcon } from '@heroicons/react/24/outline'
+import { useWebsiteContent } from '@/hooks/useWebsiteContent'
 
 // Mock gallery data - in real app this would come from the database
 const galleryImages = [
@@ -71,6 +72,7 @@ interface GalleryProps {
 }
 
 export default function Gallery({ showViewFullGallery = true }: GalleryProps) {
+  const { getContentValue, loading } = useWebsiteContent('gallery')
   const [selectedCategory, setSelectedCategory] = useState('All')
   const [selectedImage, setSelectedImage] = useState<typeof galleryImages[0] | null>(null)
 
@@ -97,6 +99,16 @@ export default function Gallery({ showViewFullGallery = true }: GalleryProps) {
 
 
 
+  if (loading) {
+    return (
+      <section className="section-padding bg-white">
+        <div className="max-w-7xl mx-auto container-padding text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
+        </div>
+      </section>
+    )
+  }
+
   return (
     <section className="section-padding bg-white">
       <div className="max-w-7xl mx-auto container-padding">
@@ -108,12 +120,10 @@ export default function Gallery({ showViewFullGallery = true }: GalleryProps) {
             transition={{ duration: 0.6 }}
           >
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-display font-bold text-secondary-900 mb-6">
-              Photo{' '}
-              <span className="text-primary-600">Gallery</span>
+              {getContentValue('title')}
             </h2>
             <p className="text-xl text-secondary-600 max-w-3xl mx-auto leading-relaxed">
-              Take a visual journey through ClearView Retreat and see the beauty, 
-              community, and spiritual atmosphere that awaits you.
+              {getContentValue('subtitle')}
             </p>
           </motion.div>
         </div>
@@ -209,7 +219,7 @@ export default function Gallery({ showViewFullGallery = true }: GalleryProps) {
                   href="/gallery"
                   className="btn bg-white text-secondary-700 hover:bg-secondary-50 text-lg px-8 py-4"
                 >
-                  View Full Gallery
+                  {getContentValue('cta')}
                 </a>
               )}
               <a

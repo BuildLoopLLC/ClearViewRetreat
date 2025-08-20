@@ -1,6 +1,9 @@
+'use client'
+
 import Link from 'next/link'
 import { MapPinIcon, PhoneIcon, EnvelopeIcon } from '@heroicons/react/24/outline'
 import AFrameIcon from '@/components/ui/AFrameIcon'
+import { useWebsiteContent } from '@/hooks/useWebsiteContent'
 
 const navigation = {
   main: [
@@ -84,6 +87,8 @@ const navigation = {
 }
 
 export default function Footer() {
+  const { getContentValue } = useWebsiteContent('footer')
+  
   return (
     <footer className="bg-secondary-900">
       <div className="mx-auto max-w-7xl overflow-hidden px-6 py-20 sm:py-24 lg:px-8">
@@ -97,8 +102,7 @@ export default function Footer() {
               <span className="text-3xl font-display font-bold text-white">ClearView</span>
             </div>
             <p className="text-secondary-300 text-lg leading-relaxed">
-              A place of peace and renewal where you can connect with God, nature, and community. 
-              Experience spiritual growth in the heart of creation.
+              {getContentValue('description')}
             </p>
             <div className="flex space-x-6">
               {navigation.social.map((item) => (
@@ -116,7 +120,7 @@ export default function Footer() {
 
           {/* About Section */}
           <div className="space-y-6">
-            <h3 className="text-lg font-semibold text-white">About Us</h3>
+            <h3 className="text-lg font-semibold text-white">{getContentValue('quick-links-title')}</h3>
             <ul className="space-y-3">
               {navigation.about.map((item) => (
                 <li key={item.name}>
@@ -150,7 +154,7 @@ export default function Footer() {
 
           {/* Contact Section */}
           <div className="space-y-6">
-            <h3 className="text-lg font-semibold text-white">Contact</h3>
+            <h3 className="text-lg font-semibold text-white">{getContentValue('contact-info-title')}</h3>
             <ul className="space-y-3">
               {navigation.contact.map((item) => (
                 <li key={item.name}>
@@ -243,7 +247,7 @@ export default function Footer() {
         <div className="mt-16 border-t border-secondary-800 pt-8">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <p className="text-secondary-400 text-sm">
-              © {new Date().getFullYear()} ClearView Retreat. All rights reserved.
+              {getContentValue('copyright')}
             </p>
             <p className="text-secondary-400 text-sm">
               Made with ❤️ for spiritual renewal and community building

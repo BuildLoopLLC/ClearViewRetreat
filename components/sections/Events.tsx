@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 import { CalendarIcon, MapPinIcon, UsersIcon, ArrowRightIcon } from '@heroicons/react/24/outline'
+import { useWebsiteContent } from '@/hooks/useWebsiteContent'
 
 // Mock data - in real app this would come from the database
 const upcomingEvents = [
@@ -43,6 +44,18 @@ interface EventsProps {
 }
 
 export default function Events({ showCTA = true }: EventsProps) {
+  const { getContentValue, loading } = useWebsiteContent('events')
+
+  if (loading) {
+    return (
+      <section className="section-padding bg-gradient-to-b from-secondary-50 to-white">
+        <div className="max-w-7xl mx-auto container-padding text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
+        </div>
+      </section>
+    )
+  }
+
   return (
     <section className="section-padding bg-gradient-to-b from-secondary-50 to-white">
       <div className="max-w-7xl mx-auto container-padding">
@@ -54,12 +67,10 @@ export default function Events({ showCTA = true }: EventsProps) {
             transition={{ duration: 0.6 }}
           >
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-display font-bold text-secondary-900 mb-6">
-              Upcoming{' '}
-              <span className="text-primary-600">Events</span>
+              {getContentValue('title')}
             </h2>
             <p className="text-xl text-secondary-600 max-w-3xl mx-auto leading-relaxed">
-              Join us for transformative experiences that will renew your spirit, 
-              strengthen your faith, and connect you with like-minded believers.
+              {getContentValue('subtitle')}
             </p>
           </motion.div>
         </div>
@@ -217,7 +228,7 @@ export default function Events({ showCTA = true }: EventsProps) {
                   href="/events"
                   className="btn bg-white text-primary-600 hover:bg-primary-50 text-lg px-8 py-4"
                 >
-                  View All Events
+                  {getContentValue('cta')}
                 </Link>
                 <Link
                   href="/contact"

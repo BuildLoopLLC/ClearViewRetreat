@@ -3,7 +3,9 @@ import { Inter } from 'next/font/google'
 import './globals.css'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
-import { Providers } from '@/components/providers/Providers'
+import { AuthProvider } from '@/contexts/AuthContext'
+import CacheWarmer from '@/components/providers/CacheWarmer'
+
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -51,7 +53,8 @@ export default function RootLayout({
   return (
     <html lang="en" className="scroll-smooth">
       <body className={inter.className}>
-        <Providers>
+        <AuthProvider>
+          <CacheWarmer />
           {/* Skip link for accessibility */}
           <a href="#main-content" className="skip-link">
             Skip to main content
@@ -64,7 +67,7 @@ export default function RootLayout({
             </main>
             <Footer />
           </div>
-        </Providers>
+        </AuthProvider>
       </body>
     </html>
   )

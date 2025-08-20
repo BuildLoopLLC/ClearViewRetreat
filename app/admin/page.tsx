@@ -1,6 +1,6 @@
 'use client'
 
-import { useSession } from 'next-auth/react'
+import { useAuthContext } from '@/contexts/AuthContext'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 import { 
@@ -31,18 +31,23 @@ const quickActions = [
 ]
 
 export default function AdminDashboard() {
-  const { data: session, status } = useSession()
+  const { user, loading, isAuthenticated, logout } = useAuthContext()
   const router = useRouter()
 
   useEffect(() => {
-    if (status === 'loading') return
+    if (loading) return
     
-    if (!session || (session.user?.role !== 'ADMIN' && session.user?.role !== 'SUPER_ADMIN')) {
-      router.push('/auth/signin')
+    if (!isAuthenticated) {
+      router.push('/admin/login')
     }
-  }, [session, status, router])
+  }, [isAuthenticated, loading, router])
 
-  if (status === 'loading') {
+  const handleLogout = async () => {
+    await logout()
+    router.push('/admin/login')
+  }
+
+  if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
@@ -53,7 +58,7 @@ export default function AdminDashboard() {
     )
   }
 
-  if (!session || (session.user?.role !== 'ADMIN' && session.user?.role !== 'SUPER_ADMIN')) {
+  if (!isAuthenticated) {
     return null
   }
 
@@ -65,18 +70,24 @@ export default function AdminDashboard() {
           <div className="flex justify-between items-center py-6">
             <div>
               <h1 className="text-2xl font-bold text-secondary-900">Admin Dashboard</h1>
-              <p className="text-secondary-600">Welcome back, {session.user?.name}</p>
+              <p className="text-secondary-600">Welcome back, {user?.email}</p>
             </div>
             <div className="flex items-center space-x-4">
               <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-primary-100 text-primary-800">
-                {session.user?.role}
+                Admin
               </span>
               <Link
                 href="/"
-                className="btn-outline"
+                className="btn"
               >
                 View Site
               </Link>
+              <button
+                onClick={handleLogout}
+                className="btn text-red-600 hover:text-red-700 hover:border-red-300"
+              >
+                Logout
+              </button>
             </div>
           </div>
         </div>

@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion'
 import { CheckCircleIcon } from '@heroicons/react/24/outline'
+import { useWebsiteContent } from '@/hooks/useWebsiteContent'
 
 const stats = [
   { number: '25+', label: 'Years of Ministry' },
@@ -15,6 +16,18 @@ interface AboutProps {
 }
 
 export default function About({ showCTA = true }: AboutProps) {
+  const { getContentValue, loading } = useWebsiteContent('about')
+
+  if (loading) {
+    return (
+      <section className="section-padding bg-white">
+        <div className="max-w-7xl mx-auto container-padding text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
+        </div>
+      </section>
+    )
+  }
+
   return (
     <section className="section-padding bg-white">
       <div className="max-w-7xl mx-auto container-padding">
@@ -30,60 +43,39 @@ export default function About({ showCTA = true }: AboutProps) {
             {/* Mission */}
             <div>
               <h2 className="text-3xl md:text-4xl lg:text-5xl font-display font-bold text-secondary-900 mb-6">
-                Our{' '}
-                <span className="text-primary-600">Mission</span>
+                {getContentValue('title')}
               </h2>
               <p className="text-lg text-secondary-600 leading-relaxed mb-6">
-                Intentional Intimacy International, a nonprofit organization, uses biblical teaching to draw people to Christ and promotes intentional intimacy within and among families through seminars, workshops, and retreats.
+                {getContentValue('mission')}
               </p>
             </div>
 
-            {/* Vision */}
+            {/* Values */}
             <div>
               <h3 className="text-2xl font-display font-semibold text-secondary-900 mb-4">
-                Our Vision
+                {getContentValue('values-title')}
               </h3>
-              <p className="text-lg text-secondary-600 leading-relaxed mb-6">
-                To build intimacy and accountability in groups of families by providing skills and encouragement in order to revolutionize the way families and communities relate to one another.
-              </p>
-            </div>
-
-            {/* Passion */}
-            <div>
-              <h3 className="text-2xl font-display font-semibold text-secondary-900 mb-4">
-                Our Passion
-              </h3>
-              <p className="text-lg text-secondary-600 leading-relaxed mb-6">
-                Intentional intimacy — living life with passion.
-              </p>
-            </div>
-
-            {/* Commission */}
-            <div>
-              <h3 className="text-2xl font-display font-semibold text-secondary-900 mb-4">
-                Our Commission
-              </h3>
-              <p className="text-lg text-secondary-600 leading-relaxed mb-4">
-                We are called by God…
-              </p>
-              <div className="space-y-3 mb-6">
+              <div className="space-y-4">
                 <div className="flex items-start space-x-3">
                   <CheckCircleIcon className="h-5 w-5 text-primary-600 mt-1 flex-shrink-0" />
-                  <span className="text-secondary-700">
-                    …to demonstrate the love and hope of Christ through "one another" living
-                  </span>
+                  <div>
+                    <h4 className="font-semibold text-secondary-900">{getContentValue('value-1-title')}</h4>
+                    <p className="text-secondary-700">{getContentValue('value-1-description')}</p>
+                  </div>
                 </div>
                 <div className="flex items-start space-x-3">
                   <CheckCircleIcon className="h-5 w-5 text-primary-600 mt-1 flex-shrink-0" />
-                  <span className="text-secondary-700">
-                    …to minister to others who are hurting and struggling to understand what God meant when He spoke of "living life abundantly"
-                  </span>
+                  <div>
+                    <h4 className="font-semibold text-secondary-900">{getContentValue('value-2-title')}</h4>
+                    <p className="text-secondary-700">{getContentValue('value-2-description')}</p>
+                  </div>
                 </div>
                 <div className="flex items-start space-x-3">
                   <CheckCircleIcon className="h-5 w-5 text-primary-600 mt-1 flex-shrink-0" />
-                  <span className="text-secondary-700">
-                    …to encourage believers to trust God with their relationships and interactions
-                  </span>
+                  <div>
+                    <h4 className="font-semibold text-secondary-900">{getContentValue('value-3-title')}</h4>
+                    <p className="text-secondary-700">{getContentValue('value-3-description')}</p>
+                  </div>
                 </div>
               </div>
             </div>

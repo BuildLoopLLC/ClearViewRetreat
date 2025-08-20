@@ -117,7 +117,7 @@ export default function Features() {
                 {/* Learn More Link */}
                 <div className="mt-auto">
                   <a
-                    href="#"
+                    href="/about"
                     className={`inline-flex items-center text-sm font-semibold ${feature.color} hover:${feature.color.replace('600', '700')} transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-600 rounded-md`}
                     aria-label={`Learn more about ${feature.name}`}
                   >

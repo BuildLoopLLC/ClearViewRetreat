@@ -1,7 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { XMarkIcon } from '@heroicons/react/24/outline'
 
 // Mock gallery data - in real app this would come from the database
@@ -66,13 +66,36 @@ const galleryImages = [
 
 const categories = ['All', 'Nature', 'Facilities', 'Community']
 
-export default function Gallery() {
+interface GalleryProps {
+  showViewFullGallery?: boolean
+}
+
+export default function Gallery({ showViewFullGallery = true }: GalleryProps) {
   const [selectedCategory, setSelectedCategory] = useState('All')
   const [selectedImage, setSelectedImage] = useState<typeof galleryImages[0] | null>(null)
+
+  // Handle escape key to close modal
+  useEffect(() => {
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && selectedImage) {
+        setSelectedImage(null)
+      }
+    }
+
+    if (selectedImage) {
+      document.addEventListener('keydown', handleEscape)
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleEscape)
+    }
+  }, [selectedImage])
 
   const filteredImages = selectedCategory === 'All' 
     ? galleryImages 
     : galleryImages.filter(image => image.category === selectedCategory)
+
+
 
   return (
     <section className="section-padding bg-white">
@@ -101,49 +124,67 @@ export default function Gallery() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="flex flex-wrap justify-center gap-4 mb-12"
+          className="flex flex-col items-center gap-4 mb-16 relative z-10"
         >
-          {categories.map((category) => (
-            <button
-              key={category}
-              onClick={() => setSelectedCategory(category)}
-              className={`px-6 py-3 rounded-full font-medium transition-all duration-200 ${
-                selectedCategory === category
-                  ? 'bg-primary-600 text-white shadow-lg'
-                  : 'bg-secondary-100 text-secondary-700 hover:bg-secondary-200'
-              }`}
+          <div className="flex flex-wrap justify-center gap-4">
+            {categories.map((category) => (
+              <button
+                key={category}
+                onClick={() => setSelectedCategory(category)}
+                className={`px-6 py-3 rounded-full font-medium transition-all duration-200 cursor-pointer select-none ${
+                  selectedCategory === category
+                    ? 'bg-primary-600 text-white shadow-lg'
+                    : 'bg-secondary-100 text-secondary-700 hover:bg-secondary-200'
+                }`}
+              >
+                {category}
+              </button>
+            ))}
+          </div>
+          
+          {/* Filter status indicator */}
+          {selectedCategory !== 'All' && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-sm text-secondary-600 bg-secondary-100 px-4 py-2 rounded-full"
             >
-              {category}
-            </button>
-          ))}
+              Showing {filteredImages.length} {filteredImages.length === 1 ? 'image' : 'images'} in {selectedCategory}
+            </motion.div>
+          )}
         </motion.div>
 
+        {/* Visual separator */}
+        <div className="w-full h-px bg-gradient-to-r from-transparent via-secondary-200 to-transparent mb-16"></div>
+
         {/* Gallery Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {filteredImages.map((image, index) => (
-            <motion.div
-              key={image.id}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: index * 0.1 }}
-              className="group cursor-pointer"
-              onClick={() => setSelectedImage(image)}
-            >
-              <div className="aspect-square rounded-xl overflow-hidden shadow-lg group-hover:shadow-2xl transition-all duration-300 group-hover:-translate-y-2">
-                <div 
-                  className="w-full h-full bg-cover bg-center bg-no-repeat group-hover:scale-110 transition-transform duration-500"
-                  style={{ backgroundImage: `url('${image.url}')` }}
-                />
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all duration-300 flex items-end">
-                  <div className="p-4 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <h3 className="font-semibold text-sm mb-1 text-white/80">{image.title}</h3>
-                    <p className="text-xs text-white/80">{image.description}</p>
+        <div className="relative">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {filteredImages.map((image, index) => (
+              <motion.div
+                key={image.id}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: index * 0.1 }}
+                className="group cursor-pointer"
+                onClick={() => setSelectedImage(image)}
+              >
+                <div className="aspect-square rounded-xl overflow-hidden shadow-lg group-hover:shadow-2xl transition-all duration-300 group-hover:-translate-y-2">
+                  <div 
+                    className="w-full h-full bg-cover bg-center bg-no-repeat group-hover:scale-110 transition-transform duration-500"
+                    style={{ backgroundImage: `url('${image.url}')` }}
+                  />
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all duration-300 flex items-end">
+                    <div className="p-4 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <h3 className="font-semibold text-sm mb-1 text-white/80">{image.title}</h3>
+                      <p className="text-xs text-white/80">{image.description}</p>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </motion.div>
-          ))}
+              </motion.div>
+            ))}
+          </div>
         </div>
 
         {/* CTA */}
@@ -162,16 +203,18 @@ export default function Gallery() {
               These photos only capture a glimpse of what ClearView Retreat has to offer. 
               Come visit us and create your own memories in this beautiful place.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <a
-                href="/gallery"
-                className="btn bg-white text-secondary-700 hover:bg-secondary-50 text-lg px-8 py-4"
-              >
-                View Full Gallery
-              </a>
+            <div className={`flex ${showViewFullGallery ? 'flex-col sm:flex-row gap-4 justify-center' : 'justify-center'}`}>
+              {showViewFullGallery && (
+                <a
+                  href="/gallery"
+                  className="btn bg-white text-secondary-700 hover:bg-secondary-50 text-lg px-8 py-4"
+                >
+                  View Full Gallery
+                </a>
+              )}
               <a
                 href="/contact"
-                className="btn-outline border-white/30 text-white hover:bg-white/10 text-lg px-8 py-4"
+                className={`btn ${showViewFullGallery ? 'btn-outline border-white/30 text-white hover:bg-white/10' : 'bg-white text-secondary-700 hover:bg-secondary-50'} text-lg px-8 py-4`}
               >
                 Plan Your Visit
               </a>
@@ -189,23 +232,31 @@ export default function Gallery() {
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90"
           onClick={() => setSelectedImage(null)}
         >
-          <div className="relative max-w-4xl max-h-full">
+          <div className="relative max-w-5xl w-full max-h-[90vh] bg-white rounded-2xl overflow-hidden shadow-2xl">
+            {/* Close button */}
             <button
-              onClick={() => setSelectedImage(null)}
-              className="absolute -top-12 right-0 text-white hover:text-primary-400 transition-colors duration-200"
+              onClick={(e) => {
+                e.stopPropagation()
+                setSelectedImage(null)
+              }}
+              className="absolute top-4 right-4 z-10 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 transition-colors duration-200"
             >
-              <XMarkIcon className="h-8 w-8" />
+              <XMarkIcon className="h-6 w-6" />
             </button>
             
-            <div className="relative">
-              <div 
-                className="w-full h-96 md:h-[600px] bg-cover bg-center bg-no-repeat rounded-lg"
-                style={{ backgroundImage: `url('${selectedImage.url}')` }}
+            {/* Image container */}
+            <div className="relative w-full h-full">
+              <img
+                src={selectedImage.url}
+                alt={selectedImage.title}
+                className="w-full h-full object-contain"
               />
-              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6 rounded-b-lg">
+              
+              {/* Image info overlay */}
+              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent p-6">
                 <h3 className="text-2xl font-bold text-white mb-2">{selectedImage.title}</h3>
-                <p className="text-white/90">{selectedImage.description}</p>
-                <span className="inline-block mt-3 px-3 py-1 bg-primary-600 text-white text-sm rounded-full">
+                <p className="text-white/90 mb-3">{selectedImage.description}</p>
+                <span className="inline-block px-3 py-1 bg-primary-600 text-white text-sm rounded-full font-medium">
                   {selectedImage.category}
                 </span>
               </div>

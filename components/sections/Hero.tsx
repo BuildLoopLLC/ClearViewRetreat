@@ -78,6 +78,7 @@ export default function Hero() {
             <button
               className="group inline-flex items-center justify-center px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 bg-primary-600 text-white hover:bg-primary-700 focus:outline-none focus:ring-4 focus:ring-primary-600 focus:ring-offset-4 focus:ring-offset-secondary-900 shadow-lg hover:shadow-xl transform hover:-translate-y-1 min-h-[56px]"
               aria-label="Explore upcoming events and retreats"
+              onClick={() => window.location.href = '/events'}
             >
               <span>Explore Events</span>
               <ArrowRightIcon className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform duration-200" aria-hidden="true" />

@@ -32,12 +32,7 @@ const gallerySubpages = [
 export default function GalleryPage() {
   return (
     <div className="min-h-screen">
-      <Gallery />
-      <SubpageNavigation
-        title="Explore Our Gallery"
-        subtitle="Visual stories from our ministry and retreat center"
-        subpages={gallerySubpages}
-      />
+      <Gallery showViewFullGallery={false} />
     </div>
   )
 }

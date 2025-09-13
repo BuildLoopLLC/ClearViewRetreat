@@ -5,8 +5,8 @@ import { getFirestore } from 'firebase-admin/firestore'
 // Load environment variables
 config({ path: '.env.local' })
 
-async function cleanupDuplicates() {
-  console.log('🧹 Cleaning up duplicate content in Firestore...')
+async function checkDuplicates() {
+  console.log('🔍 Checking for duplicate content in Firestore...')
   
   try {
     // Check if Firebase Admin is configured
@@ -54,49 +54,27 @@ async function cleanupDuplicates() {
       return
     }
 
-    console.log(`\n❌ Found ${duplicates.length} duplicate groups to clean up:`)
-    
-    let totalDeleted = 0
+    console.log(`\n❌ Found ${duplicates.length} duplicate groups:`)
     
     for (const [key, items] of duplicates) {
-      console.log(`\n📝 Cleaning up ${key}:`)
-      
-      // Sort by creation date (keep the oldest) and order
-      const sortedItems = items.sort((a, b) => {
-        // First sort by order
-        if (a.order !== b.order) {
-          return a.order - b.order
-        }
-        // Then by creation date (keep oldest)
-        return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+      console.log(`\n📝 ${key}:`)
+      items.forEach((item, index) => {
+        console.log(`  ${index + 1}. ID: ${item.id}`)
+        console.log(`     Content: "${item.content}"`)
+        console.log(`     Order: ${item.order}`)
+        console.log(`     Active: ${item.isActive}`)
+        console.log(`     Created: ${item.createdAt}`)
       })
-      
-      // Keep the first item, delete the rest
-      const keepItem = sortedItems[0]
-      const deleteItems = sortedItems.slice(1)
-      
-      console.log(`  ✅ Keeping: ${keepItem.id} (order: ${keepItem.order}, created: ${keepItem.createdAt})`)
-      
-      for (const item of deleteItems) {
-        try {
-          await db.collection('websiteContent').doc(item.id).delete()
-          console.log(`  🗑️  Deleted: ${item.id} (order: ${item.order}, created: ${item.createdAt})`)
-          totalDeleted++
-        } catch (error: any) {
-          console.error(`  ❌ Error deleting ${item.id}:`, error.message)
-        }
-      }
     }
 
-    console.log(`\n🎉 Cleanup complete!`)
-    console.log(`✅ Deleted ${totalDeleted} duplicate items`)
-    console.log(`📊 Remaining content items: ${allContent.length - totalDeleted}`)
+    // Ask if user wants to clean up
+    console.log('\n🧹 To clean up duplicates, run: npm run cleanup-duplicates')
     
   } catch (error: any) {
-    console.error('❌ Error cleaning up duplicates:', error.message)
+    console.error('❌ Error checking duplicates:', error.message)
     process.exit(1)
   }
 }
 
-// Run the cleanup
-cleanupDuplicates()
+// Run the check
+checkDuplicates()

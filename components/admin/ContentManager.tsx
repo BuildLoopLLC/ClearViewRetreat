@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { cacheManager } from '../../hooks/useWebsiteContent'
-import { WebsiteContent } from '../../types/dynamodb'
+import { WebsiteContent } from '../../types/firebase'
 import { useWebsiteContent } from '../../hooks/useWebsiteContent'
 import { PencilIcon, CheckIcon, XMarkIcon } from '@heroicons/react/24/outline'
 
@@ -12,48 +12,88 @@ interface ContentManagerProps {
 }
 
 export default function ContentManager({ section, title }: ContentManagerProps) {
-  const { content, loading, error, getContent } = useWebsiteContent(section)
-  const [editingId, setEditingId] = useState<string | null>(null)
-  const [editForm, setEditForm] = useState<Partial<WebsiteContent>>({})
+  const { content, loading, error, refreshContent } = useWebsiteContent(section)
+  const [editingItems, setEditingItems] = useState<Set<string>>(new Set())
+  const [editForms, setEditForms] = useState<Record<string, Partial<WebsiteContent>>>({})
+  const [hasChanges, setHasChanges] = useState(false)
 
   const handleEdit = (item: WebsiteContent) => {
-    setEditingId(item.id)
-    setEditForm({
-      content: item.content,
-      isActive: item.isActive,
-      order: item.order
-    })
+    setEditingItems(prev => new Set(prev).add(item.id))
+    setEditForms(prev => ({
+      ...prev,
+      [item.id]: {
+        content: item.content
+      }
+    }))
+    setHasChanges(true)
   }
 
-  const handleSave = async (id: string) => {
-    try {
-      const response = await fetch(`/api/website-content?id=${encodeURIComponent(id)}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(editForm),
-      })
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
+  const handleFieldChange = (id: string, field: string, value: any) => {
+    setEditForms(prev => ({
+      ...prev,
+      [id]: {
+        ...prev[id],
+        [field]: value
       }
+    }))
+    setHasChanges(true)
+  }
+
+  const handleSaveAll = async () => {
+    try {
+      const savePromises = Object.entries(editForms).map(async ([id, formData]) => {
+        const response = await fetch(`/api/website-content?id=${id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(formData),
+        })
+
+        if (!response.ok) {
+          throw new Error(`Failed to update content for ${id}`)
+        }
+      })
+
+      await Promise.all(savePromises)
       
       // Clear cache for this section
       cacheManager.clearSection(section)
       
-      setEditingId(null)
-      setEditForm({})
-      // Refresh content using the hook's refresh function instead of page reload
-      window.location.reload()
+      // Reset state
+      setEditingItems(new Set())
+      setEditForms({})
+      setHasChanges(false)
+      
+      // Manually fetch updated content
+      setTimeout(async () => {
+        try {
+          console.log('🔄 Manually fetching updated content...')
+          const response = await fetch(`/api/website-content?section=${encodeURIComponent(section)}`)
+          if (response.ok) {
+            const updatedContent = await response.json()
+            console.log('✅ Updated content fetched:', updatedContent)
+            // Force a page reload to show the changes
+            window.location.reload()
+          } else {
+            console.error('Failed to fetch updated content')
+            window.location.reload()
+          }
+        } catch (error) {
+          console.error('Error fetching updated content:', error)
+          window.location.reload()
+        }
+      }, 1000)
     } catch (error) {
       console.error('Failed to update content:', error)
+      alert('Failed to update content. Please try again.')
     }
   }
 
-  const handleCancel = () => {
-    setEditingId(null)
-    setEditForm({})
+  const handleCancelAll = () => {
+    setEditingItems(new Set())
+    setEditForms({})
+    setHasChanges(false)
   }
 
   if (loading) {
@@ -91,44 +131,16 @@ export default function ContentManager({ section, title }: ContentManagerProps) 
                   <span className="text-sm font-medium text-secondary-700">
                     {item.subsection || 'Main'}
                   </span>
-                  <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                    item.isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
-                  }`}>
-                    {item.isActive ? 'Active' : 'Inactive'}
-                  </span>
-                  <span className="text-xs text-secondary-500">Order: {item.order}</span>
                 </div>
                 
-                {editingId === item.id ? (
+                {editingItems.has(item.id) ? (
                   <div className="space-y-3">
                     <textarea
-                      value={editForm.content || ''}
-                      onChange={(e) => setEditForm(prev => ({ ...prev, content: e.target.value }))}
+                      value={editForms[item.id]?.content || ''}
+                      onChange={(e) => handleFieldChange(item.id, 'content', e.target.value)}
                       className="textarea w-full"
                       rows={3}
                     />
-                    <div className="flex items-center space-x-2">
-                      <input
-                        type="number"
-                        value={editForm.order || item.order}
-                        onChange={(e) => setEditForm(prev => ({ ...prev, order: parseInt(e.target.value) }))}
-                        className="input w-20"
-                        min="1"
-                      />
-                      <label className="text-sm text-secondary-600">Order</label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <input
-                        type="checkbox"
-                        id={`active-${item.id}`}
-                        checked={editForm.isActive ?? item.isActive}
-                        onChange={(e) => setEditForm(prev => ({ ...prev, isActive: e.target.checked }))}
-                        className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
-                      />
-                      <label htmlFor={`active-${item.id}`} className="text-sm text-secondary-600">
-                        Active
-                      </label>
-                    </div>
                   </div>
                 ) : (
                   <div className="text-secondary-900">{item.content}</div>
@@ -136,25 +148,13 @@ export default function ContentManager({ section, title }: ContentManagerProps) 
               </div>
               
               <div className="ml-4 flex items-center space-x-2">
-                {editingId === item.id ? (
-                  <>
-                    <button
-                      onClick={() => handleSave(item.id)}
-                      className="p-2 text-green-600 hover:text-green-700 hover:bg-green-50 rounded-lg transition-colors"
-                    >
-                      <CheckIcon className="h-4 w-4" />
-                    </button>
-                    <button
-                      onClick={handleCancel}
-                      className="p-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
-                    >
-                      <XMarkIcon className="h-4 w-4" />
-                    </button>
-                  </>
+                {editingItems.has(item.id) ? (
+                  <span className="text-sm text-primary-600 font-medium">Editing</span>
                 ) : (
                   <button
                     onClick={() => handleEdit(item)}
                     className="p-2 text-secondary-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
+                    title="Edit content"
                   >
                     <PencilIcon className="h-4 w-4" />
                   </button>
@@ -164,6 +164,33 @@ export default function ContentManager({ section, title }: ContentManagerProps) 
           </div>
         ))}
       </div>
+
+      {/* Bottom Save/Cancel Buttons */}
+      {hasChanges && (
+        <div className="mt-6 pt-6 border-t border-gray-200">
+          <div className="flex items-center justify-between">
+            <div className="text-sm text-secondary-600">
+              You have unsaved changes
+            </div>
+            <div className="flex items-center space-x-4">
+              <button
+                onClick={handleCancelAll}
+                className="btn flex items-center space-x-2 px-6 py-3 text-sm font-medium"
+              >
+                <XMarkIcon className="h-4 w-4" />
+                <span>Cancel All</span>
+              </button>
+              <button
+                onClick={handleSaveAll}
+                className="btn-primary flex items-center space-x-2 px-6 py-3 text-sm font-medium"
+              >
+                <CheckIcon className="h-4 w-4" />
+                <span>Save All Changes</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

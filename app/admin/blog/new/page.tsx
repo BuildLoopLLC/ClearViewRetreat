@@ -1,36 +1,195 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import { useAuthContext } from '@/contexts/AuthContext'
 import { useRouter } from 'next/navigation'
-import { useEffect } from 'react'
 import Link from 'next/link'
-import { ArrowLeftIcon } from '@heroicons/react/24/outline'
+import { 
+  ArrowLeftIcon,
+  DocumentTextIcon,
+  CalendarIcon,
+  TagIcon,
+  PhotoIcon,
+  XMarkIcon
+} from '@heroicons/react/24/outline'
+import RichTextEditor from '@/components/admin/RichTextEditor'
+
+interface Category {
+  id: string
+  name: string
+  slug: string
+  description?: string
+  color: string
+}
 
 export default function NewBlogPostPage() {
-  const { user, loading, isAuthenticated } = useAuthContext()
+  const { user, logout } = useAuthContext()
   const router = useRouter()
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+  const [categories, setCategories] = useState<Category[]>([])
+  const [categoriesLoading, setCategoriesLoading] = useState(true)
+  
+  const [formData, setFormData] = useState({
+    title: '',
+    slug: '',
+    content: '',
+    excerpt: '',
+    category: '',
+    tags: '',
+    published: false,
+    mainImage: '',
+    thumbnail: ''
+  })
+  const [imageUploading, setImageUploading] = useState(false)
 
-  useEffect(() => {
-    if (loading) return
-    
-    if (!isAuthenticated) {
-      router.push('/admin/login')
-    }
-  }, [isAuthenticated, loading, router])
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
-          <p className="text-secondary-600">Loading...</p>
-        </div>
-      </div>
-    )
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value, type } = e.target
+    setFormData(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value
+    }))
   }
 
-  if (!isAuthenticated) {
-    return null
+  const generateSlug = (title: string) => {
+    return title
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)/g, '')
+  }
+
+  // Fetch categories on component mount
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        setCategoriesLoading(true)
+        const response = await fetch('/api/categories')
+        if (response.ok) {
+          const categoriesData = await response.json()
+          setCategories(categoriesData)
+        } else {
+          console.error('Failed to fetch categories')
+        }
+      } catch (error) {
+        console.error('Error fetching categories:', error)
+      } finally {
+        setCategoriesLoading(false)
+      }
+    }
+
+    fetchCategories()
+  }, [])
+
+  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const title = e.target.value
+    setFormData(prev => ({
+      ...prev,
+      title,
+      slug: generateSlug(title)
+    }))
+  }
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      setError('Please select a valid image file')
+      return
+    }
+
+    // Validate file size (max 10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      setError('Image size must be less than 10MB')
+      return
+    }
+
+    try {
+      setImageUploading(true)
+      setError('')
+
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('type', 'blog-main-image')
+
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to upload image')
+      }
+
+      const result = await response.json()
+      console.log('Upload response:', result)
+      
+      setFormData(prev => ({
+        ...prev,
+        mainImage: result.url,
+        thumbnail: result.thumbnailUrl
+      }))
+    } catch (error) {
+      console.error('Error uploading image:', error)
+      setError('Failed to upload image. Please try again.')
+    } finally {
+      setImageUploading(false)
+    }
+  }
+
+  const handleRemoveImage = () => {
+    setFormData(prev => ({
+      ...prev,
+      mainImage: '',
+      thumbnail: ''
+    }))
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setLoading(true)
+    setError('')
+
+    try {
+      const tagsArray = formData.tags.split(',').map(tag => tag.trim()).filter(tag => tag)
+      
+      const postData = {
+        ...formData,
+        tags: tagsArray,
+        authorName: user?.displayName || 'Admin',
+        authorEmail: user?.email || '',
+        publishedAt: formData.published ? new Date().toISOString() : null,
+        section: 'blog',
+        contentType: 'text' as const,
+        order: 0,
+        isActive: formData.published
+      }
+
+      const response = await fetch('/api/website-content', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(postData),
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to create blog post')
+      }
+
+      router.push('/admin/blog')
+    } catch (err: any) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleLogout = async () => {
+    await logout()
+    router.push('/admin/login')
   }
 
   return (
@@ -39,44 +198,310 @@ export default function NewBlogPostPage() {
       <div className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
-            <div>
-              <h1 className="text-2xl font-bold text-secondary-900">Create New Blog Post</h1>
-              <p className="text-secondary-600">Add a new blog post to your website</p>
-            </div>
             <div className="flex items-center space-x-4">
               <Link
                 href="/admin/blog"
-                className="btn-outline flex items-center space-x-2"
+                className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
               >
                 <ArrowLeftIcon className="h-5 w-5" />
-                <span>Back to Blog</span>
               </Link>
+              <div>
+                <h1 className="text-2xl font-bold text-secondary-900">Create New Blog Post</h1>
+                <p className="text-secondary-600">Write and publish a new blog post</p>
+              </div>
+            </div>
+            <div className="flex items-center space-x-4">
+              <Link
+                href="/admin"
+                className="btn"
+              >
+                Dashboard
+              </Link>
+              <button
+                onClick={handleLogout}
+                className="btn text-red-600 hover:text-red-700 hover:border-red-300"
+              >
+                Logout
+              </button>
             </div>
           </div>
         </div>
       </div>
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-white rounded-xl shadow-sm p-6">
-          <div className="text-center py-12">
-            <div className="text-secondary-400 mb-4">
-              <svg className="mx-auto h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
+        <form onSubmit={handleSubmit} className="space-y-8">
+          {/* Error Message */}
+          {error && (
+            <div className="bg-red-50 border border-red-200 rounded-md p-4">
+              <div className="flex">
+                <div className="flex-shrink-0">
+                  <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <div className="ml-3">
+                  <p className="text-sm text-red-800">{error}</p>
+                </div>
+              </div>
             </div>
-            <h3 className="text-lg font-medium text-secondary-900 mb-2">Blog Post Form Coming Soon</h3>
-            <p className="text-secondary-600 mb-6">
-              The blog post creation form will be implemented here with rich text editing, image uploads, and publishing options.
+          )}
+
+          {/* Basic Information */}
+          <div className="bg-white rounded-xl shadow-sm p-6">
+            <h2 className="text-lg font-semibold text-secondary-900 mb-6 flex items-center">
+              <DocumentTextIcon className="h-5 w-5 mr-2" />
+              Basic Information
+            </h2>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="md:col-span-2">
+                <label htmlFor="title" className="block text-sm font-medium text-secondary-700 mb-2">
+                  Title *
+                </label>
+                <input
+                  type="text"
+                  id="title"
+                  name="title"
+                  value={formData.title}
+                  onChange={handleTitleChange}
+                  className="input w-full"
+                  placeholder="Enter blog post title"
+                  required
+                />
+              </div>
+              
+              <div>
+                <label htmlFor="slug" className="block text-sm font-medium text-secondary-700 mb-2">
+                  URL Slug *
+                  <span className="text-xs text-gray-500 ml-2">(auto-generated from title)</span>
+                </label>
+                <input
+                  type="text"
+                  id="slug"
+                  name="slug"
+                  value={formData.slug}
+                  onChange={handleInputChange}
+                  className="input w-full"
+                  placeholder="url-friendly-slug"
+                  required
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  You can edit this manually if needed. Use lowercase letters, numbers, and hyphens only.
+                </p>
+              </div>
+              
+              <div>
+                <label htmlFor="category" className="block text-sm font-medium text-secondary-700 mb-2">
+                  Category *
+                </label>
+                <select
+                  id="category"
+                  name="category"
+                  value={formData.category}
+                  onChange={handleInputChange}
+                  className="input w-full"
+                  required
+                  disabled={categoriesLoading}
+                >
+                  <option value="">
+                    {categoriesLoading ? 'Loading categories...' : 'Select a category'}
+                  </option>
+                  {categories.map((category) => (
+                    <option key={category.id} value={category.slug}>
+                      {category.name}
+                    </option>
+                  ))}
+                </select>
+                <p className="text-xs text-gray-500 mt-1">
+                  <Link href="/admin/blog/categories" className="text-primary-600 hover:text-primary-700">
+                    Manage categories
+                  </Link>
+                </p>
+              </div>
+              
+              <div className="md:col-span-2">
+                <label htmlFor="excerpt" className="block text-sm font-medium text-secondary-700 mb-2">
+                  Excerpt
+                </label>
+                <textarea
+                  id="excerpt"
+                  name="excerpt"
+                  value={formData.excerpt}
+                  onChange={handleInputChange}
+                  rows={3}
+                  className="textarea w-full"
+                  placeholder="Brief description of the blog post"
+                />
+              </div>
+              
+              <div className="md:col-span-2">
+                <label htmlFor="tags" className="block text-sm font-medium text-secondary-700 mb-2">
+                  Tags
+                </label>
+                <input
+                  type="text"
+                  id="tags"
+                  name="tags"
+                  value={formData.tags}
+                  onChange={handleInputChange}
+                  className="input w-full"
+                  placeholder="tag1, tag2, tag3"
+                />
+                <p className="text-xs text-gray-500 mt-1">Separate tags with commas</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Featured Image */}
+          <div className="bg-white rounded-xl shadow-sm p-6">
+            <h2 className="text-lg font-semibold text-secondary-900 mb-6 flex items-center">
+              <PhotoIcon className="h-5 w-5 mr-2" />
+              Featured Image
+            </h2>
+            
+            <div className="space-y-4">
+              {/* Debug info */}
+              <div className="text-xs text-gray-500 bg-gray-50 p-2 rounded">
+                <p>Main Image: {formData.mainImage || 'None'}</p>
+                <p>Thumbnail: {formData.thumbnail || 'None'}</p>
+              </div>
+              
+              {formData.mainImage ? (
+                <div className="relative">
+                  <div className="flex items-start space-x-4">
+                    <div className="flex-shrink-0">
+                      <div className="w-32 h-24 bg-gray-100 rounded-lg border border-gray-200 flex items-center justify-center">
+                        <img
+                          src={formData.mainImage}
+                          alt="Main image preview"
+                          className="w-full h-full object-cover rounded-lg"
+                          onError={(e) => {
+                            console.error('Main image failed to load:', formData.mainImage)
+                            e.currentTarget.style.display = 'none'
+                            e.currentTarget.nextElementSibling?.classList.remove('hidden')
+                          }}
+                        />
+                        <div className="hidden text-center text-gray-500">
+                          <PhotoIcon className="h-8 w-8 mx-auto mb-1" />
+                          <p className="text-xs">Image failed to load</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex-1">
+                      <div className="w-16 h-12 bg-gray-100 rounded border border-gray-200 flex items-center justify-center">
+                        <img
+                          src={formData.thumbnail}
+                          alt="Thumbnail preview"
+                          className="w-full h-full object-cover rounded"
+                          onError={(e) => {
+                            console.error('Thumbnail failed to load:', formData.thumbnail)
+                            e.currentTarget.style.display = 'none'
+                            e.currentTarget.nextElementSibling?.classList.remove('hidden')
+                          }}
+                        />
+                        <div className="hidden text-center text-gray-500">
+                          <PhotoIcon className="h-4 w-4 mx-auto" />
+                        </div>
+                      </div>
+                      <p className="text-sm text-gray-500 mt-2">Thumbnail (auto-generated)</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleRemoveImage}
+                      className="flex-shrink-0 p-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
+                    >
+                      <XMarkIcon className="h-5 w-5" />
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                  <PhotoIcon className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                  <p className="text-sm text-gray-600 mb-4">Upload a featured image for your blog post</p>
+                  <label className="btn-primary cursor-pointer inline-flex items-center space-x-2 px-6 py-3 text-sm font-medium">
+                    <PhotoIcon className="h-5 w-5" />
+                    <span>Choose Image</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      className="hidden"
+                      disabled={imageUploading}
+                    />
+                  </label>
+                  {imageUploading && (
+                    <p className="text-sm text-gray-500 mt-2">Uploading image...</p>
+                  )}
+                </div>
+              )}
+              
+              <div className="text-xs text-gray-500">
+                <p>• Recommended size: 1200x630px or larger</p>
+                <p>• Supported formats: JPG, PNG, WebP</p>
+                <p>• Maximum file size: 10MB</p>
+                <p>• A thumbnail will be automatically generated</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Content */}
+          <div className="bg-white rounded-xl shadow-sm p-6">
+            <h2 className="text-lg font-semibold text-secondary-900 mb-6">Content</h2>
+            
+            <div>
+              <label className="block text-sm font-medium text-secondary-700 mb-2">
+                Blog Post Content *
+              </label>
+              <RichTextEditor
+                value={formData.content}
+                onChange={(value) => setFormData(prev => ({ ...prev, content: value }))}
+                placeholder="Write your blog post content here..."
+              />
+            </div>
+          </div>
+
+          {/* Publishing Options */}
+          <div className="bg-white rounded-xl shadow-sm p-6">
+            <h2 className="text-lg font-semibold text-secondary-900 mb-6 flex items-center">
+              <CalendarIcon className="h-5 w-5 mr-2" />
+              Publishing Options
+            </h2>
+            
+            <div className="flex items-center">
+              <input
+                type="checkbox"
+                id="published"
+                name="published"
+                checked={formData.published}
+                onChange={handleInputChange}
+                className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+              />
+              <label htmlFor="published" className="ml-2 text-sm text-secondary-700">
+                Publish immediately
+              </label>
+            </div>
+            <p className="text-xs text-gray-500 mt-1">
+              Uncheck to save as draft
             </p>
+          </div>
+
+          {/* Actions */}
+          <div className="flex justify-end space-x-4">
             <Link
               href="/admin/blog"
-              className="btn-primary inline-flex items-center"
+              className="btn px-8 py-3 text-sm font-medium"
             >
-              <ArrowLeftIcon className="h-5 w-5 mr-2" />
-              Back to Blog Management
+              Cancel
             </Link>
+            <button
+              type="submit"
+              disabled={loading}
+              className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed px-8 py-3 text-sm font-medium"
+            >
+              {loading ? 'Creating...' : 'Create Blog Post'}
+            </button>
           </div>
-        </div>
+        </form>
       </div>
     </div>
   )

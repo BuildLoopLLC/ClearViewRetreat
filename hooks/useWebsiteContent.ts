@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { WebsiteContent } from '../types/dynamodb'
+import { WebsiteContent } from '../types/firebase'
 
 // Simple cache for storing fetched content
 const contentCache = new Map<string, { data: WebsiteContent[]; timestamp: number }>()
@@ -99,7 +99,42 @@ export function useWebsiteContent(section: string) {
   const refreshContent = async () => {
     contentCache.delete(section)
     setLoading(true)
-    // This will trigger a new fetch
+    setError(null)
+    
+    try {
+      // Cancel any previous request
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort()
+      }
+      
+      // Create new abort controller
+      abortControllerRef.current = new AbortController()
+      
+      const response = await fetch(`/api/website-content?section=${encodeURIComponent(section)}`, {
+        signal: abortControllerRef.current.signal
+      })
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+      
+      const sectionContent = await response.json()
+      
+      // Update cache
+      contentCache.set(section, { data: sectionContent, timestamp: Date.now() })
+      console.log(`🔄 Refreshed content for ${section}`)
+      
+      setContent(sectionContent)
+      setError(null)
+    } catch (err: any) {
+      if (err.name === 'AbortError') {
+        return
+      }
+      setError(err.message || 'Failed to refresh content')
+      console.error(`Error refreshing ${section} content:`, err)
+    } finally {
+      setLoading(false)
+    }
   }
 
   return {
@@ -136,7 +171,7 @@ export const cacheManager = {
       valid: 0
     }
     
-    for (const [section, cached] of contentCache.entries()) {
+    for (const [section, cached] of Array.from(contentCache.entries())) {
       if ((now - cached.timestamp) >= CACHE_DURATION) {
         stats.expired++
       } else {

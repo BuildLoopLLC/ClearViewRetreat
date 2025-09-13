@@ -76,7 +76,7 @@ export default function Gallery({ showViewFullGallery = true }: GalleryProps) {
   const [selectedCategory, setSelectedCategory] = useState('All')
   const [selectedImage, setSelectedImage] = useState<typeof galleryImages[0] | null>(null)
 
-  // Handle escape key to close modal
+  // Handle escape key to close modal and prevent body scroll
   useEffect(() => {
     const handleEscape = (event: KeyboardEvent) => {
       if (event.key === 'Escape' && selectedImage) {
@@ -85,11 +85,17 @@ export default function Gallery({ showViewFullGallery = true }: GalleryProps) {
     }
 
     if (selectedImage) {
+      // Prevent body scroll when modal is open
+      document.body.style.overflow = 'hidden'
       document.addEventListener('keydown', handleEscape)
+    } else {
+      // Restore body scroll when modal is closed
+      document.body.style.overflow = 'unset'
     }
 
     return () => {
       document.removeEventListener('keydown', handleEscape)
+      document.body.style.overflow = 'unset'
     }
   }, [selectedImage])
 
@@ -177,15 +183,24 @@ export default function Gallery({ showViewFullGallery = true }: GalleryProps) {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, delay: index * 0.1 }}
-                className="group cursor-pointer"
+                className="group cursor-pointer focus-within:ring-4 focus-within:ring-primary-600 focus-within:ring-offset-4 focus-within:outline-none rounded-xl"
                 onClick={() => setSelectedImage(image)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault()
+                    setSelectedImage(image)
+                  }
+                }}
+                tabIndex={0}
+                role="button"
+                aria-label={`View ${image.title} in full size`}
               >
-                <div className="aspect-square rounded-xl overflow-hidden shadow-lg group-hover:shadow-2xl transition-all duration-300 group-hover:-translate-y-2">
+                <div className="relative aspect-square rounded-xl overflow-hidden shadow-lg group-hover:shadow-2xl transition-all duration-300 group-hover:-translate-y-2">
                   <div 
                     className="w-full h-full bg-cover bg-center bg-no-repeat group-hover:scale-110 transition-transform duration-500"
                     style={{ backgroundImage: `url('${image.url}')` }}
                   />
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all duration-300 flex items-end">
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all duration-300 flex items-end pointer-events-none">
                     <div className="p-4 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                       <h3 className="font-semibold text-sm mb-1 text-white/80">{image.title}</h3>
                       <p className="text-xs text-white/80">{image.description}</p>
@@ -239,27 +254,29 @@ export default function Gallery({ showViewFullGallery = true }: GalleryProps) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-sm"
           onClick={() => setSelectedImage(null)}
         >
-          <div className="relative max-w-5xl w-full max-h-[90vh] bg-white rounded-2xl overflow-hidden shadow-2xl">
+          <div 
+            className="relative max-w-5xl w-full max-h-[90vh] bg-white rounded-2xl overflow-hidden shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
             {/* Close button */}
             <button
-              onClick={(e) => {
-                e.stopPropagation()
-                setSelectedImage(null)
-              }}
-              className="absolute top-4 right-4 z-10 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 transition-colors duration-200"
+              onClick={() => setSelectedImage(null)}
+              className="absolute top-4 right-4 z-20 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-white/50"
+              aria-label="Close image modal"
             >
               <XMarkIcon className="h-6 w-6" />
             </button>
             
             {/* Image container */}
-            <div className="relative w-full h-full">
+            <div className="relative w-full h-full max-h-[80vh]">
               <img
                 src={selectedImage.url}
                 alt={selectedImage.title}
                 className="w-full h-full object-contain"
+                loading="lazy"
               />
               
               {/* Image info overlay */}

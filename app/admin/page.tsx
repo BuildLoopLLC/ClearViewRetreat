@@ -2,7 +2,7 @@
 
 import { useAuthContext } from '@/contexts/AuthContext'
 import { useRouter } from 'next/navigation'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { 
   DocumentTextIcon, 
   CalendarIcon, 
@@ -37,7 +37,7 @@ interface Activity {
 }
 
 export default function AdminDashboard() {
-  const { user, logout } = useAuthContext()
+  const { user, logout, loading: authLoading, isAdmin } = useAuthContext()
   const router = useRouter()
   const [stats, setStats] = useState<DashboardStats>({
     blogPosts: 0,
@@ -49,9 +49,18 @@ export default function AdminDashboard() {
   const [activities, setActivities] = useState<Activity[]>([])
   const [loading, setLoading] = useState(true)
   const [activitiesLoading, setActivitiesLoading] = useState(true)
+  const hasFetchedData = useRef(false)
+
+
+  // Redirect if not authenticated or not admin
+  useEffect(() => {
+    if (!authLoading && (!user || !isAdmin)) {
+      router.push('/admin/login')
+    }
+  }, [user, isAdmin, authLoading])
 
   // Fetch activities
-  const fetchActivities = async () => {
+  const fetchActivities = useCallback(async () => {
     try {
       setActivitiesLoading(true)
       const response = await fetch('/api/activities?limit=10')
@@ -64,12 +73,24 @@ export default function AdminDashboard() {
     } finally {
       setActivitiesLoading(false)
     }
-  }
+  }, [])
 
   // Fetch real-time stats and activities
   useEffect(() => {
+    
+    // Only fetch data if user is authenticated and is admin
+    if (authLoading || !user || !isAdmin) {
+      return
+    }
+
+    // Prevent multiple fetches
+    if (hasFetchedData.current) {
+      return
+    }
+
     const fetchData = async () => {
       try {
+        hasFetchedData.current = true
         setLoading(true)
         const [blogRes, eventsRes, galleriesRes, contactsRes, registrationsRes] = await Promise.all([
           fetch('/api/website-content?section=blog'),
@@ -95,8 +116,19 @@ export default function AdminDashboard() {
           registrations: registrationsData.length
         })
 
-        // Fetch activities
-        await fetchActivities()
+        // Fetch activities separately
+        try {
+          setActivitiesLoading(true)
+          const response = await fetch('/api/activities?limit=10')
+          if (response.ok) {
+            const activitiesData = await response.json()
+            setActivities(activitiesData)
+          }
+        } catch (error) {
+          console.error('Error fetching activities:', error)
+        } finally {
+          setActivitiesLoading(false)
+        }
       } catch (error) {
         console.error('Error fetching data:', error)
       } finally {
@@ -105,16 +137,39 @@ export default function AdminDashboard() {
     }
 
     fetchData()
+  }, [authLoading, user, isAdmin]) // Remove fetchActivities dependency
 
-    // Set up polling for activities every 30 seconds
+  // Set up polling for activities every 30 seconds
+  useEffect(() => {
+    // Only set up polling if user is authenticated and is admin
+    if (authLoading || !user || !isAdmin) {
+      return
+    }
+
     const interval = setInterval(fetchActivities, 30000)
-    
     return () => clearInterval(interval)
-  }, [])
+  }, [authLoading, user, isAdmin])
 
   const handleLogout = async () => {
     await logout()
     router.push('/admin/login')
+  }
+
+  // Show loading while checking authentication
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-secondary-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
+          <p className="text-secondary-600">Loading...</p>
+        </div>
+      </div>
+    )
+  }
+
+  // Don't render anything if not authenticated or not admin (will redirect)
+  if (!user || !isAdmin) {
+    return null
   }
 
   // Helper function to format time ago
@@ -238,55 +293,6 @@ export default function AdminDashboard() {
                 </div>
               </Link>
             ))}
-          </div>
-        </div>
-
-        {/* Site Management */}
-        <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
-          <h2 className="text-lg font-semibold text-secondary-900 mb-6">Site Management</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <Link
-              href="/admin/settings"
-              className="group p-4 border border-gray-200 rounded-lg hover:border-primary-300 hover:bg-primary-50 transition-all duration-200"
-            >
-              <div className="flex items-center space-x-3">
-                <CogIcon className="h-6 w-6 text-gray-600 group-hover:text-primary-600 group-hover:scale-110 transition-all duration-200" />
-                <div>
-                  <span className="font-medium text-secondary-700 group-hover:text-primary-700 transition-colors duration-200">
-                    Site Settings
-                  </span>
-                  <p className="text-sm text-secondary-500">Edit page content and sections</p>
-                </div>
-              </div>
-            </Link>
-            <Link
-              href="/admin/blog"
-              className="group p-4 border border-gray-200 rounded-lg hover:border-primary-300 hover:bg-primary-50 transition-all duration-200"
-            >
-              <div className="flex items-center space-x-3">
-                <DocumentTextIcon className="h-6 w-6 text-blue-600 group-hover:scale-110 transition-transform duration-200" />
-                <div>
-                  <span className="font-medium text-secondary-700 group-hover:text-primary-700 transition-colors duration-200">
-                    Blog Management
-                  </span>
-                  <p className="text-sm text-secondary-500">Manage blog posts and articles</p>
-                </div>
-              </div>
-            </Link>
-            <Link
-              href="/admin/events"
-              className="group p-4 border border-gray-200 rounded-lg hover:border-primary-300 hover:bg-primary-50 transition-all duration-200"
-            >
-              <div className="flex items-center space-x-3">
-                <CalendarIcon className="h-6 w-6 text-green-600 group-hover:scale-110 transition-transform duration-200" />
-                <div>
-                  <span className="font-medium text-secondary-700 group-hover:text-primary-700 transition-colors duration-200">
-                    Event Management
-                  </span>
-                  <p className="text-sm text-secondary-500">Manage events and retreats</p>
-                </div>
-              </div>
-            </Link>
           </div>
         </div>
 

@@ -106,16 +106,10 @@ export async function POST(request: NextRequest) {
       s3Client.send(thumbnailCommand)
     ])
 
-    // Generate URLs
+    // Generate permanent URLs using direct S3 URLs
     const imageUrl = `https://${S3_CONFIG.BUCKET_NAME}.s3.${S3_CONFIG.REGION}.amazonaws.com/${mainImageKey}`
     const thumbnailUrl = `https://${S3_CONFIG.BUCKET_NAME}.s3.${S3_CONFIG.REGION}.amazonaws.com/${thumbnailKey}`
 
-    console.log('Upload successful:', {
-      imageUrl,
-      thumbnailUrl,
-      mainImageKey,
-      thumbnailKey
-    })
 
     return NextResponse.json({
       success: true,
@@ -132,8 +126,13 @@ export async function POST(request: NextRequest) {
 
   } catch (error) {
     console.error('Error uploading file:', error)
+    console.error('Error details:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+      name: error instanceof Error ? error.name : undefined
+    })
     return NextResponse.json(
-      { error: 'Failed to upload file' },
+      { error: 'Failed to upload file', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     )
   }

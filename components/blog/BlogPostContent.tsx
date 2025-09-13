@@ -1,5 +1,6 @@
-import { CalendarIcon, UserIcon, TagIcon } from '@heroicons/react/24/outline'
+import { CalendarIcon, UserIcon, TagIcon, DocumentTextIcon } from '@heroicons/react/24/outline'
 import { BlogPost } from '@/types/firebase'
+import SecureImage from '@/components/ui/SecureImage'
 
 interface BlogPostContentProps {
   post: BlogPost
@@ -44,10 +45,11 @@ export default function BlogPostContent({ post }: BlogPostContentProps) {
         {/* Featured Image */}
         {post.mainImage && (
           <div className="mb-8">
-            <img
+            <SecureImage
               src={post.mainImage}
               alt={post.title}
               className="w-full h-96 object-cover rounded-xl shadow-lg"
+              fallbackIcon={DocumentTextIcon}
             />
           </div>
         )}

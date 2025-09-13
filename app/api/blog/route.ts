@@ -8,30 +8,56 @@ const db = adminDb
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
+    const id = searchParams.get('id')
     const published = searchParams.get('published')
     const category = searchParams.get('category')
     const limit = parseInt(searchParams.get('limit') || '50')
 
-    let query = db.collection('blogPosts').orderBy('createdAt', 'desc')
+    // If ID is provided, fetch single blog post
+    if (id) {
+      const postDoc = await db.collection('blogPosts').doc(id).get()
+      
+      if (!postDoc.exists) {
+        return NextResponse.json(
+          { error: 'Blog post not found' },
+          { status: 404 }
+        )
+      }
+
+      const post: BlogPost = {
+        id: postDoc.id,
+        ...postDoc.data()
+      } as BlogPost
+
+      return NextResponse.json(post, {
+        headers: {
+          'Cache-Control': 'no-cache',
+        },
+      })
+    }
+
+    // For now, fetch all posts and filter in memory to avoid index requirements
+    // TODO: Create Firestore composite index for better performance
+    let query = db.collection('blogPosts').orderBy('createdAt', 'desc').limit(100) // Increased limit for filtering
+
+    const snapshot = await query.get()
+    let posts = snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    })) as BlogPost[]
 
     // Filter by published status
     if (published !== null) {
-      query = query.where('published', '==', published === 'true')
+      posts = posts.filter(post => post.published === (published === 'true'))
     }
 
     // Filter by category
     if (category) {
-      query = query.where('category', '==', category)
+      posts = posts.filter(post => post.category === category)
     }
 
-    // Limit results
-    query = query.limit(limit)
-
-    const snapshot = await query.get()
-    const posts = snapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    })) as BlogPost[]
+    // Apply final limit
+    posts = posts.slice(0, limit)
 
     return NextResponse.json(posts, {
       headers: {
@@ -41,7 +67,7 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('Error fetching blog posts:', error)
     return NextResponse.json(
-      { error: 'Failed to fetch blog posts' },
+      { error: 'Failed to fetch blog posts', details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     )
   }

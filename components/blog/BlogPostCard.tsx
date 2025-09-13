@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { DocumentTextIcon, CalendarIcon, UserIcon } from '@heroicons/react/24/outline'
 import { BlogPost } from '@/types/firebase'
+import SecureImage from '@/components/ui/SecureImage'
 
 interface BlogPostCardProps {
   post: BlogPost
@@ -18,10 +19,11 @@ export default function BlogPostCard({ post, featured = false }: BlogPostCardPro
         {/* Featured Image */}
         {post.mainImage ? (
           <div className={`relative overflow-hidden ${featured ? 'h-64' : 'h-48'}`}>
-            <img
+            <SecureImage
               src={post.mainImage}
               alt={post.title}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+              fallbackIcon={DocumentTextIcon}
             />
             <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-10 transition-all duration-300" />
           </div>

@@ -23,7 +23,6 @@ export function useAuth() {
           await user.getIdToken(true)
           const tokenResult = await user.getIdTokenResult()
           const role = tokenResult.claims.role
-          console.log('Auth check - User:', user.email, 'Role:', role, 'Is Admin:', role === 'admin')
           setIsAdmin(role === 'admin')
         } catch (error) {
           console.error('Error checking admin role:', error)
@@ -50,20 +49,6 @@ export function useAuth() {
         const tokenResult = await userCredential.user.getIdTokenResult()
         const role = tokenResult.claims.role
         setIsAdmin(role === 'admin')
-        
-        // If role is not admin, wait a moment and try again (sometimes there's a delay)
-        if (role !== 'admin') {
-          setTimeout(async () => {
-            try {
-              await userCredential.user.getIdToken(true)
-              const retryTokenResult = await userCredential.user.getIdTokenResult()
-              const retryRole = retryTokenResult.claims.role
-              setIsAdmin(retryRole === 'admin')
-            } catch (retryError) {
-              console.error('Error retrying admin role check:', retryError)
-            }
-          }, 1000)
-        }
       } catch (error) {
         console.error('Error checking admin role:', error)
         setIsAdmin(false)

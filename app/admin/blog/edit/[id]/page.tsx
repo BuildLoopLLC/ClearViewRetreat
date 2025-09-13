@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useAuthContext } from '@/contexts/AuthContext'
-import { useRouter } from 'next/navigation'
+import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
 import { 
   ArrowLeftIcon,
@@ -14,6 +14,7 @@ import {
 } from '@heroicons/react/24/outline'
 import RichTextEditor from '@/components/admin/RichTextEditor'
 import SecureImage from '@/components/ui/SecureImage'
+import { BlogPost } from '@/types/firebase'
 
 interface Category {
   id: string
@@ -23,10 +24,14 @@ interface Category {
   color: string
 }
 
-export default function NewBlogPostPage() {
+export default function EditBlogPostPage() {
   const { user, logout } = useAuthContext()
   const router = useRouter()
+  const params = useParams()
+  const postId = params.id as string
+  
   const [loading, setLoading] = useState(false)
+  const [initialLoading, setInitialLoading] = useState(true)
   const [error, setError] = useState('')
   const [categories, setCategories] = useState<Category[]>([])
   const [categoriesLoading, setCategoriesLoading] = useState(true)
@@ -80,6 +85,46 @@ export default function NewBlogPostPage() {
 
     fetchCategories()
   }, [])
+
+  // Fetch blog post data
+  useEffect(() => {
+    if (postId) {
+      fetchBlogPost()
+    }
+  }, [postId])
+
+  const fetchBlogPost = async () => {
+    try {
+      setInitialLoading(true)
+      setError('')
+      
+      const response = await fetch(`/api/blog?id=${postId}`)
+      if (!response.ok) {
+        if (response.status === 404) {
+          throw new Error('Blog post not found')
+        }
+        throw new Error('Failed to fetch blog post')
+      }
+      
+      const post: BlogPost = await response.json()
+      
+      setFormData({
+        title: post.title || '',
+        slug: post.slug || '',
+        content: post.content || '',
+        excerpt: post.excerpt || '',
+        category: post.category || '',
+        tags: post.tags ? post.tags.join(', ') : '',
+        published: post.published || false,
+        mainImage: post.mainImage || '',
+        thumbnail: post.thumbnail || ''
+      })
+    } catch (err: any) {
+      setError(err.message)
+    } finally {
+      setInitialLoading(false)
+    }
+  }
 
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const title = e.target.value
@@ -152,8 +197,8 @@ export default function NewBlogPostPage() {
     setError('')
 
     try {
-      const response = await fetch('/api/blog', {
-        method: 'POST',
+      const response = await fetch(`/api/blog?id=${postId}`, {
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -174,7 +219,7 @@ export default function NewBlogPostPage() {
 
       if (!response.ok) {
         const errorData = await response.json()
-        throw new Error(errorData.error || 'Failed to create blog post')
+        throw new Error(errorData.error || 'Failed to update blog post')
       }
 
       // Redirect to blog management page
@@ -191,6 +236,26 @@ export default function NewBlogPostPage() {
     router.push('/admin/login')
   }
 
+  if (initialLoading) {
+    return (
+      <div className="min-h-screen bg-secondary-50">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+          <div className="animate-pulse">
+            <div className="h-8 bg-gray-200 rounded w-1/4 mb-8"></div>
+            <div className="h-12 bg-gray-200 rounded w-3/4 mb-6"></div>
+            <div className="h-6 bg-gray-200 rounded w-1/2 mb-8"></div>
+            <div className="h-64 bg-gray-200 rounded mb-8"></div>
+            <div className="space-y-4">
+              <div className="h-4 bg-gray-200 rounded"></div>
+              <div className="h-4 bg-gray-200 rounded"></div>
+              <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-secondary-50">
       {/* Header */}
@@ -205,8 +270,8 @@ export default function NewBlogPostPage() {
                 <ArrowLeftIcon className="h-5 w-5" />
               </Link>
               <div>
-                <h1 className="text-2xl font-bold text-secondary-900">Create New Blog Post</h1>
-                <p className="text-secondary-600">Write and publish a new blog post</p>
+                <h1 className="text-2xl font-bold text-secondary-900">Edit Blog Post</h1>
+                <p className="text-secondary-600">Update your blog post content and settings</p>
               </div>
             </div>
             <div className="flex items-center space-x-4">
@@ -483,7 +548,7 @@ export default function NewBlogPostPage() {
               disabled={loading}
               className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed px-8 py-3 text-sm font-medium"
             >
-              {loading ? 'Creating...' : 'Create Blog Post'}
+              {loading ? 'Updating...' : 'Update Blog Post'}
             </button>
           </div>
         </form>

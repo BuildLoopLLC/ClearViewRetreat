@@ -29,7 +29,7 @@ export default function BlogManagementPage() {
   const fetchPosts = async () => {
     try {
       setLoading(true)
-      const response = await fetch('/api/website-content?section=blog')
+      const response = await fetch('/api/blog')
       if (!response.ok) {
         throw new Error('Failed to fetch blog posts')
       }
@@ -46,7 +46,7 @@ export default function BlogManagementPage() {
     if (!confirm('Are you sure you want to delete this blog post?')) return
     
     try {
-      const response = await fetch(`/api/website-content?id=${id}`, {
+      const response = await fetch(`/api/blog?id=${id}`, {
         method: 'DELETE'
       })
       
@@ -204,6 +204,8 @@ export default function BlogManagementPage() {
                         href={`/blog/${post.slug}`}
                         className="btn flex items-center space-x-2 px-4 py-2 text-sm"
                         title="View Post"
+                        target="_blank"
+                        rel="noopener noreferrer"
                       >
                         <EyeIcon className="h-4 w-4" />
                         <span>View</span>

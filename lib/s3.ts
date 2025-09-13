@@ -16,7 +16,7 @@ export const s3Client = new S3Client({
 
 // S3 bucket configuration
 export const S3_CONFIG = {
-  BUCKET_NAME: process.env.S3_BUCKET_NAME || 'clearview-retreat-media',
+  BUCKET_NAME: process.env.S3_BUCKET_NAME || 'clearviewretreat',
   REGION: process.env.AWS_REGION || 'us-east-1',
   FOLDERS: {
     IMAGES: 'images',

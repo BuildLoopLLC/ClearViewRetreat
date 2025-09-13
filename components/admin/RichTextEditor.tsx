@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useRef, useEffect } from 'react'
+import { useMemo } from 'react'
 import dynamic from 'next/dynamic'
 import 'react-quill/dist/quill.snow.css'
 
@@ -14,13 +14,12 @@ interface RichTextEditorProps {
   className?: string
 }
 
-export default function RichTextEditor({ 
+const RichTextEditor = ({ 
   value, 
   onChange, 
   placeholder = 'Write your content here...',
   className = ''
-}: RichTextEditorProps) {
-  const quillRef = useRef<any>(null)
+}: RichTextEditorProps) => {
 
   const modules = useMemo(() => ({
     toolbar: {
@@ -31,13 +30,10 @@ export default function RichTextEditor({
         [{ 'list': 'ordered'}, { 'list': 'bullet' }],
         [{ 'indent': '-1'}, { 'indent': '+1' }],
         [{ 'align': [] }],
-        ['link', 'image', 'video'],
+        ['link', 'video'],
         ['blockquote', 'code-block'],
         ['clean']
-      ],
-      handlers: {
-        image: handleImageUpload
-      }
+      ]
     }
   }), [])
 
@@ -45,69 +41,16 @@ export default function RichTextEditor({
     'header', 'font', 'size',
     'bold', 'italic', 'underline', 'strike', 'blockquote',
     'list', 'bullet', 'indent',
-    'link', 'image', 'video',
+    'link', 'video',
     'color', 'background',
     'align', 'code-block'
   ]
 
-  // Handle image upload
-  async function handleImageUpload() {
-    const input = document.createElement('input')
-    input.setAttribute('type', 'file')
-    input.setAttribute('accept', 'image/*')
-    input.click()
-
-    input.onchange = async () => {
-      const file = input.files?.[0]
-      if (!file) return
-
-      // Validate file size (max 5MB)
-      if (file.size > 5 * 1024 * 1024) {
-        alert('Image size must be less than 5MB')
-        return
-      }
-
-      // Validate file type
-      if (!file.type.startsWith('image/')) {
-        alert('Please select a valid image file')
-        return
-      }
-
-      try {
-        // Upload image to server
-        const formData = new FormData()
-        formData.append('file', file)
-        formData.append('type', 'blog-image')
-
-        const response = await fetch('/api/upload', {
-          method: 'POST',
-          body: formData
-        })
-
-        if (!response.ok) {
-          throw new Error('Failed to upload image')
-        }
-
-        const { url } = await response.json()
-        
-        // Insert image into editor
-        const quill = quillRef.current?.getEditor()
-        if (quill) {
-          const range = quill.getSelection()
-          quill.insertEmbed(range?.index || 0, 'image', url)
-        }
-      } catch (error) {
-        console.error('Error uploading image:', error)
-        alert('Failed to upload image. Please try again.')
-      }
-    }
-  }
 
 
   return (
     <div className={`rich-text-editor ${className}`}>
       <ReactQuill
-        ref={quillRef}
         theme="snow"
         value={value}
         onChange={onChange}
@@ -175,3 +118,5 @@ export default function RichTextEditor({
     </div>
   )
 }
+
+export default RichTextEditor

@@ -1,37 +1,117 @@
-import SubpageLayout from '@/components/ui/SubpageLayout'
+'use client'
 
-const boardMembers = [
+import SubpageLayout from '@/components/ui/SubpageLayout'
+import SubpageContent from '@/components/ui/SubpageContent'
+import { useWebsiteContent } from '@/hooks/useWebsiteContent'
+
+const defaultBoardMembers = [
   {
-    name: 'Nathan Primm',
-    role: 'Secretary/Treasurer',
-    yearJoined: '2011',
-    description: 'Nathan has been serving on the board since 2011, bringing financial expertise and organizational leadership to our ministry.',
-    image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80'
+    name: 'Jim Nestle',
+    title: 'Executive Director',
+    bio: 'Jim brings over 20 years of ministry experience and a deep passion for strengthening families through Christ-centered relationships.',
+    image: '/images/board/jim-nestle.jpg'
   },
   {
-    name: 'Rex Parker',
-    role: 'Board Member',
-    yearJoined: '2014-2015',
-    description: 'Rex joined as a Junior Board member in 2014 and became a full Board member in 2015, contributing valuable insights and experience.',
-    image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80'
+    name: 'Kim Nestle',
+    title: 'Program Director',
+    bio: 'Kim has extensive experience in family counseling and has helped countless couples and families build stronger relationships.',
+    image: '/images/board/kim-nestle.jpg'
   },
   {
-    name: 'Matthew Iverson',
-    role: 'Board Member',
-    yearJoined: '2023',
-    description: 'Matthew joined the board in 2023, bringing fresh perspective and dedication to our mission of strengthening families.',
-    image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80'
+    name: 'Dr. Sarah Johnson',
+    title: 'Board Chair',
+    bio: 'Dr. Johnson is a licensed family therapist with over 15 years of experience helping families navigate difficult seasons.',
+    image: '/images/board/sarah-johnson.jpg'
   },
   {
-    name: 'Megan Iverson',
-    role: 'Board Member',
-    yearJoined: '2023',
-    description: 'Megan joined the board in 2023, contributing her passion for family ministry and community building.',
-    image: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80'
+    name: 'Pastor Michael Chen',
+    title: 'Spiritual Advisor',
+    bio: 'Pastor Chen has served in pastoral ministry for over 25 years and brings wisdom and spiritual guidance to our board.',
+    image: '/images/board/michael-chen.jpg'
+  },
+  {
+    name: 'Lisa Rodriguez',
+    title: 'Community Outreach',
+    bio: 'Lisa has a heart for community engagement and helps us connect with local churches and organizations.',
+    image: '/images/board/lisa-rodriguez.jpg'
+  },
+  {
+    name: 'Tom Anderson',
+    title: 'Financial Advisor',
+    bio: 'Tom brings his expertise in financial management to help ensure our ministry remains financially sound and sustainable.',
+    image: '/images/board/tom-anderson.jpg'
   }
 ]
 
 export default function BoardPage() {
+  const { content: boardContent, loading, error } = useWebsiteContent('about', 'board')
+  
+  // Get board members from database only
+  const getBoardMembers = () => {
+    if (!boardContent || loading) return []
+    
+    const boardMembers = []
+    for (let i = 1; i <= 10; i++) { // Check up to 10 members
+      const name = boardContent.find(c => c.subsection === 'board' && c.metadata?.name === `Board Member ${i} Name`)?.content
+      const title = boardContent.find(c => c.subsection === 'board' && c.metadata?.name === `Board Member ${i} Title`)?.content
+      const bio = boardContent.find(c => c.subsection === 'board' && c.metadata?.name === `Board Member ${i} Bio`)?.content
+      const image = boardContent.find(c => c.subsection === 'board' && c.metadata?.name === `Board Member ${i} Image`)?.content
+      
+      if (name && title && bio) {
+        boardMembers.push({
+          name,
+          title,
+          bio,
+          image: image || null
+        })
+      }
+    }
+    
+    return boardMembers
+  }
+  
+  const boardMembers = getBoardMembers()
+  
+  if (loading) {
+    return (
+      <SubpageLayout
+        title="Board of Trustees"
+        subtitle="Meet the dedicated leaders who guide our mission and vision"
+        breadcrumbs={[
+          { name: 'About', href: '/about' },
+          { name: 'Board of Trustees', href: '/about/board' }
+        ]}
+      >
+        <div className="animate-pulse space-y-8">
+          <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+          <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="bg-gray-200 rounded-lg h-64"></div>
+            ))}
+          </div>
+        </div>
+      </SubpageLayout>
+    )
+  }
+  
+  if (error) {
+    return (
+      <SubpageLayout
+        title="Board of Trustees"
+        subtitle="Meet the dedicated leaders who guide our mission and vision"
+        breadcrumbs={[
+          { name: 'About', href: '/about' },
+          { name: 'Board of Trustees', href: '/about/board' }
+        ]}
+      >
+        <div className="text-center py-8">
+          <p className="text-red-600">Error loading board information: {error}</p>
+        </div>
+      </SubpageLayout>
+    )
+  }
+
   return (
     <SubpageLayout
       title="Board of Trustees"
@@ -41,139 +121,86 @@ export default function BoardPage() {
         { name: 'Board of Trustees', href: '/about/board' }
       ]}
     >
-      <div className="max-w-7xl mx-auto">
-        {/* Introduction */}
+      <div className="max-w-6xl mx-auto">
+        {/* Introduction - Show database content as formatted text */}
         <div className="prose prose-lg max-w-none mb-16">
-          <div className="bg-gradient-to-br from-primary-50 to-accent-50 rounded-2xl p-8 text-center">
-            <p className="text-xl text-secondary-600 leading-relaxed">
-              Our Board of Trustees provides strategic leadership and oversight for Intentional Intimacy International 
-              and Clear View Retreat. These dedicated individuals bring diverse expertise and a shared commitment 
-              to strengthening families through biblical teaching and intentional intimacy.
-            </p>
-          </div>
+          {boardContent && boardContent.find(c => c.subsection === 'board' && c.metadata?.name === 'Board Introduction')?.content && (
+            <div 
+              className="text-xl text-secondary-600 leading-relaxed mb-8"
+              dangerouslySetInnerHTML={{ 
+                __html: boardContent.find(c => c.subsection === 'board' && c.metadata?.name === 'Board Introduction')?.content || '' 
+              }}
+            />
+          )}
         </div>
 
-        {/* Board Members List */}
+        {/* Board Members - Always show the section */}
         <div className="mb-16">
-          <h3 className="text-2xl font-display font-semibold text-secondary-900 mb-8 text-center">
-            Our Board Members
+          <h3 className="text-3xl font-display font-semibold text-secondary-900 mb-12 text-center">
+            Our Leadership Team
           </h3>
-          <div className="max-w-4xl mx-auto">
-            {boardMembers.map((member, index) => (
-              <div key={member.name} className="flex items-center space-x-6 p-6 border-b border-secondary-200 last:border-b-0 hover:bg-secondary-50 transition-colors duration-200">
-                <div className="flex-shrink-0">
-                  <div className="w-16 h-16 rounded-full overflow-hidden bg-secondary-200">
-                    <div 
-                      className="w-full h-full bg-cover bg-center bg-no-repeat"
-                      style={{ backgroundImage: `url('${member.image}')` }}
-                    />
+          
+          {boardMembers.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {boardMembers.map((member, index) => (
+                <div key={index} className="bg-white rounded-2xl p-6 shadow-lg border border-secondary-200 hover:shadow-xl transition-shadow duration-300">
+                  <div className="text-center mb-6">
+                    {member.image ? (
+                      <div className="w-24 h-24 rounded-full mx-auto mb-4 overflow-hidden">
+                        <img 
+                          src={member.image} 
+                          alt={member.name}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    ) : (
+                      <div className="w-24 h-24 bg-gradient-to-br from-primary-100 to-accent-100 rounded-full mx-auto mb-4 flex items-center justify-center">
+                        <span className="text-2xl font-semibold text-primary-600">
+                          {member.name.split(' ').map(n => n[0]).join('')}
+                        </span>
+                      </div>
+                    )}
+                    <h4 className="text-xl font-semibold text-secondary-900 mb-2">{member.name}</h4>
+                    <p className="text-primary-600 font-medium">{member.title}</p>
                   </div>
-                </div>
-                
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center space-x-3 mb-2">
-                    <h4 className="text-xl font-display font-semibold text-secondary-900">
-                      {member.name}
-                    </h4>
-                    <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-primary-100 text-primary-800">
-                      {member.role}
-                    </span>
-                  </div>
-                  
-                  <div className="flex items-center space-x-4 text-sm text-secondary-600 mb-2">
-                    <div className="flex items-center space-x-2">
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                      </svg>
-                      <span>Joined {member.yearJoined}</span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                      <span>Active Member</span>
-                    </div>
-                  </div>
-                  
-                  <p className="text-secondary-600 leading-relaxed">
-                    {member.description}
+                  <p className="text-secondary-600 leading-relaxed text-center">
+                    {member.bio}
                   </p>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-8">
+              <p className="text-secondary-500">No board members found. Please add board members through the admin panel.</p>
+            </div>
+          )}
         </div>
 
-        {/* Board Structure Information */}
-        <div className="bg-white rounded-2xl p-8 shadow-lg border border-secondary-200 mb-16">
-          <h3 className="text-2xl font-display font-semibold text-secondary-900 mb-6">
-            Our Board Structure
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <h4 className="text-lg font-semibold text-secondary-900 mb-2">Strategic Oversight</h4>
-              <p className="text-secondary-600 text-sm">
-                Our board provides strategic direction and oversight for all ministry activities and financial decisions.
-              </p>
-            </div>
-            
-            <div className="text-center">
-              <div className="w-16 h-16 bg-accent-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8 text-accent-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                </svg>
-              </div>
-              <h4 className="text-lg font-semibold text-secondary-900 mb-2">Diverse Expertise</h4>
-              <p className="text-secondary-600 text-sm">
-                Board members bring varied backgrounds and skills to ensure comprehensive ministry leadership.
-              </p>
-            </div>
-            
-            <div className="text-center">
-              <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                </svg>
-              </div>
-              <h4 className="text-lg font-semibold text-secondary-900 mb-2">Faithful Stewardship</h4>
-              <p className="text-secondary-600 text-sm">
-                Committed to faithful stewardship of resources and ministry opportunities entrusted to us.
-              </p>
-            </div>
+        {/* Board Responsibilities - From Database */}
+        {boardContent && boardContent.find(c => c.subsection === 'board' && c.metadata?.name === 'Board Responsibilities')?.content && (
+          <div className="bg-white rounded-2xl p-8 shadow-lg border border-secondary-200 mb-16">
+            <div 
+              className="prose prose-lg max-w-none"
+              dangerouslySetInnerHTML={{ 
+                __html: boardContent.find(c => c.subsection === 'board' && c.metadata?.name === 'Board Responsibilities')?.content || '' 
+              }}
+            />
           </div>
-        </div>
+        )}
 
-        {/* Call to Action */}
-        <div className="text-center">
-          <div className="bg-gradient-to-r from-primary-50 to-accent-50 rounded-2xl p-8">
-            <h3 className="text-2xl font-display font-semibold text-secondary-900 mb-4">
-              Interested in Serving?
-            </h3>
-            <p className="text-secondary-600 mb-6 max-w-2xl mx-auto">
-              Our board is always looking for individuals who share our passion for strengthening families 
-              and building intentional intimacy. If you feel called to serve in this capacity, we'd love to hear from you.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <a
-                href="/contact"
-                className="btn-primary text-lg px-8 py-4 inline-flex items-center justify-center"
-              >
-                Contact Us
-              </a>
-              <a
-                href="/about"
-                className="btn-outline text-lg px-8 py-4 inline-flex items-center justify-center"
-              >
-                Learn More About Us
-              </a>
+        {/* Call to Action - From Database */}
+        {boardContent && boardContent.find(c => c.subsection === 'board' && c.metadata?.name === 'Call to Action')?.content && (
+          <div className="text-center">
+            <div className="bg-gradient-to-r from-primary-50 to-accent-50 rounded-2xl p-8">
+              <div 
+                className="prose prose-lg max-w-none"
+                dangerouslySetInnerHTML={{ 
+                  __html: boardContent.find(c => c.subsection === 'board' && c.metadata?.name === 'Call to Action')?.content || '' 
+                }}
+              />
             </div>
           </div>
-        </div>
+        )}
       </div>
     </SubpageLayout>
   )

@@ -43,11 +43,43 @@ const navigation = {
     { name: 'Community Life', href: '/gallery/community' },
     { name: 'Testimonials Gallery', href: '/gallery/testimonials' },
   ],
-  social: [
-    {
-      name: 'Facebook',
-      href: '#',
-      icon: (props: any) => (
+}
+
+export default function Footer() {
+  const { getContentValue, getMetadata } = useWebsiteContent('footer')
+  
+  // Get social media links from database
+  const getSocialMediaLinks = (): Array<{
+    name: string
+    href: string
+    icon: (props: any) => JSX.Element
+  }> => {
+    const platforms = ['facebook', 'instagram', 'youtube', 'twitter', 'linkedin']
+    const socialLinks: Array<{
+      name: string
+      href: string
+      icon: (props: any) => JSX.Element
+    }> = []
+    
+    platforms.forEach(platform => {
+      const url = getContentValue(`social-${platform}-url`)
+      const enabled = getContentValue(`social-${platform}-enabled`) === 'true'
+      
+      if (url && enabled) {
+        socialLinks.push({
+          name: platform.charAt(0).toUpperCase() + platform.slice(1),
+          href: url,
+          icon: getSocialIcon(platform)
+        })
+      }
+    })
+    
+    return socialLinks
+  }
+  
+  const getSocialIcon = (platform: string) => {
+    const icons = {
+      facebook: (props: any) => (
         <svg fill="currentColor" viewBox="0 0 24 24" {...props}>
           <path
             fillRule="evenodd"
@@ -56,11 +88,7 @@ const navigation = {
           />
         </svg>
       ),
-    },
-    {
-      name: 'Instagram',
-      href: '#',
-      icon: (props: any) => (
+      instagram: (props: any) => (
         <svg fill="currentColor" viewBox="0 0 24 24" {...props}>
           <path
             fillRule="evenodd"
@@ -69,25 +97,31 @@ const navigation = {
           />
         </svg>
       ),
-    },
-    {
-      name: 'YouTube',
-      href: '#',
-      icon: (props: any) => (
+      youtube: (props: any) => (
+        <svg fill="currentColor" viewBox="0 0 24 24" {...props}>
+          <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+        </svg>
+      ),
+      twitter: (props: any) => (
+        <svg fill="currentColor" viewBox="0 0 24 24" {...props}>
+          <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+        </svg>
+      ),
+      linkedin: (props: any) => (
         <svg fill="currentColor" viewBox="0 0 24 24" {...props}>
           <path
             fillRule="evenodd"
-            d="M19.812 5.418c.861.23 1.538.907 1.768 1.768C21.998 8.746 22 12 22 12s0 3.255-.418 4.814a2.504 2.504 0 0 1-1.768 1.768c-1.56.418-7.814.418-7.814.418s-6.255 0-7.814-.418a2.505 2.505 0 0 1-1.768-1.768C2 15.255 2 12s0-3.255.418-4.814a2.507 2.507 0 0 1 1.768-1.768C5.744 5 12 5 12 5s6.255 0 7.814.418ZM15.194 12 10 15V9l5.194 3Z"
+            d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.761 0 5-2.239 5-5v-14c0-2.761-2.239-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"
             clipRule="evenodd"
           />
         </svg>
-      ),
-    },
-  ],
-}
-
-export default function Footer() {
-  const { getContentValue } = useWebsiteContent('footer')
+      )
+    }
+    
+    return icons[platform as keyof typeof icons] || icons.facebook
+  }
+  
+  const socialLinks = getSocialMediaLinks()
   
   return (
     <footer className="bg-secondary-900">
@@ -105,10 +139,12 @@ export default function Footer() {
               {getContentValue('description')}
             </p>
             <div className="flex space-x-6">
-              {navigation.social.map((item) => (
+              {socialLinks.map((item) => (
                 <a
                   key={item.name}
                   href={item.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="text-secondary-400 hover:text-primary-400 transition-colors duration-200"
                 >
                   <span className="sr-only">{item.name}</span>

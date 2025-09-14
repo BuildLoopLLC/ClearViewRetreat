@@ -8,8 +8,9 @@ import { useWebsiteContent } from '@/hooks/useWebsiteContent'
 
 export default function Testimonials() {
   const { getContentValue, getMetadata, loading } = useWebsiteContent('testimonials')
+  const { getContentValue: getStatsValue, loading: statsLoading } = useWebsiteContent('statistics')
 
-  if (loading) {
+  if (loading || statsLoading) {
     return (
       <section className="section-padding bg-gradient-to-b from-white to-secondary-50">
         <div className="max-w-7xl mx-auto container-padding text-center">
@@ -113,23 +114,55 @@ export default function Testimonials() {
         >
           <div className="bg-gradient-to-r from-primary-600 to-accent-600 rounded-2xl p-8 md:p-12 text-white">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-8 text-center">
-              {[
-                { number: '98%', label: 'Guest Satisfaction' },
-                { number: '500+', label: 'Happy Guests' },
-                { number: '25+', label: 'Years of Service' },
-                { number: '4.9/5', label: 'Average Rating' },
-              ].map((stat, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.6, delay: 0.4 + index * 0.1 }}
-                >
-                  <div className="text-3xl md:text-4xl font-bold mb-2">{stat.number}</div>
-                  <div className="text-primary-100 text-sm uppercase tracking-wide">{stat.label}</div>
-                </motion.div>
-              ))}
+              {(() => {
+                // Dynamically generate statistics from database content
+                const dynamicStats = []
+                for (let i = 1; i <= 4; i++) {
+                  const number = getStatsValue(`stat-${i}-number`)
+                  const label = getStatsValue(`stat-${i}-label`)
+                  
+                  if (number && label) {
+                    dynamicStats.push({
+                      number,
+                      label
+                    })
+                  }
+                }
+                
+                // Fallback to default stats if no database content
+                if (dynamicStats.length === 0) {
+                  return [
+                    { number: '98%', label: 'Guest Satisfaction' },
+                    { number: '500+', label: 'Happy Guests' },
+                    { number: '25+', label: 'Years of Service' },
+                    { number: '4.9/5', label: 'Average Rating' },
+                  ].map((stat, index) => (
+                    <motion.div
+                      key={index}
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      whileInView={{ opacity: 1, scale: 1 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.6, delay: 0.4 + index * 0.1 }}
+                    >
+                      <div className="text-3xl md:text-4xl font-bold mb-2">{stat.number}</div>
+                      <div className="text-primary-100 text-sm uppercase tracking-wide">{stat.label}</div>
+                    </motion.div>
+                  ))
+                }
+                
+                return dynamicStats.map((stat, index) => (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.6, delay: 0.4 + index * 0.1 }}
+                  >
+                    <div className="text-3xl md:text-4xl font-bold mb-2">{stat.number}</div>
+                    <div className="text-primary-100 text-sm uppercase tracking-wide">{stat.label}</div>
+                  </motion.div>
+                ))
+              })()}
             </div>
           </div>
         </motion.div>

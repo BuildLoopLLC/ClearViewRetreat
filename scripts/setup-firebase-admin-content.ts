@@ -247,6 +247,39 @@ const initialContent: Omit<WebsiteContent, 'id' | 'createdAt' | 'updatedAt'>[] =
     order: 4,
     isActive: true,
     metadata: {}
+  },
+  // Board Responsibilities
+  {
+    section: 'about',
+    subsection: 'board',
+    contentType: 'text',
+    content: `<h3>Board Responsibilities</h3>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+  <div>
+    <h4>Governance & Oversight</h4>
+    <ul>
+      <li>Strategic planning and vision setting</li>
+      <li>Financial oversight and budgeting</li>
+      <li>Policy development and implementation</li>
+      <li>Risk management and compliance</li>
+    </ul>
+  </div>
+  <div>
+    <h4>Ministry Support</h4>
+    <ul>
+      <li>Program evaluation and improvement</li>
+      <li>Staff support and development</li>
+      <li>Community engagement and partnerships</li>
+      <li>Prayer and spiritual guidance</li>
+    </ul>
+  </div>
+</div>`,
+    order: 100,
+    isActive: true,
+    metadata: {
+      name: 'Board Responsibilities',
+      description: 'Board responsibilities and governance information'
+    }
   }
 ]
 

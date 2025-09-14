@@ -13,7 +13,8 @@ import {
   ChatBubbleLeftRightIcon,
   ArrowLeftIcon,
   ChevronDownIcon,
-  ChevronRightIcon
+  ChevronRightIcon,
+  ChartBarIcon
 } from '@heroicons/react/24/outline'
 import ContentManager from '@/components/admin/ContentManager'
 
@@ -35,8 +36,10 @@ const pageSections: PageSection[] = [
     description: 'Main landing page content and sections',
     sections: [
       { id: 'hero', title: 'Hero Section', description: 'Main banner and call-to-action' },
+      { id: 'statistics-hero', title: 'Hero Statistics', description: 'Statistics shown in the hero section (500+ Guests Served, etc.)' },
       { id: 'features', title: 'Features Section', description: 'Key features and benefits' },
-      { id: 'testimonials', title: 'Testimonials', description: 'Customer testimonials and reviews' }
+      { id: 'testimonials', title: 'Testimonials', description: 'Customer testimonials and reviews' },
+      { id: 'statistics-testimonials', title: 'Testimonials Statistics', description: 'Statistics shown in the testimonials section (98% Guest Satisfaction, etc.)' }
     ]
   },
   {
@@ -44,7 +47,13 @@ const pageSections: PageSection[] = [
     title: 'About Page',
     description: 'About us content and company information',
     sections: [
-      { id: 'about', title: 'Main About Content', description: 'Primary about us content' }
+      { id: 'about-main', title: 'Main About Content', description: 'Primary about us intro content for the main about page' },
+      { id: 'statistics-about', title: 'About Statistics', description: 'Statistics shown in the about section (25+ Years of Ministry, etc.)' },
+      { id: 'about-history', title: 'History', description: 'Our organization history and milestones' },
+      { id: 'about-beliefs', title: 'Beliefs', description: 'Core beliefs and theological foundation' },
+      { id: 'about-board', title: 'Board of Trustees', description: 'Board members, titles, bios, and photos - fully configurable' },
+      { id: 'about-founders', title: 'Founders', description: 'Information about our founders' },
+      { id: 'about-gratitude', title: 'With Gratitude', description: 'Thanks and acknowledgments' }
     ]
   },
   {
@@ -68,7 +77,12 @@ const pageSections: PageSection[] = [
     title: 'Contact Page',
     description: 'Contact information and forms',
     sections: [
-      { id: 'contact', title: 'Contact Section', description: 'Contact information and forms' }
+      { id: 'contact', title: 'Main Contact Content', description: 'Primary contact information and forms' },
+      { id: 'contact-contact-us', title: 'Get in Touch', description: 'Contact form and messaging options' },
+      { id: 'contact-location', title: 'Location & Directions', description: 'Address, directions, and location details' },
+      { id: 'contact-staff', title: 'Staff Directory', description: 'Team members and contact information' },
+      { id: 'contact-volunteer', title: 'Volunteer Opportunities', description: 'How to get involved and serve' },
+      { id: 'contact-prayer', title: 'Prayer Requests', description: 'Submit prayer requests and support' }
     ]
   },
   {
@@ -76,7 +90,16 @@ const pageSections: PageSection[] = [
     title: 'Footer',
     description: 'Footer content and links',
     sections: [
-      { id: 'footer', title: 'Footer Section', description: 'Footer content and contact info' }
+      { id: 'footer', title: 'Footer Content', description: 'Footer text content and contact information' },
+      { id: 'footer-social', title: 'Social Media Links', description: 'Social media links and their visibility settings' }
+    ]
+  },
+  {
+    id: 'custom',
+    title: 'Custom Sections',
+    description: 'Create and manage custom content sections with images and rich text',
+    sections: [
+      { id: 'custom-sections', title: 'Custom Sections', description: 'Create and manage custom content sections' }
     ]
   }
 ]
@@ -113,7 +136,9 @@ export default function SiteSettingsPage() {
       case 'events': return CalendarIcon
       case 'gallery': return PhotoIcon
       case 'contact': return ChatBubbleLeftRightIcon
+      case 'statistics': return ChartBarIcon
       case 'blog': return CogIcon
+      case 'custom': return CogIcon
       default: return CogIcon
     }
   }

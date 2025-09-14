@@ -21,7 +21,6 @@ interface DashboardStats {
   events: number
   galleries: number
   contacts: number
-  registrations: number
 }
 
 // Activity interface
@@ -43,13 +42,17 @@ export default function AdminDashboard() {
     blogPosts: 0,
     events: 0,
     galleries: 0,
-    contacts: 0,
-    registrations: 0
+    contacts: 0
   })
   const [activities, setActivities] = useState<Activity[]>([])
   const [loading, setLoading] = useState(true)
   const [activitiesLoading, setActivitiesLoading] = useState(true)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [totalActivities, setTotalActivities] = useState(0)
   const hasFetchedData = useRef(false)
+  
+  const ITEMS_PER_PAGE = 5
+  const totalPages = Math.ceil(totalActivities / ITEMS_PER_PAGE)
 
 
   // Redirect if not authenticated or not admin
@@ -59,21 +62,46 @@ export default function AdminDashboard() {
     }
   }, [user, isAdmin, authLoading])
 
-  // Fetch activities
-  const fetchActivities = useCallback(async () => {
+  // Fetch activities with pagination
+  const fetchActivities = useCallback(async (page: number = currentPage) => {
     try {
       setActivitiesLoading(true)
-      const response = await fetch('/api/activities?limit=10')
+      const offset = (page - 1) * ITEMS_PER_PAGE
+      const response = await fetch(`/api/activities?limit=${ITEMS_PER_PAGE}&offset=${offset}`)
       if (response.ok) {
         const activitiesData = await response.json()
         setActivities(activitiesData)
+        
+        // Get total count for pagination (fetch a larger sample to estimate)
+        const countResponse = await fetch('/api/activities?limit=1000')
+        if (countResponse.ok) {
+          const allActivities = await countResponse.json()
+          setTotalActivities(allActivities.length)
+        }
       }
     } catch (error) {
       console.error('Error fetching activities:', error)
     } finally {
       setActivitiesLoading(false)
     }
-  }, [])
+  }, [currentPage, ITEMS_PER_PAGE])
+
+  // Pagination handlers
+  const handlePreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1)
+    }
+  }
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1)
+    }
+  }
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page)
+  }
 
   // Fetch real-time stats and activities
   useEffect(() => {
@@ -92,43 +120,29 @@ export default function AdminDashboard() {
       try {
         hasFetchedData.current = true
         setLoading(true)
-        const [blogRes, eventsRes, galleriesRes, contactsRes, registrationsRes] = await Promise.all([
+        const [blogRes, eventsRes, galleriesRes, contactsRes] = await Promise.all([
           fetch('/api/website-content?section=blog'),
           fetch('/api/website-content?section=events'),
           fetch('/api/website-content?section=galleries'),
-          fetch('/api/website-content?section=contacts'),
-          fetch('/api/website-content?section=registrations')
+          fetch('/api/website-content?section=contacts')
         ])
 
-        const [blogData, eventsData, galleriesData, contactsData, registrationsData] = await Promise.all([
+        const [blogData, eventsData, galleriesData, contactsData] = await Promise.all([
           blogRes.json(),
           eventsRes.json(),
           galleriesRes.json(),
-          contactsRes.json(),
-          registrationsRes.json()
+          contactsRes.json()
         ])
 
         setStats({
           blogPosts: blogData.length,
           events: eventsData.length,
           galleries: galleriesData.length,
-          contacts: contactsData.length,
-          registrations: registrationsData.length
+          contacts: contactsData.length
         })
 
         // Fetch activities separately
-        try {
-          setActivitiesLoading(true)
-          const response = await fetch('/api/activities?limit=10')
-          if (response.ok) {
-            const activitiesData = await response.json()
-            setActivities(activitiesData)
-          }
-        } catch (error) {
-          console.error('Error fetching activities:', error)
-        } finally {
-          setActivitiesLoading(false)
-        }
+        await fetchActivities(1)
       } catch (error) {
         console.error('Error fetching data:', error)
       } finally {
@@ -139,6 +153,13 @@ export default function AdminDashboard() {
     fetchData()
   }, [authLoading, user, isAdmin]) // Remove fetchActivities dependency
 
+  // Fetch activities when page changes
+  useEffect(() => {
+    if (hasFetchedData.current) {
+      fetchActivities(currentPage)
+    }
+  }, [currentPage, fetchActivities])
+
   // Set up polling for activities every 30 seconds
   useEffect(() => {
     // Only set up polling if user is authenticated and is admin
@@ -146,9 +167,9 @@ export default function AdminDashboard() {
       return
     }
 
-    const interval = setInterval(fetchActivities, 30000)
+    const interval = setInterval(() => fetchActivities(currentPage), 30000)
     return () => clearInterval(interval)
-  }, [authLoading, user, isAdmin])
+  }, [authLoading, user, isAdmin, currentPage, fetchActivities])
 
   const handleLogout = async () => {
     await logout()
@@ -212,7 +233,6 @@ export default function AdminDashboard() {
     { name: 'Events', value: stats.events.toString(), icon: CalendarIcon, color: 'text-green-600', bgColor: 'bg-green-50' },
     { name: 'Galleries', value: stats.galleries.toString(), icon: PhotoIcon, color: 'text-purple-600', bgColor: 'bg-purple-50' },
     { name: 'Contacts', value: stats.contacts.toString(), icon: EnvelopeIcon, color: 'text-orange-600', bgColor: 'bg-orange-50' },
-    { name: 'Registrations', value: stats.registrations.toString(), icon: UserGroupIcon, color: 'text-indigo-600', bgColor: 'bg-indigo-50' },
   ]
 
   const quickActions = [
@@ -301,7 +321,7 @@ export default function AdminDashboard() {
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-lg font-semibold text-secondary-900">Recent Activity</h2>
             <button
-              onClick={fetchActivities}
+              onClick={() => fetchActivities(currentPage)}
               className="text-sm text-primary-600 hover:text-primary-700 font-medium"
             >
               Refresh
@@ -357,6 +377,64 @@ export default function AdminDashboard() {
                   </div>
                 )
               })}
+            </div>
+          )}
+          
+          {/* Pagination Controls */}
+          {totalPages > 1 && (
+            <div className="mt-6 flex items-center justify-between border-t border-gray-200 pt-4">
+              <div className="flex items-center text-sm text-gray-700">
+                <span>
+                  Showing page {currentPage} of {totalPages} ({totalActivities} total activities)
+                </span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <button
+                  onClick={handlePreviousPage}
+                  disabled={currentPage === 1}
+                  className="relative inline-flex items-center px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Previous
+                </button>
+                
+                {/* Page numbers */}
+                <div className="flex space-x-1">
+                  {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                    let pageNum;
+                    if (totalPages <= 5) {
+                      pageNum = i + 1;
+                    } else if (currentPage <= 3) {
+                      pageNum = i + 1;
+                    } else if (currentPage >= totalPages - 2) {
+                      pageNum = totalPages - 4 + i;
+                    } else {
+                      pageNum = currentPage - 2 + i;
+                    }
+                    
+                    return (
+                      <button
+                        key={pageNum}
+                        onClick={() => handlePageChange(pageNum)}
+                        className={`relative inline-flex items-center px-3 py-2 text-sm font-medium rounded-md ${
+                          currentPage === pageNum
+                            ? 'bg-primary-600 text-white'
+                            : 'text-gray-700 bg-white border border-gray-300 hover:bg-gray-50'
+                        }`}
+                      >
+                        {pageNum}
+                      </button>
+                    );
+                  })}
+                </div>
+                
+                <button
+                  onClick={handleNextPage}
+                  disabled={currentPage === totalPages}
+                  className="relative inline-flex items-center px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Next
+                </button>
+              </div>
             </div>
           )}
         </div>

@@ -48,6 +48,7 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     const section = searchParams.get('section')
+    const subsection = searchParams.get('subsection')
     
     if (!section) {
       return NextResponse.json(
@@ -57,9 +58,14 @@ export async function GET(request: NextRequest) {
     }
 
     // Query Firestore directly using admin SDK
-    const snapshot = await db.collection('websiteContent')
-      .where('section', '==', section)
-      .get()
+    let query = db.collection('websiteContent').where('section', '==', section)
+    
+    // Add subsection filter if provided
+    if (subsection) {
+      query = query.where('subsection', '==', subsection)
+    }
+    
+    const snapshot = await query.get()
     
     const content = snapshot.docs.map(doc => ({
       id: doc.id,
@@ -67,7 +73,7 @@ export async function GET(request: NextRequest) {
     }))
     
     // Sort by order
-    const sortedContent = content.sort((a, b) => a.order - b.order)
+    const sortedContent = content.sort((a, b) => (a.order || 0) - (b.order || 0))
     
     // Create response with caching headers
     const response = NextResponse.json(sortedContent)
@@ -106,7 +112,7 @@ export async function POST(request: NextRequest) {
       action: 'Content created',
       item: contentData.name || 'New content item',
       section: contentData.section,
-      user: 'admin@clearviewretreat.com', // In production, get from auth
+      user: contentData.user || 'admin@clearviewretreat.com',
       details: `Created new ${contentData.section || 'content'} item`,
       type: 'content'
     })
@@ -161,7 +167,7 @@ export async function PUT(request: NextRequest) {
       action: 'Content updated',
       item: updates.name || currentData?.name || 'Content item',
       section: currentData?.section,
-      user: 'admin@clearviewretreat.com', // In production, get from auth
+      user: updates.user || 'admin@clearviewretreat.com',
       details: `Updated ${updates.name || currentData?.name || 'content item'}`,
       type: 'content'
     })
@@ -208,7 +214,7 @@ export async function DELETE(request: NextRequest) {
       action: 'Content deleted',
       item: docData?.name || 'Content item',
       section: docData?.section,
-      user: 'admin@clearviewretreat.com', // In production, get from auth
+      user: 'admin@clearviewretreat.com', // No user info available for DELETE
       details: `Deleted ${docData?.name || 'content item'}`,
       type: 'content'
     })

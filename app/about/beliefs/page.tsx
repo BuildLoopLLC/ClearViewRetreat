@@ -1,6 +1,58 @@
+'use client'
+
 import SubpageLayout from '@/components/ui/SubpageLayout'
+import { useWebsiteContent } from '@/hooks/useWebsiteContent'
 
 export default function BeliefsPage() {
+  const { content: beliefsContent, loading, error } = useWebsiteContent('about', 'beliefs')
+
+  // Helper function to get content by metadata name
+  const getContentByMetadataName = (name: string): string => {
+    if (!beliefsContent) return ''
+    const item = beliefsContent.find(item => item.metadata?.name === name)
+    return item?.content || ''
+  }
+
+  if (loading) {
+    return (
+      <SubpageLayout
+        title="Our Beliefs"
+        subtitle="Learn about our core beliefs and theological foundation"
+        breadcrumbs={[
+          { name: 'About', href: '/about' },
+          { name: 'Beliefs', href: '/about/beliefs' }
+        ]}
+      >
+        <div className="max-w-4xl mx-auto">
+          <div className="animate-pulse space-y-8">
+            <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+            <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+            <div className="h-4 bg-gray-200 rounded w-5/6"></div>
+          </div>
+        </div>
+      </SubpageLayout>
+    )
+  }
+
+  if (error) {
+    return (
+      <SubpageLayout
+        title="Our Beliefs"
+        subtitle="Learn about our core beliefs and theological foundation"
+        breadcrumbs={[
+          { name: 'About', href: '/about' },
+          { name: 'Beliefs', href: '/about/beliefs' }
+        ]}
+      >
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center py-8">
+            <p className="text-red-600">Error loading beliefs content. Please try again later.</p>
+          </div>
+        </div>
+      </SubpageLayout>
+    )
+  }
+
   return (
     <SubpageLayout
       title="Our Beliefs"
@@ -15,7 +67,7 @@ export default function BeliefsPage() {
         <div className="prose prose-lg max-w-none mb-16">
           <div className="bg-gradient-to-br from-primary-50 to-accent-50 rounded-2xl p-8 text-center">
             <p className="text-xl text-secondary-600 leading-relaxed italic">
-              "It is our hope that God's church—that is, His people, not some building—would be one body… unified for Him, working for Him, glorifying Him, impassioned for Him."
+              "{getContentByMetadataName('Beliefs Quote') || 'It is our hope that God\'s church—that is, His people, not some building—would be one body… unified for Him, working for Him, glorifying Him, impassioned for Him.'}"
             </p>
           </div>
         </div>
@@ -24,38 +76,83 @@ export default function BeliefsPage() {
         <div className="space-y-8 mb-16">
           <div className="bg-white rounded-2xl p-8 shadow-lg border border-secondary-200">
             <h3 className="text-2xl font-display font-semibold text-secondary-900 mb-6">
-              Our Statement of Faith
+              {getContentByMetadataName('Statement of Faith Title') || 'Our Statement of Faith'}
             </h3>
-            <p className="text-secondary-600 leading-relaxed mb-6">
-              We believe in God, the Creator of the heavens and earth, and that He exists in three persons—the Father, the Son, and the Holy Spirit. God the Son, Jesus, was born to a virgin by God the Holy Spirit. Jesus lived on earth as fully man while remaining fully God.
-            </p>
-            <p className="text-secondary-600 leading-relaxed mb-6">
-              He lived a sinless life that ended in His death on the cross as the sacrificial Lamb, atoning for the sins of all who believe in Him and call on His name. He rose again from death after three days, and after a brief time, ascended again into heaven.
-            </p>
-            <p className="text-secondary-600 leading-relaxed">
-              God the Holy Spirit will come and live within anyone who chooses to accept the gift of Jesus' death, burial, and resurrection. With the Holy Spirit within us, we can live life together with fellow saints and share God's Word with others who do not know Him while being able to experience the abundance of God's provision, whether in times of triumph or trial.
-            </p>
+            <div 
+              className="text-secondary-600 leading-relaxed"
+              dangerouslySetInnerHTML={{ 
+                __html: getContentByMetadataName('Statement of Faith Content') || 'We believe in God, the Creator of the heavens and earth...' 
+              }}
+            />
           </div>
 
           <div className="bg-white rounded-2xl p-8 shadow-lg border border-secondary-200">
             <h3 className="text-2xl font-display font-semibold text-secondary-900 mb-6">
-              Our Eternal Hope
+              {getContentByMetadataName('Core Values Title') || 'Our Core Values'}
             </h3>
-            <p className="text-secondary-600 leading-relaxed">
-              After this life is over, a believer's earthly body dies, and the spiritual, eternal being lives forever with God, reunited with its glorified body after Jesus Christ comes again.
-            </p>
+            <div className="space-y-6">
+              <div className="flex items-start space-x-4">
+                <div className="w-3 h-3 bg-primary-600 rounded-full mt-2 flex-shrink-0"></div>
+                <div>
+                  <h4 className="text-lg font-semibold text-secondary-900 mb-2">
+                    {getContentByMetadataName('Core Value 1 Title') || 'Biblical Authority'}
+                  </h4>
+                  <p className="text-secondary-600 leading-relaxed">
+                    {getContentByMetadataName('Core Value 1 Content') || 'We believe the Bible is the inspired, infallible Word of God...'}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-start space-x-4">
+                <div className="w-3 h-3 bg-primary-600 rounded-full mt-2 flex-shrink-0"></div>
+                <div>
+                  <h4 className="text-lg font-semibold text-secondary-900 mb-2">
+                    {getContentByMetadataName('Core Value 2 Title') || 'Family Focus'}
+                  </h4>
+                  <p className="text-secondary-600 leading-relaxed">
+                    {getContentByMetadataName('Core Value 2 Content') || 'We believe that strong families are the foundation...'}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-start space-x-4">
+                <div className="w-3 h-3 bg-primary-600 rounded-full mt-2 flex-shrink-0"></div>
+                <div>
+                  <h4 className="text-lg font-semibold text-secondary-900 mb-2">
+                    {getContentByMetadataName('Core Value 3 Title') || 'Intentional Relationships'}
+                  </h4>
+                  <p className="text-secondary-600 leading-relaxed">
+                    {getContentByMetadataName('Core Value 3 Content') || 'We believe that meaningful relationships require intentional effort...'}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-start space-x-4">
+                <div className="w-3 h-3 bg-primary-600 rounded-full mt-2 flex-shrink-0"></div>
+                <div>
+                  <h4 className="text-lg font-semibold text-secondary-900 mb-2">
+                    {getContentByMetadataName('Core Value 4 Title') || 'Community'}
+                  </h4>
+                  <p className="text-secondary-600 leading-relaxed">
+                    {getContentByMetadataName('Core Value 4 Content') || 'We believe in the importance of Christian community...'}
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div className="bg-white rounded-2xl p-8 shadow-lg border border-secondary-200">
             <h3 className="text-2xl font-display font-semibold text-secondary-900 mb-6">
-              A Note on Theological Discussion
+              {getContentByMetadataName('Theological Discussion Title') || 'A Note on Theological Discussion'}
             </h3>
-            <p className="text-secondary-600 leading-relaxed">
-              Of course, there are many issues within the realm of faith and biblical scholarship that we have not addressed above. This is a simple summary of many complex topics. If you would like further information, please <a href="/contact/" className="text-primary-600" target="_self" rel="noopener noreferrer">contact us</a>.
-            </p>
+            <div 
+              className="text-secondary-600 leading-relaxed"
+              dangerouslySetInnerHTML={{ 
+                __html: getContentByMetadataName('Theological Discussion Content') || 'Of course, there are many issues within the realm of faith...' 
+              }}
+            />
           </div>
         </div>
-
 
         {/* Call to Action */}
         <div className="text-center">

@@ -4,21 +4,22 @@ import { motion } from 'framer-motion'
 import { CheckCircleIcon } from '@heroicons/react/24/outline'
 import { useWebsiteContent } from '@/hooks/useWebsiteContent'
 
-const stats = [
-  { number: '25+', label: 'Years of Ministry' },
-  { number: '1000+', label: 'Lives Transformed' },
-  { number: '50+', label: 'Acres of Natural Beauty' },
-  { number: '100%', label: 'Christ-Centered' },
-]
-
 interface AboutProps {
   showCTA?: boolean
 }
 
 export default function About({ showCTA = true }: AboutProps) {
-  const { getContentValue, loading } = useWebsiteContent('about')
+  const { content: aboutContent, loading } = useWebsiteContent('about')
+  const { getContentValue: getStatsValue, loading: statsLoading } = useWebsiteContent('statistics')
 
-  if (loading) {
+  // Helper function to get content by metadata name
+  const getContentByMetadataName = (name: string): string => {
+    if (!aboutContent) return ''
+    const item = aboutContent.find(item => item.metadata?.name === name)
+    return item?.content || ''
+  }
+
+  if (loading || statsLoading) {
     return (
       <section className="section-padding bg-white">
         <div className="max-w-7xl mx-auto container-padding text-center">
@@ -42,39 +43,44 @@ export default function About({ showCTA = true }: AboutProps) {
           >
             {/* Mission */}
             <div>
-              <h2 className="text-3xl md:text-4xl lg:text-5xl font-display font-bold text-secondary-900 mb-6">
-                {getContentValue('title')}
-              </h2>
-              <p className="text-lg text-secondary-600 leading-relaxed mb-6">
-                {getContentValue('mission')}
-              </p>
+              <h2 
+                className="text-3xl md:text-4xl lg:text-5xl font-display font-bold text-secondary-900 mb-6"
+                dangerouslySetInnerHTML={{ __html: getContentByMetadataName('Main About Title') || 'About Clear View Retreat' }}
+              />
+              <div className="text-lg text-secondary-600 leading-relaxed mb-6">
+                {getContentByMetadataName('Main About Content') ? (
+                  <div dangerouslySetInnerHTML={{ __html: getContentByMetadataName('Main About Content') }} />
+                ) : (
+                  <p>Clear View Retreat is a Christ-centered ministry dedicated to strengthening families through intentional intimacy and meaningful relationships. Our beautiful retreat center in Tennessee provides the perfect setting for families to step away from the distractions of daily life and focus on what truly matters.</p>
+                )}
+              </div>
             </div>
 
             {/* Values */}
             <div>
               <h3 className="text-2xl font-display font-semibold text-secondary-900 mb-4">
-                {getContentValue('values-title')}
+                {getContentByMetadataName('Values Section Title')}
               </h3>
               <div className="space-y-4">
                 <div className="flex items-start space-x-3">
                   <CheckCircleIcon className="h-5 w-5 text-primary-600 mt-1 flex-shrink-0" />
                   <div>
-                    <h4 className="font-semibold text-secondary-900">{getContentValue('value-1-title')}</h4>
-                    <p className="text-secondary-700">{getContentValue('value-1-description')}</p>
+                    <h4 className="font-semibold text-secondary-900">{getContentByMetadataName('Value 1 Title')}</h4>
+                    <p className="text-secondary-700">{getContentByMetadataName('Value 1 Description')}</p>
                   </div>
                 </div>
                 <div className="flex items-start space-x-3">
                   <CheckCircleIcon className="h-5 w-5 text-primary-600 mt-1 flex-shrink-0" />
                   <div>
-                    <h4 className="font-semibold text-secondary-900">{getContentValue('value-2-title')}</h4>
-                    <p className="text-secondary-700">{getContentValue('value-2-description')}</p>
+                    <h4 className="font-semibold text-secondary-900">{getContentByMetadataName('Value 2 Title')}</h4>
+                    <p className="text-secondary-700">{getContentByMetadataName('Value 2 Description')}</p>
                   </div>
                 </div>
                 <div className="flex items-start space-x-3">
                   <CheckCircleIcon className="h-5 w-5 text-primary-600 mt-1 flex-shrink-0" />
                   <div>
-                    <h4 className="font-semibold text-secondary-900">{getContentValue('value-3-title')}</h4>
-                    <p className="text-secondary-700">{getContentValue('value-3-description')}</p>
+                    <h4 className="font-semibold text-secondary-900">{getContentByMetadataName('Value 3 Title')}</h4>
+                    <p className="text-secondary-700">{getContentByMetadataName('Value 3 Description')}</p>
                   </div>
                 </div>
               </div>
@@ -137,16 +143,51 @@ export default function About({ showCTA = true }: AboutProps) {
                   Our Impact
                 </h4>
                 <div className="space-y-3">
-                  {stats.map((stat, index) => (
-                    <div key={index} className="flex justify-between items-center">
-                      <span className="text-2xl font-bold text-primary-600">
-                        {stat.number}
-                      </span>
-                      <span className="text-sm text-secondary-600 text-right">
-                        {stat.label}
-                      </span>
-                    </div>
-                  ))}
+                  {(() => {
+                    // Dynamically generate statistics from database content
+                    const dynamicStats = []
+                    for (let i = 1; i <= 4; i++) {
+                      const number = getStatsValue(`about-stat-${i}-number`)
+                      const label = getStatsValue(`about-stat-${i}-label`)
+                      
+                      if (number && label) {
+                        dynamicStats.push({
+                          number,
+                          label
+                        })
+                      }
+                    }
+                    
+                    // Fallback to default stats if no database content
+                    if (dynamicStats.length === 0) {
+                      return [
+                        { number: '25+', label: 'Years of Ministry' },
+                        { number: '1000+', label: 'Lives Transformed' },
+                        { number: '50+', label: 'Acres of Natural Beauty' },
+                        { number: '100%', label: 'Christ-Centered' },
+                      ].map((stat, index) => (
+                        <div key={index} className="flex justify-between items-center">
+                          <span className="text-2xl font-bold text-primary-600">
+                            {stat.number}
+                          </span>
+                          <span className="text-sm text-secondary-600 text-right">
+                            {stat.label}
+                          </span>
+                        </div>
+                      ))
+                    }
+                    
+                    return dynamicStats.map((stat, index) => (
+                      <div key={index} className="flex justify-between items-center">
+                        <span className="text-2xl font-bold text-primary-600">
+                          {stat.number}
+                        </span>
+                        <span className="text-sm text-secondary-600 text-right">
+                          {stat.label}
+                        </span>
+                      </div>
+                    ))
+                  })()}
                 </div>
               </motion.div>
             </div>

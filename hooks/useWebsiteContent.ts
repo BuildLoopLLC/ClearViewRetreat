@@ -7,7 +7,7 @@ const contentCache = new Map<string, { data: WebsiteContent[]; timestamp: number
 // Cache duration: 5 minutes (300,000 ms)
 const CACHE_DURATION = 5 * 60 * 1000
 
-export function useWebsiteContent(section: string) {
+export function useWebsiteContent(section: string, subsection?: string) {
   const [content, setContent] = useState<WebsiteContent[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -18,12 +18,15 @@ export function useWebsiteContent(section: string) {
       try {
         setLoading(true)
         
+        // Create cache key that includes subsection
+        const cacheKey = subsection ? `${section}-${subsection}` : section
+        
         // Check cache first
-        const cached = contentCache.get(section)
+        const cached = contentCache.get(cacheKey)
         const now = Date.now()
         
         if (cached && (now - cached.timestamp) < CACHE_DURATION) {
-          console.log(`📦 Using cached content for ${section}`)
+          console.log(`📦 Using cached content for ${cacheKey}`)
           setContent(cached.data)
           setLoading(false)
           return
@@ -37,7 +40,15 @@ export function useWebsiteContent(section: string) {
         // Create new abort controller
         abortControllerRef.current = new AbortController()
         
-        const response = await fetch(`/api/website-content?section=${encodeURIComponent(section)}`, {
+        // Build URL with subsection if provided
+        let url = `/api/website-content?section=${encodeURIComponent(section)}`
+        if (subsection) {
+          url += `&subsection=${encodeURIComponent(subsection)}`
+        }
+        
+        console.log(`🔍 Fetching content for ${section}${subsection ? `-${subsection}` : ''} from ${url}`)
+        
+        const response = await fetch(url, {
           signal: abortControllerRef.current.signal
         })
         
@@ -48,8 +59,8 @@ export function useWebsiteContent(section: string) {
         const sectionContent = await response.json()
         
         // Update cache
-        contentCache.set(section, { data: sectionContent, timestamp: now })
-        console.log(`💾 Cached content for ${section}`)
+        contentCache.set(cacheKey, { data: sectionContent, timestamp: now })
+        console.log(`💾 Cached content for ${cacheKey}`)
         
         setContent(sectionContent)
         setError(null)
@@ -73,7 +84,7 @@ export function useWebsiteContent(section: string) {
         abortControllerRef.current.abort()
       }
     }
-  }, [section])
+  }, [section, subsection])
 
   // Helper function to get content by subsection
   const getContent = (subsection?: string): WebsiteContent | null => {
@@ -97,7 +108,8 @@ export function useWebsiteContent(section: string) {
 
   // Function to manually refresh content (bypass cache)
   const refreshContent = async () => {
-    contentCache.delete(section)
+    const cacheKey = subsection ? `${section}-${subsection}` : section
+    contentCache.delete(cacheKey)
     setLoading(true)
     setError(null)
     
@@ -110,7 +122,13 @@ export function useWebsiteContent(section: string) {
       // Create new abort controller
       abortControllerRef.current = new AbortController()
       
-      const response = await fetch(`/api/website-content?section=${encodeURIComponent(section)}`, {
+      // Build URL with subsection if provided
+      let url = `/api/website-content?section=${encodeURIComponent(section)}`
+      if (subsection) {
+        url += `&subsection=${encodeURIComponent(subsection)}`
+      }
+      
+      const response = await fetch(url, {
         signal: abortControllerRef.current.signal
       })
       
@@ -121,8 +139,8 @@ export function useWebsiteContent(section: string) {
       const sectionContent = await response.json()
       
       // Update cache
-      contentCache.set(section, { data: sectionContent, timestamp: Date.now() })
-      console.log(`🔄 Refreshed content for ${section}`)
+      contentCache.set(cacheKey, { data: sectionContent, timestamp: Date.now() })
+      console.log(`🔄 Refreshed content for ${cacheKey}`)
       
       setContent(sectionContent)
       setError(null)

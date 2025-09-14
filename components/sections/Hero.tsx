@@ -9,11 +9,12 @@ import { useWebsiteContent } from '@/hooks/useWebsiteContent'
 export default function Hero() {
   const [isVideoModalOpen, setIsVideoModalOpen] = useState(false)
   const { getContentValue, getMetadata, loading } = useWebsiteContent('hero')
+  const { getContentValue: getStatsValue, loading: statsLoading } = useWebsiteContent('statistics')
 
   const openVideoModal = () => setIsVideoModalOpen(true)
   const closeVideoModal = () => setIsVideoModalOpen(false)
 
-  if (loading) {
+  if (loading || statsLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
@@ -62,19 +63,17 @@ export default function Hero() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.3 }}
             className="text-4xl sm:text-5xl lg:text-7xl font-display font-bold leading-tight text-balance text-white"
-          >
-            {getContentValue('headline')}
-          </motion.h1>
+            dangerouslySetInnerHTML={{ __html: getContentValue('headline') }}
+          />
 
           {/* Description */}
-          <motion.p
+          <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
             className="text-xl md:text-2xl text-white/95 max-w-4xl mx-auto mb-12 leading-relaxed"
-          >
-            {getContentValue('description')}
-          </motion.p>
+            dangerouslySetInnerHTML={{ __html: getContentValue('description') }}
+          />
 
           {/* CTA Buttons */}
           <motion.div
@@ -109,17 +108,43 @@ export default function Hero() {
             transition={{ duration: 0.8, delay: 0.8 }}
             className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto"
           >
-            {[
-              { number: '500+', label: 'Guests Served' },
-              { number: '25+', label: 'Years Experience' },
-              { number: '50+', label: 'Acres of Nature' },
-              { number: '100%', label: 'Satisfaction' },
-            ].map((stat, index) => (
-              <div key={index} className="text-center">
-                <div className="text-3xl md:text-4xl font-bold text-white mb-2">{stat.number}</div>
-                <div className="text-sm md:text-base text-white/80">{stat.label}</div>
-              </div>
-            ))}
+            {(() => {
+              // Dynamically generate statistics from database content
+              const dynamicStats = []
+              for (let i = 1; i <= 4; i++) {
+                const number = getStatsValue(`hero-stat-${i}-number`)
+                const label = getStatsValue(`hero-stat-${i}-label`)
+                
+                if (number && label) {
+                  dynamicStats.push({
+                    number,
+                    label
+                  })
+                }
+              }
+              
+              // Fallback to default stats if no database content
+              if (dynamicStats.length === 0) {
+                return [
+                  { number: '500+', label: 'Guests Served' },
+                  { number: '25+', label: 'Years Experience' },
+                  { number: '50+', label: 'Acres of Nature' },
+                  { number: '100%', label: 'Satisfaction' },
+                ].map((stat, index) => (
+                  <div key={index} className="text-center">
+                    <div className="text-3xl md:text-4xl font-bold text-white mb-2">{stat.number}</div>
+                    <div className="text-sm md:text-base text-white/80">{stat.label}</div>
+                  </div>
+                ))
+              }
+              
+              return dynamicStats.map((stat, index) => (
+                <div key={index} className="text-center">
+                  <div className="text-3xl md:text-4xl font-bold text-white mb-2">{stat.number}</div>
+                  <div className="text-sm md:text-base text-white/80">{stat.label}</div>
+                </div>
+              ))
+            })()}
           </motion.div>
         </div>
 

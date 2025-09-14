@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { adminDb } from '@/lib/firebase-admin'
+import { initializeApp, getApps, cert } from 'firebase-admin/app'
+import { getFirestore } from 'firebase-admin/firestore'
 
 interface Activity {
   id: string
@@ -10,84 +11,49 @@ interface Activity {
   timestamp: string
   details?: string
   type: 'content' | 'blog' | 'event' | 'gallery' | 'category' | 'user'
+  createdAt?: string
+  updatedAt?: string
 }
 
-// In-memory storage for demo purposes
-// In production, this would be stored in Firestore
-let activities: Activity[] = [
-  {
-    id: 'act-1',
-    action: 'Content updated',
-    item: 'Hero section',
-    section: 'hero',
-    user: 'admin@clearviewretreat.com',
-    timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), // 2 hours ago
-    details: 'Updated primary CTA button text',
-    type: 'content'
-  },
-  {
-    id: 'act-2',
-    action: 'Content updated',
-    item: 'About section',
-    section: 'about',
-    user: 'admin@clearviewretreat.com',
-    timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(), // 1 day ago
-    details: 'Updated mission statement',
-    type: 'content'
-  },
-  {
-    id: 'act-3',
-    action: 'Content updated',
-    item: 'Features section',
-    section: 'features',
-    user: 'admin@clearviewretreat.com',
-    timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), // 2 days ago
-    details: 'Added new retreat feature',
-    type: 'content'
-  },
-  {
-    id: 'act-4',
-    action: 'Blog post created',
-    item: 'Welcome to ClearView Retreat',
-    section: 'blog',
-    user: 'admin@clearviewretreat.com',
-    timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(), // 3 days ago
-    details: 'Published new blog post about our retreat center',
-    type: 'blog'
-  },
-  {
-    id: 'act-5',
-    action: 'Event created',
-    item: 'Spring Wellness Retreat',
-    section: 'events',
-    user: 'admin@clearviewretreat.com',
-    timestamp: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(), // 4 days ago
-    details: 'Scheduled new wellness retreat for April',
-    type: 'event'
-  }
-]
+// Initialize Firebase Admin if not already initialized
+if (!getApps().length) {
+  initializeApp({
+    credential: cert({
+      projectId: process.env.FIREBASE_PROJECT_ID,
+      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+      privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+    }),
+  })
+}
+
+const db = getFirestore()
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     const limit = parseInt(searchParams.get('limit') || '10')
-    const type = searchParams.get('type')
+    const offset = parseInt(searchParams.get('offset') || '0')
 
-    let filteredActivities = activities
+    // Fetch activities from Firebase
+    const activitiesSnapshot = await db
+      .collection('activities')
+      .orderBy('timestamp', 'desc')
+      .limit(limit)
+      .offset(offset)
+      .get()
 
-    // Filter by type if specified
-    if (type) {
-      filteredActivities = activities.filter(activity => activity.type === type)
-    }
+    const activities: Activity[] = []
+    activitiesSnapshot.forEach((doc) => {
+      const data = doc.data()
+      activities.push({
+        id: doc.id,
+        ...data,
+      } as Activity)
+    })
 
-    // Sort by timestamp (newest first) and limit results
-    const sortedActivities = filteredActivities
-      .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
-      .slice(0, limit)
-
-    return NextResponse.json(sortedActivities, {
+    return NextResponse.json(activities, {
       headers: {
-        'Cache-Control': 'public, max-age=60', // Cache for 1 minute
+        'Cache-Control': 'no-cache',
       },
     })
   } catch (error) {
@@ -111,26 +77,30 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const newActivity: Activity = {
-      id: `act-${Date.now()}`,
+    const now = new Date().toISOString()
+    const newActivity: Omit<Activity, 'id'> = {
       action: data.action,
       item: data.item,
       section: data.section,
       user: data.user,
-      timestamp: new Date().toISOString(),
+      timestamp: now,
       details: data.details,
-      type: data.type || 'content'
+      type: data.type || 'content',
+      createdAt: now,
+      updatedAt: now
     }
 
-    // Add to beginning of array (newest first)
-    activities.unshift(newActivity)
+    // Add to Firebase
+    const docRef = await db.collection('activities').add(newActivity)
+    
+    // Get the created document with its ID
+    const createdDoc = await docRef.get()
+    const createdActivity = {
+      id: createdDoc.id,
+      ...createdDoc.data()
+    } as Activity
 
-    // Keep only last 100 activities to prevent memory issues
-    if (activities.length > 100) {
-      activities = activities.slice(0, 100)
-    }
-
-    return NextResponse.json(newActivity, {
+    return NextResponse.json(createdActivity, {
       headers: {
         'Cache-Control': 'no-cache',
       },
@@ -145,7 +115,7 @@ export async function POST(request: NextRequest) {
 }
 
 // Helper function to log activities (can be imported by other API routes)
-export async function logActivity(activityData: Omit<Activity, 'id' | 'timestamp'>) {
+export async function logActivity(activityData: Omit<Activity, 'id' | 'timestamp' | 'createdAt' | 'updatedAt'>) {
   try {
     const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/activities`, {
       method: 'POST',

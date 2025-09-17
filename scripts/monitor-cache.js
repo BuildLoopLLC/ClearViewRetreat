@@ -1,0 +1,20 @@
+// Simple script to monitor cache usage and Firebase reads
+// Run with: node scripts/monitor-cache.js
+
+console.log('🔍 Cache Monitor - Check your browser console for cache logs')
+console.log('')
+console.log('Cache durations:')
+console.log('  - Static content (about, footer, etc.): 4 hours')
+console.log('  - Gallery content: 1 hour') 
+console.log('  - Blog content: 30 minutes')
+console.log('')
+console.log('To check cache status in browser console:')
+console.log('  cacheManager.getStats()')
+console.log('')
+console.log('To clear cache in browser console:')
+console.log('  cacheManager.clearAll()')
+console.log('')
+console.log('Expected behavior:')
+console.log('  - First visit: 🔍 Fetching (database read)')
+console.log('  - Subsequent visits: 📦 Using cached content (no database read)')
+console.log('  - After cache expires: 🔍 Fetching again')

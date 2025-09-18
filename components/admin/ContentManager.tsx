@@ -17,9 +17,9 @@ export default function ContentManager({ section, title }: ContentManagerProps) 
   // For statistics subsections, we need to fetch all statistics and filter
   const isStatisticsSubsection = section.startsWith('statistics-')
   const isFooterSocial = section === 'footer-social'
-  const isAboutSubpage = section.startsWith('about-')
-  const isContactSubpage = section.startsWith('contact-')
   const isAboutMain = section === 'about-main'
+  const isAboutSubpage = section.startsWith('about-') && !isAboutMain
+  const isContactSubpage = section.startsWith('contact-')
   const isCustomSections = section === 'custom-sections'
   const actualSection = isStatisticsSubsection ? 'statistics' : 
                        isFooterSocial ? 'footer' : 
@@ -58,6 +58,7 @@ export default function ContentManager({ section, title }: ContentManagerProps) 
   ) : isCustomSections ? allContent.filter(item => 
     item.section === 'custom'
   ) : allContent
+
 
 
 

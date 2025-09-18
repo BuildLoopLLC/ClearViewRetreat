@@ -115,38 +115,41 @@ export default function SiteSettingsPage() {
   useEffect(() => {
     const section = searchParams.get('section')
     if (section) {
-      // Parse section like "about-gratitude" to page and section
-      if (section.startsWith('about-')) {
-        const sectionName = section.replace('about-', '')
-        setActiveSection({ page: 'about', section: sectionName })
-        setExpandedPages(new Set(['about']))
-      } else if (section.startsWith('home-')) {
-        const sectionName = section.replace('home-', '')
-        setActiveSection({ page: 'home', section: sectionName })
-        setExpandedPages(new Set(['home']))
-      } else if (section.startsWith('events-')) {
-        const sectionName = section.replace('events-', '')
-        setActiveSection({ page: 'events', section: sectionName })
-        setExpandedPages(new Set(['events']))
-      } else if (section.startsWith('gallery-')) {
-        const sectionName = section.replace('gallery-', '')
-        setActiveSection({ page: 'gallery', section: sectionName })
-        setExpandedPages(new Set(['gallery']))
-      } else if (section.startsWith('contact-')) {
-        const sectionName = section.replace('contact-', '')
-        setActiveSection({ page: 'contact', section: sectionName })
-        setExpandedPages(new Set(['contact']))
-      } else if (section.startsWith('footer-')) {
-        const sectionName = section.replace('footer-', '')
-        setActiveSection({ page: 'footer', section: sectionName })
-        setExpandedPages(new Set(['footer']))
-      } else if (section.startsWith('custom-')) {
-        const sectionName = section.replace('custom-', '')
-        setActiveSection({ page: 'custom', section: sectionName })
-        setExpandedPages(new Set(['custom']))
+      // Find the section in our pageSections configuration
+      const allSections = pageSections.flatMap(page => 
+        page.sections.map(section => ({ page: page.id, section: section.id }))
+      )
+      const matchingSection = allSections.find(s => s.section === section)
+      if (matchingSection) {
+        setActiveSection(matchingSection)
+        setExpandedPages(new Set([matchingSection.page]))
       }
     }
   }, [searchParams])
+
+  // Handle browser back/forward navigation
+  useEffect(() => {
+    const handlePopState = () => {
+      const url = new URL(window.location.href)
+      const section = url.searchParams.get('section')
+      if (section) {
+        const allSections = pageSections.flatMap(page => 
+          page.sections.map(section => ({ page: page.id, section: section.id }))
+        )
+        const matchingSection = allSections.find(s => s.section === section)
+        if (matchingSection) {
+          setActiveSection(matchingSection)
+          setExpandedPages(new Set([matchingSection.page]))
+        }
+      } else {
+        setActiveSection(null)
+        setExpandedPages(new Set(['home']))
+      }
+    }
+
+    window.addEventListener('popstate', handlePopState)
+    return () => window.removeEventListener('popstate', handlePopState)
+  }, [])
 
   const togglePage = (pageId: string) => {
     const newExpanded = new Set(expandedPages)
@@ -160,6 +163,10 @@ export default function SiteSettingsPage() {
 
   const handleSectionClick = (pageId: string, sectionId: string) => {
     setActiveSection({ page: pageId, section: sectionId })
+    // Update URL with section parameter
+    const url = new URL(window.location.href)
+    url.searchParams.set('section', sectionId)
+    window.history.pushState({}, '', url.toString())
   }
 
   const handleLogout = async () => {

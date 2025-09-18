@@ -54,10 +54,11 @@ export default function ContentManager({ section, title }: ContentManagerProps) 
   ) : isContactSubpage ? allContent.filter(item => 
     item.subsection === section.replace('contact-', '')
   ) : isAboutMain ? allContent.filter(item => 
-    item.subsection === 'main'
+    item.subsection === 'title' || item.subsection === 'subtitle' || item.subsection === 'description' || item.subsection === 'mission' || item.subsection === 'values-title' || item.subsection?.startsWith('value-')
   ) : isCustomSections ? allContent.filter(item => 
     item.section === 'custom'
   ) : allContent
+
 
 
   const handleEdit = (item: WebsiteContent) => {

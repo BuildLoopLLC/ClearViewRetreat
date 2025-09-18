@@ -121,10 +121,10 @@ export default function AdminDashboard() {
         hasFetchedData.current = true
         setLoading(true)
         const [blogRes, eventsRes, galleriesRes, contactsRes] = await Promise.all([
-          fetch('/api/website-content?section=blog'),
-          fetch('/api/website-content?section=events'),
-          fetch('/api/website-content?section=galleries'),
-          fetch('/api/website-content?section=contacts')
+          fetch('/api/sqlite-content?section=blog'),
+          fetch('/api/sqlite-content?section=events'),
+          fetch('/api/sqlite-content?section=galleries'),
+          fetch('/api/sqlite-content?section=contacts')
         ])
 
         const [blogData, eventsData, galleriesData, contactsData] = await Promise.all([

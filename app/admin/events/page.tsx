@@ -30,7 +30,7 @@ export default function EventManagementPage() {
   const fetchEvents = async () => {
     try {
       setLoading(true)
-      const response = await fetch('/api/website-content?section=events')
+      const response = await fetch('/api/sqlite-content?section=events')
       if (!response.ok) {
         throw new Error('Failed to fetch events')
       }
@@ -47,7 +47,7 @@ export default function EventManagementPage() {
     if (!confirm('Are you sure you want to delete this event?')) return
     
     try {
-      const response = await fetch(`/api/website-content?id=${id}`, {
+      const response = await fetch(`/api/sqlite-content?id=${id}`, {
         method: 'DELETE'
       })
       

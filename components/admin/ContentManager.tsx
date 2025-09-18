@@ -40,7 +40,7 @@ export default function ContentManager({ section, title }: ContentManagerProps) 
   // Filter content based on the section
   const content = isStatisticsSubsection ? allContent.filter(item => {
     if (section === 'statistics-testimonials') {
-      return item.subsection?.startsWith('stat-')
+      return item.subsection?.startsWith('testimonial-stat-') || item.subsection === 'testimonials-stat-satisfaction'
     } else if (section === 'statistics-hero') {
       return item.subsection?.startsWith('hero-stat-')
     } else if (section === 'statistics-about') {
@@ -87,7 +87,7 @@ export default function ContentManager({ section, title }: ContentManagerProps) 
       setIsSavingAll(true)
       
       const savePromises = Object.entries(editForms).map(async ([id, formData]) => {
-        const response = await fetch(`/api/website-content?id=${id}`, {
+        const response = await fetch(`/api/sqlite-content?id=${id}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -143,7 +143,7 @@ export default function ContentManager({ section, title }: ContentManagerProps) 
       const formData = editForms[id]
       if (!formData) return
 
-      const response = await fetch(`/api/website-content?id=${id}`, {
+      const response = await fetch(`/api/sqlite-content?id=${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -322,6 +322,11 @@ export default function ContentManager({ section, title }: ContentManagerProps) 
       return {
         description: 'Content for the Contact > Prayer Requests page (/contact/prayer).',
         example: 'Prayer request forms, spiritual support information, and prayer ministry details'
+      }
+    } else if (section === 'testimonials') {
+      return {
+        description: 'Customer testimonials and reviews displayed on the home page.',
+        example: 'Testimonial content, author names, and locations for guest reviews'
       }
     } else {
       return null
@@ -2009,7 +2014,7 @@ export default function ContentManager({ section, title }: ContentManagerProps) 
                 ]
 
                 for (const field of newMemberFields) {
-                  const response = await fetch('/api/website-content', {
+                  const response = await fetch('/api/sqlite-content', {
                     method: 'POST',
                     headers: {
                       'Content-Type': 'application/json',
@@ -2035,7 +2040,7 @@ export default function ContentManager({ section, title }: ContentManagerProps) 
                 )
                 
                 for (const item of memberItems) {
-                  await fetch('/api/website-content', {
+                  await fetch('/api/sqlite-content', {
                     method: 'DELETE',
                     headers: {
                       'Content-Type': 'application/json',

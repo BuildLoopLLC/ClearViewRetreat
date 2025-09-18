@@ -15,8 +15,8 @@ export function useWebsiteContent(section: string, subsection?: string) {
   const [error, setError] = useState<string | null>(null)
   const [refreshTrigger, setRefreshTrigger] = useState(0)
 
-  // Debug logging
-  console.log(`🔄 SQLite useWebsiteContent render:`, { section, subsection, loading, contentLength: content.length, error })
+  // Debug logging (commented out for performance)
+  // console.log(`🔄 SQLite useWebsiteContent render:`, { section, subsection, loading, contentLength: content.length, error })
 
   useEffect(() => {
     let isMounted = true

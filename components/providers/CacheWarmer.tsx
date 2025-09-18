@@ -12,7 +12,7 @@ export default function CacheWarmer() {
       console.log('🔥 Warming cache for all common sections...')
       
       const promises = COMMON_SECTIONS.map(section => 
-        fetch(`/api/website-content?section=${encodeURIComponent(section)}`)
+        fetch(`/api/sqlite-content?section=${encodeURIComponent(section)}`)
           .then(response => {
             if (response.ok) {
               console.log(`✅ Pre-fetched ${section} section`)

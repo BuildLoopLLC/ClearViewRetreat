@@ -81,7 +81,7 @@ export default function NewEventPage() {
         price: parseFloat(formData.price) || 0
       }
 
-      const response = await fetch('/api/website-content', {
+      const response = await fetch('/api/sqlite-content', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

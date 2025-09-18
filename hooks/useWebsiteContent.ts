@@ -41,7 +41,7 @@ export function useWebsiteContent(section: string, subsection?: string) {
         abortControllerRef.current = new AbortController()
         
         // Build URL with subsection if provided
-        let url = `/api/website-content?section=${encodeURIComponent(section)}`
+        let url = `/api/sqlite-content?section=${encodeURIComponent(section)}`
         if (subsection) {
           url += `&subsection=${encodeURIComponent(subsection)}`
         }
@@ -123,7 +123,7 @@ export function useWebsiteContent(section: string, subsection?: string) {
       abortControllerRef.current = new AbortController()
       
       // Build URL with subsection if provided
-      let url = `/api/website-content?section=${encodeURIComponent(section)}`
+      let url = `/api/sqlite-content?section=${encodeURIComponent(section)}`
       if (subsection) {
         url += `&subsection=${encodeURIComponent(subsection)}`
       }

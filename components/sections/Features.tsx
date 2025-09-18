@@ -9,7 +9,7 @@ import {
   CameraIcon,
   StarIcon 
 } from '@heroicons/react/24/outline'
-import { useWebsiteContent } from '@/hooks/useWebsiteContent'
+import { useWebsiteContent } from '@/hooks/useWebsiteContentSQLite'
 
 // Dynamic features will be loaded from DynamoDB
 const iconMap: Record<string, any> = {

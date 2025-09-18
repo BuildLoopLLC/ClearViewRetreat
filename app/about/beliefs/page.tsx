@@ -1,7 +1,7 @@
 'use client'
 
 import SubpageLayout from '@/components/ui/SubpageLayout'
-import { useWebsiteContent } from '@/hooks/useWebsiteContent'
+import { useWebsiteContent } from '@/hooks/useWebsiteContentSQLite'
 
 export default function BeliefsPage() {
   const { content: beliefsContent, loading, error } = useWebsiteContent('about', 'beliefs')

@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion'
 import { StarIcon, ChatBubbleLeftRightIcon } from '@heroicons/react/24/solid'
-import { useWebsiteContent } from '@/hooks/useWebsiteContent'
+import { useWebsiteContent } from '@/hooks/useWebsiteContentSQLite'
 
 // Testimonials are now loaded dynamically from the database
 

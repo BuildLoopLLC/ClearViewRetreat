@@ -1,11 +1,12 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { cacheManager } from '../../hooks/useWebsiteContent'
+import { cacheManager } from '../../hooks/useWebsiteContentSQLite'
 import { WebsiteContent } from '../../types/firebase'
-import { useWebsiteContent } from '../../hooks/useWebsiteContent'
+import { useWebsiteContent } from '../../hooks/useWebsiteContentSQLite'
 import { useAuthContext } from '../../contexts/AuthContext'
 import { PencilIcon, CheckIcon, XMarkIcon } from '@heroicons/react/24/outline'
+import IndividualSupportersManager from './IndividualSupportersManager'
 
 interface ContentManagerProps {
   section: string
@@ -34,6 +35,7 @@ export default function ContentManager({ section, title }: ContentManagerProps) 
   const [editForms, setEditForms] = useState<Record<string, Partial<WebsiteContent>>>({})
   const [hasChanges, setHasChanges] = useState(false)
   const [isSavingAll, setIsSavingAll] = useState(false)
+  const [isEditingSupporters, setIsEditingSupporters] = useState(false)
 
   // Filter content based on the section
   const content = isStatisticsSubsection ? allContent.filter(item => {
@@ -185,6 +187,46 @@ export default function ContentManager({ section, title }: ContentManagerProps) 
     setHasChanges(false)
   }
 
+  // Individual supporters helper functions
+  const handleSupportersEdit = () => {
+    setIsEditingSupporters(true)
+  }
+
+  const handleSupportersCancel = () => {
+    setIsEditingSupporters(false)
+  }
+
+  const handleSupportersSave = async (supporters: any[]) => {
+    try {
+      // Convert supporters back to JSON array format with both name and link
+      const supportersArray = supporters.map(supporter => ({
+        name: supporter.name,
+        link: supporter.link || ''
+      }))
+      const supportersJson = JSON.stringify(supportersArray)
+
+      // Find the individual supporters entry
+      const individualSupportersEntry = content.find(item => item.metadata?.name === 'Individual Supporters')
+      
+      // Update the individual supporters entry
+      if (individualSupportersEntry) {
+        await fetch(`/api/sqlite-content?id=${individualSupportersEntry.id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            content: supportersJson
+          })
+        })
+      }
+
+      setIsEditingSupporters(false)
+      refreshContent()
+    } catch (error) {
+      console.error('Error saving supporters:', error)
+    }
+  }
 
   if (loading) {
     return (
@@ -1127,40 +1169,37 @@ export default function ContentManager({ section, title }: ContentManagerProps) 
 
             {/* Individual Supporters */}
             <div className="border border-gray-200 rounded-lg p-6 bg-gray-50">
-              <h4 className="text-lg font-semibold text-secondary-900 mb-4">Individual Supporters</h4>
-              <div className="space-y-4">
-                {individualSupporters && (
-                  <div>
-                    <label className="text-sm font-medium text-secondary-700">Supporters List (JSON Array)</label>
-                    {editingItems.has(individualSupporters.id) ? (
-                      <textarea
-                        value={editForms[individualSupporters.id]?.content || ''}
-                        onChange={(e) => handleFieldChange(individualSupporters.id, 'content', e.target.value)}
-                        rows={8}
-                        className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 font-mono text-sm"
-                        placeholder='["Name 1", "Name 2", "Name 3"]'
-                      />
-                    ) : (
-                      <div className="mt-1">
-                        <div className="text-secondary-600 prose prose-sm max-w-none mb-2" dangerouslySetInnerHTML={{ __html: individualSupporters.content }} />
-                        <div className="text-xs text-gray-500">
-                          Format: JSON array of supporter names
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-              <div className="mt-4 flex space-x-2">
-                {individualSupporters && (
-                  <button
-                    onClick={() => editingItems.has(individualSupporters.id) ? handleSave(individualSupporters.id) : handleEdit(individualSupporters)}
-                    className="btn-primary text-sm px-4 py-2"
-                  >
-                    {editingItems.has(individualSupporters.id) ? 'Save Supporters' : 'Edit Supporters'}
-                  </button>
-                )}
-              </div>
+              <IndividualSupportersManager
+                supporters={individualSupporters ? (() => {
+                  try {
+                    const supportersArray = JSON.parse(individualSupporters.content || '[]')
+                    // Handle both old format (array of strings) and new format (array of objects)
+                    return supportersArray.map((supporter: any, index: number) => {
+                      if (typeof supporter === 'string') {
+                        // Old format: array of strings
+                        return {
+                          id: `supporter-${index}`,
+                          name: supporter,
+                          link: ''
+                        }
+                      } else {
+                        // New format: array of objects with name and link
+                        return {
+                          id: `supporter-${index}`,
+                          name: supporter.name || '',
+                          link: supporter.link || ''
+                        }
+                      }
+                    })
+                  } catch (e) {
+                    return []
+                  }
+                })() : []}
+                onSave={handleSupportersSave}
+                isEditing={isEditingSupporters}
+                onEdit={handleSupportersEdit}
+                onCancel={handleSupportersCancel}
+              />
             </div>
 
             {/* Boy Scouts Section */}

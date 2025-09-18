@@ -9,7 +9,7 @@ import {
   ClockIcon,
   CheckCircleIcon 
 } from '@heroicons/react/24/outline'
-import { useWebsiteContent } from '@/hooks/useWebsiteContent'
+import { useWebsiteContent } from '@/hooks/useWebsiteContentSQLite'
 
 export default function Contact() {
   const { getContentValue, loading } = useWebsiteContent('contact')

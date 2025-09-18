@@ -13,6 +13,7 @@ export function useWebsiteContent(section: string, subsection?: string) {
   const [content, setContent] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [refreshTrigger, setRefreshTrigger] = useState(0)
 
   // Debug logging
   console.log(`🔄 SQLite useWebsiteContent render:`, { section, subsection, loading, contentLength: content.length, error })
@@ -58,7 +59,7 @@ export function useWebsiteContent(section: string, subsection?: string) {
     return () => {
       isMounted = false
     }
-  }, [section, subsection])
+  }, [section, subsection, refreshTrigger])
 
   // Helper function to get content by metadata name
   const getContentByMetadataName = (name: string): string => {
@@ -86,10 +87,16 @@ export function useWebsiteContent(section: string, subsection?: string) {
     return item?.metadata || {}
   }
 
+  // Function to refresh content
+  const refreshContent = () => {
+    setRefreshTrigger(prev => prev + 1)
+  }
+
   return {
     content,
     loading,
     error,
+    refreshContent,
     getContent,
     getContentValue,
     getMetadata,

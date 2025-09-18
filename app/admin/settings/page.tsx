@@ -1,8 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useAuthContext } from '@/contexts/AuthContext'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { 
   CogIcon,
@@ -107,8 +107,46 @@ const pageSections: PageSection[] = [
 export default function SiteSettingsPage() {
   const { user, logout } = useAuthContext()
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [expandedPages, setExpandedPages] = useState<Set<string>>(new Set(['home']))
   const [activeSection, setActiveSection] = useState<{page: string, section: string} | null>(null)
+
+  // Handle URL parameters to set active section
+  useEffect(() => {
+    const section = searchParams.get('section')
+    if (section) {
+      // Parse section like "about-gratitude" to page and section
+      if (section.startsWith('about-')) {
+        const sectionName = section.replace('about-', '')
+        setActiveSection({ page: 'about', section: sectionName })
+        setExpandedPages(new Set(['about']))
+      } else if (section.startsWith('home-')) {
+        const sectionName = section.replace('home-', '')
+        setActiveSection({ page: 'home', section: sectionName })
+        setExpandedPages(new Set(['home']))
+      } else if (section.startsWith('events-')) {
+        const sectionName = section.replace('events-', '')
+        setActiveSection({ page: 'events', section: sectionName })
+        setExpandedPages(new Set(['events']))
+      } else if (section.startsWith('gallery-')) {
+        const sectionName = section.replace('gallery-', '')
+        setActiveSection({ page: 'gallery', section: sectionName })
+        setExpandedPages(new Set(['gallery']))
+      } else if (section.startsWith('contact-')) {
+        const sectionName = section.replace('contact-', '')
+        setActiveSection({ page: 'contact', section: sectionName })
+        setExpandedPages(new Set(['contact']))
+      } else if (section.startsWith('footer-')) {
+        const sectionName = section.replace('footer-', '')
+        setActiveSection({ page: 'footer', section: sectionName })
+        setExpandedPages(new Set(['footer']))
+      } else if (section.startsWith('custom-')) {
+        const sectionName = section.replace('custom-', '')
+        setActiveSection({ page: 'custom', section: sectionName })
+        setExpandedPages(new Set(['custom']))
+      }
+    }
+  }, [searchParams])
 
   const togglePage = (pageId: string) => {
     const newExpanded = new Set(expandedPages)

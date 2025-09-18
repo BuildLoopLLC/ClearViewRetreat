@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { MapPinIcon, PhoneIcon, EnvelopeIcon } from '@heroicons/react/24/outline'
 import AFrameIcon from '@/components/ui/AFrameIcon'
-import { useWebsiteContent } from '@/hooks/useWebsiteContent'
+import { useWebsiteContent } from '@/hooks/useWebsiteContentSQLite'
 
 const navigation = {
   main: [

@@ -4,7 +4,7 @@ import { motion } from 'framer-motion'
 import { ArrowRightIcon, PlayIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import { useState } from 'react'
 import AFrameIcon from '@/components/ui/AFrameIcon'
-import { useWebsiteContent } from '@/hooks/useWebsiteContent'
+import { useWebsiteContent } from '@/hooks/useWebsiteContentSQLite'
 
 export default function Hero() {
   const [isVideoModalOpen, setIsVideoModalOpen] = useState(false)

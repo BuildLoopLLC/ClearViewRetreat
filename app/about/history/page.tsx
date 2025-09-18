@@ -1,7 +1,7 @@
 'use client'
 
 import SubpageLayout from '@/components/ui/SubpageLayout'
-import { useWebsiteContent } from '@/hooks/useWebsiteContent'
+import { useWebsiteContent } from '@/hooks/useWebsiteContentSQLite'
 
 export default function HistoryPage() {
   const { content: historyContent, loading, error } = useWebsiteContent('about', 'history')

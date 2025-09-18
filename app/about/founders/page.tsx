@@ -2,7 +2,7 @@
 
 import SubpageLayout from '@/components/ui/SubpageLayout'
 import SubpageContent from '@/components/ui/SubpageContent'
-import { useWebsiteContent } from '@/hooks/useWebsiteContent'
+import { useWebsiteContent } from '@/hooks/useWebsiteContentSQLite'
 
 export default function FoundersPage() {
   const { content: foundersContent, loading, error } = useWebsiteContent('about', 'founders')

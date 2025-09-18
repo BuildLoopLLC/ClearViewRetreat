@@ -1,6 +1,6 @@
 'use client'
 
-import { useWebsiteContent } from '../../hooks/useWebsiteContent'
+import { useWebsiteContent } from '../../hooks/useWebsiteContentSQLite'
 
 interface SubpageContentProps {
   section: string

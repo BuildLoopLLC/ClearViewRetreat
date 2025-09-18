@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { cacheManager } from '../../hooks/useWebsiteContent'
+import { cacheManager } from '../../hooks/useWebsiteContentSQLite'
 
 export default function CacheMonitor() {
   const [cacheStats, setCacheStats] = useState<{

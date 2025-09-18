@@ -1,11 +1,17 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { PlusIcon, TrashIcon, PencilIcon, CheckIcon, XMarkIcon } from '@heroicons/react/24/outline'
+import { PlusIcon, TrashIcon, PencilIcon, CheckIcon, XMarkIcon, LinkIcon } from '@heroicons/react/24/outline'
+
+interface Supporter {
+  id: string
+  name: string
+  link: string
+}
 
 interface IndividualSupportersManagerProps {
-  supporters: string[]
-  onSave: (supporters: string[]) => void
+  supporters: Supporter[]
+  onSave: (supporters: Supporter[]) => void
   isEditing: boolean
   onEdit: () => void
   onCancel: () => void
@@ -18,46 +24,70 @@ export default function IndividualSupportersManager({
   onEdit,
   onCancel
 }: IndividualSupportersManagerProps) {
-  const [editingSupporters, setEditingSupporters] = useState<string[]>([])
+  const [editingSupporters, setEditingSupporters] = useState<Supporter[]>([])
   const [editingIndex, setEditingIndex] = useState<number | null>(null)
-  const [editingValue, setEditingValue] = useState('')
-  const [newSupporter, setNewSupporter] = useState('')
+  const [editingName, setEditingName] = useState('')
+  const [editingLink, setEditingLink] = useState('')
+  const [newSupporterName, setNewSupporterName] = useState('')
+  const [newSupporterLink, setNewSupporterLink] = useState('')
 
   useEffect(() => {
     setEditingSupporters([...supporters])
   }, [supporters])
 
   const handleAddSupporter = () => {
-    if (newSupporter.trim()) {
-      const updatedSupporters = [...editingSupporters, newSupporter.trim()]
+    if (newSupporterName.trim()) {
+      const newSupporter: Supporter = {
+        id: `supporter-${Date.now()}`,
+        name: newSupporterName.trim(),
+        link: newSupporterLink.trim()
+      }
+      const updatedSupporters = [...editingSupporters, newSupporter]
       setEditingSupporters(updatedSupporters)
-      setNewSupporter('')
+      setNewSupporterName('')
+      setNewSupporterLink('')
+      
+      // Auto-save the changes
+      onSave(updatedSupporters)
     }
   }
 
   const handleRemoveSupporter = (index: number) => {
     const updatedSupporters = editingSupporters.filter((_, i) => i !== index)
     setEditingSupporters(updatedSupporters)
+    
+    // Auto-save the changes
+    onSave(updatedSupporters)
   }
 
   const handleStartEdit = (index: number) => {
     setEditingIndex(index)
-    setEditingValue(editingSupporters[index])
+    setEditingName(editingSupporters[index].name)
+    setEditingLink(editingSupporters[index].link)
   }
 
   const handleSaveEdit = () => {
-    if (editingIndex !== null && editingValue.trim()) {
+    if (editingIndex !== null && editingName.trim()) {
       const updatedSupporters = [...editingSupporters]
-      updatedSupporters[editingIndex] = editingValue.trim()
+      updatedSupporters[editingIndex] = {
+        ...updatedSupporters[editingIndex],
+        name: editingName.trim(),
+        link: editingLink.trim()
+      }
       setEditingSupporters(updatedSupporters)
       setEditingIndex(null)
-      setEditingValue('')
+      setEditingName('')
+      setEditingLink('')
+      
+      // Auto-save the changes
+      onSave(updatedSupporters)
     }
   }
 
   const handleCancelEdit = () => {
     setEditingIndex(null)
-    setEditingValue('')
+    setEditingName('')
+    setEditingLink('')
   }
 
   const handleSave = () => {
@@ -112,69 +142,124 @@ export default function IndividualSupportersManager({
       {isEditing ? (
         <div className="space-y-4">
           {/* Add new supporter */}
-          <div className="flex space-x-2">
-            <input
-              type="text"
-              value={newSupporter}
-              onChange={(e) => setNewSupporter(e.target.value)}
-              onKeyPress={(e) => handleKeyPress(e, 'add')}
-              placeholder="Enter supporter name..."
-              className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-            />
+          <div className="space-y-3 p-4 bg-gray-50 rounded-lg">
+            <h5 className="text-sm font-medium text-gray-700">Add New Supporter</h5>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Name *</label>
+                <input
+                  type="text"
+                  value={newSupporterName}
+                  onChange={(e) => setNewSupporterName(e.target.value)}
+                  onKeyPress={(e) => handleKeyPress(e, 'add')}
+                  placeholder="Enter supporter name..."
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Link (optional)</label>
+                <input
+                  type="url"
+                  value={newSupporterLink}
+                  onChange={(e) => setNewSupporterLink(e.target.value)}
+                  placeholder="https://example.com"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                />
+              </div>
+            </div>
             <button
               onClick={handleAddSupporter}
-              disabled={!newSupporter.trim()}
+              disabled={!newSupporterName.trim()}
               className="btn-primary px-4 py-2 flex items-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <PlusIcon className="h-4 w-4" />
-              <span>Add</span>
+              <span>Add Supporter</span>
             </button>
           </div>
 
           {/* Supporters list */}
-          <div className="space-y-2 max-h-96 overflow-y-auto">
+          <div className="space-y-3 max-h-96 overflow-y-auto">
+            <h5 className="text-sm font-medium text-gray-700">Current Supporters</h5>
             {editingSupporters.map((supporter, index) => (
-              <div key={index} className="flex items-center space-x-2 p-3 bg-gray-50 rounded-lg">
+              <div key={supporter.id} className="p-4 bg-white border border-gray-200 rounded-lg">
                 {editingIndex === index ? (
-                  <>
-                    <input
-                      type="text"
-                      value={editingValue}
-                      onChange={(e) => setEditingValue(e.target.value)}
-                      onKeyPress={(e) => handleKeyPress(e, 'edit')}
-                      className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                      autoFocus
-                    />
-                    <button
-                      onClick={handleSaveEdit}
-                      disabled={!editingValue.trim()}
-                      className="p-2 text-green-600 hover:text-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      <CheckIcon className="h-4 w-4" />
-                    </button>
-                    <button
-                      onClick={handleCancelEdit}
-                      className="p-2 text-gray-600 hover:text-gray-700"
-                    >
-                      <XMarkIcon className="h-4 w-4" />
-                    </button>
-                  </>
+                  <div className="space-y-3">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Name *</label>
+                        <input
+                          type="text"
+                          value={editingName}
+                          onChange={(e) => setEditingName(e.target.value)}
+                          onKeyPress={(e) => handleKeyPress(e, 'edit')}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                          autoFocus
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Link (optional)</label>
+                        <input
+                          type="url"
+                          value={editingLink}
+                          onChange={(e) => setEditingLink(e.target.value)}
+                          placeholder="https://example.com"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                        />
+                      </div>
+                    </div>
+                    <div className="flex space-x-2">
+                      <button
+                        onClick={handleSaveEdit}
+                        disabled={!editingName.trim()}
+                        className="btn-primary px-3 py-1 text-sm flex items-center space-x-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        <CheckIcon className="h-4 w-4" />
+                        <span>Save</span>
+                      </button>
+                      <button
+                        onClick={handleCancelEdit}
+                        className="btn-secondary px-3 py-1 text-sm flex items-center space-x-1"
+                      >
+                        <XMarkIcon className="h-4 w-4" />
+                        <span>Cancel</span>
+                      </button>
+                    </div>
+                  </div>
                 ) : (
-                  <>
-                    <span className="flex-1 text-secondary-800 font-medium">{supporter}</span>
-                    <button
-                      onClick={() => handleStartEdit(index)}
-                      className="p-2 text-blue-600 hover:text-blue-700"
-                    >
-                      <PencilIcon className="h-4 w-4" />
-                    </button>
-                    <button
-                      onClick={() => handleRemoveSupporter(index)}
-                      className="p-2 text-red-600 hover:text-red-700"
-                    >
-                      <TrashIcon className="h-4 w-4" />
-                    </button>
-                  </>
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1">
+                      <div className="font-medium text-secondary-800">{supporter.name}</div>
+                      {supporter.link && (
+                        <div className="text-sm text-blue-600 mt-1 flex items-center space-x-1">
+                          <LinkIcon className="h-3 w-3" />
+                          <a 
+                            href={supporter.link} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="hover:underline"
+                          >
+                            {supporter.link}
+                          </a>
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex space-x-1">
+                      <button
+                        onClick={() => handleStartEdit(index)}
+                        className="p-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded"
+                        title="Edit supporter"
+                      >
+                        <PencilIcon className="h-4 w-4" />
+                      </button>
+                      <button
+                        onClick={() => handleRemoveSupporter(index)}
+                        className="p-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded"
+                        title="Remove supporter"
+                      >
+                        <TrashIcon className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </div>
                 )}
               </div>
             ))}
@@ -189,13 +274,27 @@ export default function IndividualSupportersManager({
         /* Display mode */
         <div className="space-y-4">
           {supporters.length > 0 ? (
-            <div className="flex flex-wrap gap-2">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
               {supporters.map((supporter, index) => (
                 <div
-                  key={index}
-                  className="px-3 py-2 bg-secondary-100 rounded-lg text-secondary-800 font-medium"
+                  key={supporter.id || index}
+                  className="p-3 bg-white border border-gray-200 rounded-lg hover:shadow-sm transition-shadow"
                 >
-                  {supporter}
+                  <div className="font-medium text-secondary-800 mb-1">{supporter.name}</div>
+                  {supporter.link && (
+                    <div className="text-sm text-blue-600 flex items-center space-x-1">
+                      <LinkIcon className="h-3 w-3 flex-shrink-0" />
+                      <a 
+                        href={supporter.link} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="hover:underline truncate"
+                        title={supporter.link}
+                      >
+                        {supporter.link}
+                      </a>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>

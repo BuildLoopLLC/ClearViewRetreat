@@ -113,19 +113,22 @@ export default function SiteSettingsPage() {
 
   // Handle URL parameters to set active section
   useEffect(() => {
-    const section = searchParams.get('section')
-    if (section) {
-      // Find the section in our pageSections configuration
-      const allSections = pageSections.flatMap(page => 
-        page.sections.map(section => ({ page: page.id, section: section.id }))
-      )
-      const matchingSection = allSections.find(s => s.section === section)
-      if (matchingSection) {
-        setActiveSection(matchingSection)
-        setExpandedPages(new Set([matchingSection.page]))
+    // Use window.location.search since useSearchParams might not work in SSR
+    if (typeof window !== 'undefined') {
+      const section = new URLSearchParams(window.location.search).get('section')
+      if (section) {
+        // Find the section in our pageSections configuration
+        const allSections = pageSections.flatMap(page => 
+          page.sections.map(section => ({ page: page.id, section: section.id }))
+        )
+        const matchingSection = allSections.find(s => s.section === section)
+        if (matchingSection) {
+          setActiveSection(matchingSection)
+          setExpandedPages(new Set([matchingSection.page]))
+        }
       }
     }
-  }, [searchParams])
+  }, [])
 
   // Handle browser back/forward navigation
   useEffect(() => {

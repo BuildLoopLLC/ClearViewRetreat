@@ -108,27 +108,36 @@ export default function SiteSettingsPage() {
   const { user, logout } = useAuthContext()
   const router = useRouter()
   const searchParams = useSearchParams()
-  const [expandedPages, setExpandedPages] = useState<Set<string>>(new Set(['home']))
-  const [activeSection, setActiveSection] = useState<{page: string, section: string} | null>(null)
+  const [expandedPages, setExpandedPages] = useState<Set<string>>(new Set(['home', 'about']))
+  
+  // Process URL parameter directly in render
+  const sectionParam = searchParams.get('section')
+  const initialActiveSection = sectionParam ? (() => {
+    const allSections = pageSections.flatMap(page => 
+      page.sections.map(section => ({ page: page.id, section: section.id }))
+    )
+    const matchingSection = allSections.find(s => s.section === sectionParam)
+    return matchingSection || null
+  })() : null
+  
+  const [activeSection, setActiveSection] = useState<{page: string, section: string} | null>(initialActiveSection)
 
   // Handle URL parameters to set active section
   useEffect(() => {
-    // Use window.location.search since useSearchParams might not work in SSR
-    if (typeof window !== 'undefined') {
-      const section = new URLSearchParams(window.location.search).get('section')
-      if (section) {
-        // Find the section in our pageSections configuration
-        const allSections = pageSections.flatMap(page => 
-          page.sections.map(section => ({ page: page.id, section: section.id }))
-        )
-        const matchingSection = allSections.find(s => s.section === section)
-        if (matchingSection) {
-          setActiveSection(matchingSection)
-          setExpandedPages(new Set([matchingSection.page]))
-        }
+    // Try useSearchParams first, then fallback to window.location.search
+    const section = searchParams.get('section') || (typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('section') : null)
+    if (section) {
+      // Find the section in our pageSections configuration
+      const allSections = pageSections.flatMap(page => 
+        page.sections.map(section => ({ page: page.id, section: section.id }))
+      )
+      const matchingSection = allSections.find(s => s.section === section)
+      if (matchingSection) {
+        setActiveSection(matchingSection)
+        setExpandedPages(new Set([matchingSection.page]))
       }
     }
-  }, [])
+  }, [searchParams])
 
   // Handle browser back/forward navigation
   useEffect(() => {

@@ -64,6 +64,7 @@ export default function ContentManager({ section, title }: ContentManagerProps) 
 
 
 
+
   const handleEdit = (item: WebsiteContent) => {
     setEditingItems(prev => new Set(prev).add(item.id))
     setEditForms(prev => ({

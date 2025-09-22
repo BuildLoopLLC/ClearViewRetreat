@@ -5,6 +5,26 @@ import { useWebsiteContent } from '@/hooks/useWebsiteContentSQLite'
 
 export default function GratitudePage() {
   const { content: gratitudeContent, loading, error } = useWebsiteContent('about', 'gratitude')
+
+  // Helper function to process content and convert newlines to HTML
+  const processContent = (content: string): string => {
+    if (!content) return ''
+    return content
+      .replace(/\n\n/g, '</p><p>') // Convert double newlines to paragraph breaks
+      .replace(/\n/g, '<br>') // Convert single newlines to line breaks
+      .replace(/^/, '<p>') // Add opening paragraph tag
+      .replace(/$/, '</p>') // Add closing paragraph tag
+  }
+
+  // Get dynamic gratitude sections (excluding intro and supporters)
+  const getDynamicSections = () => {
+    if (!gratitudeContent) return []
+    return gratitudeContent.filter(item => 
+      item.metadata?.name && 
+      !['Gratitude Introduction', 'Individual Supporters', 'Call to Action'].includes(item.metadata.name) &&
+      item.metadata.name.startsWith('Gratitude Section')
+    ).sort((a, b) => (a.order || 0) - (b.order || 0))
+  }
   
   if (loading) {
     return (
@@ -62,7 +82,7 @@ export default function GratitudePage() {
               <div 
                 className="prose prose-lg max-w-none"
                 dangerouslySetInnerHTML={{ 
-                  __html: gratitudeContent.find(c => c.metadata?.name === 'Gratitude Introduction')?.content || '' 
+                  __html: processContent(gratitudeContent.find(c => c.metadata?.name === 'Gratitude Introduction')?.content || '') 
                 }}
               />
             )}
@@ -136,48 +156,55 @@ export default function GratitudePage() {
           </div>
         </div>
 
-        {/* Boy Scouts Section */}
-        {gratitudeContent && gratitudeContent.find(c => c.metadata?.name === 'Boy Scouts Section')?.content && (
-          <div className="mb-16">
-            <div className="bg-white rounded-3xl shadow-xl border border-secondary-200 overflow-hidden">
-              <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-8 py-6">
-                <div 
-                  className="prose prose-lg max-w-none text-white"
-                  dangerouslySetInnerHTML={{ 
-                    __html: gratitudeContent.find(c => c.metadata?.name === 'Boy Scouts Section')?.content || '' 
-                  }}
-                />
+        {/* Dynamic Gratitude Sections */}
+        {getDynamicSections().map((section, index) => {
+          const sectionData = section.metadata?.sectionData ? JSON.parse(section.metadata.sectionData) : {}
+          const gradientColors = sectionData.gradientColors || ['from-primary-600', 'to-primary-700']
+          const title = sectionData.title || section.metadata?.name?.replace('Gratitude Section ', '') || 'Gratitude Section'
+          
+          return (
+            <div key={section.id} className="mb-16">
+              <div className="bg-white rounded-3xl shadow-xl border border-secondary-200 overflow-hidden">
+                <div className={`bg-gradient-to-r ${gradientColors.join(' ')} px-8 py-6`}>
+                  <h3 className="text-2xl md:text-3xl font-display font-bold text-white text-center mb-4">
+                    {title}
+                  </h3>
+                  <div 
+                    className="prose prose-lg max-w-none text-white"
+                    dangerouslySetInnerHTML={{ 
+                      __html: processContent(section.content || '') 
+                    }}
+                  />
+                </div>
               </div>
             </div>
-          </div>
-        )}
-
-        {/* Global Accord Section */}
-        {gratitudeContent && gratitudeContent.find(c => c.metadata?.name === 'Global Accord Section')?.content && (
-          <div className="mb-16">
-            <div className="bg-white rounded-3xl shadow-xl border border-secondary-200 overflow-hidden">
-              <div className="bg-gradient-to-r from-green-600 to-green-700 px-8 py-6">
-                <div 
-                  className="prose prose-lg max-w-none text-white"
-                  dangerouslySetInnerHTML={{ 
-                    __html: gratitudeContent.find(c => c.metadata?.name === 'Global Accord Section')?.content || '' 
-                  }}
-                />
-              </div>
-            </div>
-          </div>
-        )}
+          )
+        })}
 
         {/* Call to Action */}
         {gratitudeContent && gratitudeContent.find(c => c.metadata?.name === 'Call to Action')?.content && (
           <div className="text-center">
             <div className="bg-gradient-to-r from-primary-50 to-accent-50 rounded-2xl p-8">
               <div 
-                className="prose prose-lg max-w-none"
+                className="prose prose-lg max-w-none mb-6"
                 dangerouslySetInnerHTML={{ 
-                  __html: gratitudeContent.find(c => c.metadata?.name === 'Call to Action')?.content || '' 
+                  __html: processContent(gratitudeContent.find(c => c.metadata?.name === 'Call to Action')?.content || '') 
                 }}
               />
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <a
+                  href="/contact"
+                  className="btn-primary text-lg px-8 py-4 inline-flex items-center justify-center"
+                >
+                  Contact Us
+                </a>
+                <a
+                  href="/about"
+                  className="btn-outline text-lg px-8 py-4 inline-flex items-center justify-center"
+                >
+                  Learn More About Us
+                </a>
+              </div>
             </div>
           </div>
         )}

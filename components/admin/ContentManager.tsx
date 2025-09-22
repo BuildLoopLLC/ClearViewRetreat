@@ -1144,9 +1144,61 @@ export default function ContentManager({ section, title }: ContentManagerProps) 
         // Group gratitude content by type
         const gratitudeIntro = content.find(item => item.metadata?.name === 'Gratitude Introduction')
         const individualSupporters = content.find(item => item.metadata?.name === 'Individual Supporters')
-        const boyScoutsSection = content.find(item => item.metadata?.name === 'Boy Scouts Section')
-        const globalAccordSection = content.find(item => item.metadata?.name === 'Global Accord Section')
         const callToAction = content.find(item => item.metadata?.name === 'Call to Action')
+        
+        // Get dynamic gratitude sections
+        const dynamicSections = content.filter(item => 
+          item.metadata?.name && 
+          item.metadata.name.startsWith('Gratitude Section')
+        ).sort((a, b) => (a.order || 0) - (b.order || 0))
+
+        // Function to add a new gratitude section
+        const addGratitudeSection = async () => {
+          const sectionNumber = dynamicSections.length + 1
+          const newSection = {
+            section: 'about',
+            subsection: 'gratitude',
+            content_type: 'text',
+            content: `# New Gratitude Section ${sectionNumber}\n\nAdd your content here...`,
+            order: sectionNumber * 10,
+            is_active: true,
+            metadata: { 
+              name: `Gratitude Section ${sectionNumber}`,
+              sectionData: JSON.stringify({
+                title: `New Gratitude Section ${sectionNumber}`,
+                gradientColors: ['from-primary-600', 'to-primary-700']
+              })
+            },
+            user: user?.email || 'admin@clearviewretreat.com'
+          }
+
+          try {
+            const response = await fetch('/api/sqlite-content', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(newSection)
+            })
+            if (response.ok) {
+              refreshContent()
+            }
+          } catch (error) {
+            console.error('Error adding gratitude section:', error)
+          }
+        }
+
+        // Function to remove a gratitude section
+        const removeGratitudeSection = async (sectionId: string) => {
+          try {
+            const response = await fetch(`/api/sqlite-content?id=${sectionId}`, {
+              method: 'DELETE'
+            })
+            if (response.ok) {
+              refreshContent()
+            }
+          } catch (error) {
+            console.error('Error removing gratitude section:', error)
+          }
+        }
 
         return (
           <div className="space-y-6">
@@ -1217,66 +1269,84 @@ export default function ContentManager({ section, title }: ContentManagerProps) 
               />
             </div>
 
-            {/* Boy Scouts Section */}
+            {/* Dynamic Gratitude Sections */}
             <div className="border border-gray-200 rounded-lg p-6 bg-gray-50">
-              <h4 className="text-lg font-semibold text-secondary-900 mb-4">Boy Scouts Section</h4>
+              <div className="flex justify-between items-center mb-4">
+                <h4 className="text-lg font-semibold text-secondary-900">Gratitude Sections</h4>
+                <button
+                  onClick={addGratitudeSection}
+                  className="btn-primary text-sm px-4 py-2"
+                >
+                  Add New Section
+                </button>
+              </div>
+              
               <div className="space-y-4">
-                {boyScoutsSection && (
-                  <div>
-                    <label className="text-sm font-medium text-secondary-700">Boy Scouts Content</label>
-                    {editingItems.has(boyScoutsSection.id) ? (
-                      <textarea
-                        value={editForms[boyScoutsSection.id]?.content || ''}
-                        onChange={(e) => handleFieldChange(boyScoutsSection.id, 'content', e.target.value)}
-                        rows={6}
-                        className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                      />
-                    ) : (
-                      <div className="mt-1 text-secondary-600 prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: boyScoutsSection.content }} />
-                    )}
+                {dynamicSections.map((section, index) => {
+                  const sectionData = section.metadata?.sectionData ? JSON.parse(section.metadata.sectionData) : {}
+                  const title = sectionData.title || section.metadata?.name?.replace('Gratitude Section ', '') || 'Gratitude Section'
+                  
+                  return (
+                    <div key={section.id} className="border border-gray-300 rounded-lg p-4 bg-white">
+                      <div className="flex justify-between items-start mb-3">
+                        <h5 className="text-md font-semibold text-secondary-800">{title}</h5>
+                        <button
+                          onClick={() => removeGratitudeSection(section.id)}
+                          className="text-red-600 hover:text-red-700 text-sm px-2 py-1"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                      
+                      <div className="space-y-3">
+                        <div>
+                          <label className="text-sm font-medium text-secondary-700">Section Title</label>
+                          <input
+                            type="text"
+                            value={title}
+                            onChange={(e) => {
+                              const newSectionData = { ...sectionData, title: e.target.value }
+                              // Update the section data in metadata
+                              const updatedMetadata = { ...section.metadata, sectionData: JSON.stringify(newSectionData) }
+                              // This would need to be saved via API
+                            }}
+                            className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                          />
+                        </div>
+                        
+                        <div>
+                          <label className="text-sm font-medium text-secondary-700">Content</label>
+                          {editingItems.has(section.id) ? (
+                            <textarea
+                              value={editForms[section.id]?.content || ''}
+                              onChange={(e) => handleFieldChange(section.id, 'content', e.target.value)}
+                              rows={8}
+                              className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                              placeholder="Enter your gratitude content here. You can use markdown formatting and include images..."
+                            />
+                          ) : (
+                            <div className="mt-1 text-secondary-600 prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: section.content }} />
+                          )}
+                        </div>
+                      </div>
+                      
+                      <div className="mt-4 flex space-x-2">
+                        <button
+                          onClick={() => editingItems.has(section.id) ? handleSave(section.id) : handleEdit(section)}
+                          className="btn-primary text-sm px-4 py-2"
+                        >
+                          {editingItems.has(section.id) ? 'Save Section' : 'Edit Section'}
+                        </button>
+                      </div>
+                    </div>
+                  )
+                })}
+                
+                {dynamicSections.length === 0 && (
+                  <div className="text-center py-8 text-gray-500">
+                    <p>No gratitude sections added yet.</p>
+                    <p className="text-sm">Click "Add New Section" to create your first gratitude section.</p>
                   </div>
-                )}
-              </div>
-              <div className="mt-4 flex space-x-2">
-                {boyScoutsSection && (
-                  <button
-                    onClick={() => editingItems.has(boyScoutsSection.id) ? handleSave(boyScoutsSection.id) : handleEdit(boyScoutsSection)}
-                    className="btn-primary text-sm px-4 py-2"
-                  >
-                    {editingItems.has(boyScoutsSection.id) ? 'Save Boy Scouts' : 'Edit Boy Scouts'}
-                  </button>
-                )}
-              </div>
-            </div>
-
-            {/* Global Accord Section */}
-            <div className="border border-gray-200 rounded-lg p-6 bg-gray-50">
-              <h4 className="text-lg font-semibold text-secondary-900 mb-4">Global Accord Section</h4>
-              <div className="space-y-4">
-                {globalAccordSection && (
-                  <div>
-                    <label className="text-sm font-medium text-secondary-700">Global Accord Content</label>
-                    {editingItems.has(globalAccordSection.id) ? (
-                      <textarea
-                        value={editForms[globalAccordSection.id]?.content || ''}
-                        onChange={(e) => handleFieldChange(globalAccordSection.id, 'content', e.target.value)}
-                        rows={6}
-                        className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                      />
-                    ) : (
-                      <div className="mt-1 text-secondary-600 prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: globalAccordSection.content }} />
-                    )}
-                  </div>
-                )}
-              </div>
-              <div className="mt-4 flex space-x-2">
-                {globalAccordSection && (
-                  <button
-                    onClick={() => editingItems.has(globalAccordSection.id) ? handleSave(globalAccordSection.id) : handleEdit(globalAccordSection)}
-                    className="btn-primary text-sm px-4 py-2"
-                  >
-                    {editingItems.has(globalAccordSection.id) ? 'Save Global Accord' : 'Edit Global Accord'}
-                  </button>
                 )}
               </div>
             </div>

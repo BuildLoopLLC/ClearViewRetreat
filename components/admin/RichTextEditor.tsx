@@ -49,9 +49,13 @@ const RichTextEditor = ({
     console.log('Checking for saved dimensions:', { savedWidth, savedHeight, imgSrc: img.src })
     
     if (savedWidth && savedHeight) {
+      // Force the dimensions using both attributes and styles
+      img.setAttribute('width', savedWidth)
+      img.setAttribute('height', savedHeight)
       img.style.width = `${savedWidth}px`
       img.style.height = `${savedHeight}px`
       img.style.maxWidth = 'none'
+      img.style.height = `${savedHeight}px`
       console.log('Restored saved dimensions:', savedWidth, 'x', savedHeight)
     } else {
       // Also check if dimensions are in the style attribute

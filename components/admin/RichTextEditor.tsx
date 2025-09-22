@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useRef } from 'react'
+import { useMemo, useRef, useEffect } from 'react'
 import dynamic from 'next/dynamic'
 import 'react-quill/dist/quill.snow.css'
 
@@ -104,6 +104,104 @@ const RichTextEditor = ({
 
 
 
+  // Add image resizing functionality
+  useEffect(() => {
+    const editor = quillRef.current?.getEditor()
+    if (!editor) return
+
+    const addImageResizeHandles = () => {
+      const images = editor.container.querySelectorAll('.ql-editor img')
+      images.forEach((img: any) => {
+        if (img.dataset.resizeHandled) return
+        
+        img.dataset.resizeHandled = 'true'
+        img.style.position = 'relative'
+        img.style.display = 'inline-block'
+        
+        // Add resize handle
+        const handle = document.createElement('div')
+        handle.className = 'image-resize-handle'
+        handle.style.position = 'absolute'
+        handle.style.bottom = '0'
+        handle.style.right = '0'
+        handle.style.display = 'none'
+        
+        img.appendChild(handle)
+        
+        // Show handle on hover
+        img.addEventListener('mouseenter', () => {
+          handle.style.display = 'block'
+        })
+        
+        img.addEventListener('mouseleave', () => {
+          if (!img.classList.contains('resizing')) {
+            handle.style.display = 'none'
+          }
+        })
+        
+        // Handle resize
+        let isResizing = false
+        let startX = 0
+        let startY = 0
+        let startWidth = 0
+        let startHeight = 0
+        
+        const startResize = (e: MouseEvent) => {
+          e.preventDefault()
+          isResizing = true
+          img.classList.add('resizing')
+          handle.style.display = 'block'
+          
+          startX = e.clientX
+          startY = e.clientY
+          startWidth = img.offsetWidth
+          startHeight = img.offsetHeight
+          
+          document.addEventListener('mousemove', doResize)
+          document.addEventListener('mouseup', stopResize)
+        }
+        
+        const doResize = (e: MouseEvent) => {
+          if (!isResizing) return
+          
+          const deltaX = e.clientX - startX
+          const deltaY = e.clientY - startY
+          
+          const newWidth = Math.max(50, startWidth + deltaX)
+          const newHeight = Math.max(50, startHeight + deltaY)
+          
+          img.style.width = `${newWidth}px`
+          img.style.height = `${newHeight}px`
+        }
+        
+        const stopResize = () => {
+          isResizing = false
+          img.classList.remove('resizing')
+          handle.style.display = 'none'
+          
+          document.removeEventListener('mousemove', doResize)
+          document.removeEventListener('mouseup', stopResize)
+        }
+        
+        handle.addEventListener('mousedown', startResize)
+      })
+    }
+    
+    // Add resize handles when content changes
+    const observer = new MutationObserver(addImageResizeHandles)
+    observer.observe(editor.container.querySelector('.ql-editor')!, {
+      childList: true,
+      subtree: true
+    })
+    
+    // Initial setup
+    addImageResizeHandles()
+    
+    return () => {
+      observer.disconnect()
+    }
+  }, [value])
+
   return (
     <div className={`rich-text-editor ${className}`}>
       <ReactQuill
@@ -145,6 +243,33 @@ const RichTextEditor = ({
           height: auto;
           border-radius: 8px;
           margin: 16px 0;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+        
+        .rich-text-editor .ql-editor img:hover {
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .rich-text-editor .ql-editor img.resizing {
+          border: 2px dashed #3b82f6;
+          opacity: 0.8;
+        }
+        
+        .image-resize-handle {
+          position: absolute;
+          width: 12px;
+          height: 12px;
+          background: #3b82f6;
+          border: 2px solid white;
+          border-radius: 50%;
+          cursor: nw-resize;
+          z-index: 1000;
+        }
+        
+        .image-resize-handle:hover {
+          background: #2563eb;
+          transform: scale(1.2);
         }
         
         .rich-text-editor .ql-editor blockquote {

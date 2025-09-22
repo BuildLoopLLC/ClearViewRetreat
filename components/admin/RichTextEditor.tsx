@@ -163,13 +163,35 @@ const RichTextEditor = ({
   // Add image editing functionality
   useEffect(() => {
     console.log('useEffect running, checking for editor...')
-    const editor = quillRef.current?.getEditor()
-    if (!editor) {
-      console.log('No editor found')
-      return
+    
+    // Wait for the editor to be fully mounted
+    const checkForEditor = () => {
+      if (!quillRef.current) {
+        console.log('quillRef.current is null, retrying...')
+        setTimeout(checkForEditor, 100)
+        return
+      }
+      
+      const editor = quillRef.current.getEditor()
+      if (!editor) {
+        console.log('getEditor() returned null, retrying...')
+        setTimeout(checkForEditor, 100)
+        return
+      }
+      
+      console.log('Editor found, setting up image controls...')
+      setupImageControls(editor)
     }
-    console.log('Editor found, setting up image controls...')
+    
+    checkForEditor()
+    
+    // Cleanup function
+    return () => {
+      // Cleanup will be handled by the observer's disconnect
+    }
+  }, [value])
 
+  const setupImageControls = (editor: any) => {
     const addImageControls = () => {
       const images = editor.container.querySelectorAll('.ql-editor img')
       console.log('Found images:', images.length)
@@ -197,7 +219,7 @@ const RichTextEditor = ({
     return () => {
       observer.disconnect()
     }
-  }, [value])
+  }
 
   return (
     <div className={`rich-text-editor ${className}`} style={{ marginBottom: '20px' }}>

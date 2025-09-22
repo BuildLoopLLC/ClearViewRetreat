@@ -6,6 +6,16 @@ import { useWebsiteContent } from '@/hooks/useWebsiteContentSQLite'
 
 export default function FoundersPage() {
   const { content: foundersContent, loading, error } = useWebsiteContent('about', 'founders')
+
+  // Helper function to process content and convert newlines to HTML
+  const processContent = (content: string): string => {
+    if (!content) return ''
+    return content
+      .replace(/\n\n/g, '</p><p>') // Convert double newlines to paragraph breaks
+      .replace(/\n/g, '<br>') // Convert single newlines to line breaks
+      .replace(/^/, '<p>') // Add opening paragraph tag
+      .replace(/$/, '</p>') // Add closing paragraph tag
+  }
   
   if (loading) {
     return (
@@ -62,7 +72,7 @@ export default function FoundersPage() {
             <div 
               className="text-xl text-secondary-600 leading-relaxed mb-8"
               dangerouslySetInnerHTML={{ 
-                __html: foundersContent.find(c => c.metadata?.name === 'Founders Introduction')?.content || '' 
+                __html: processContent(foundersContent.find(c => c.metadata?.name === 'Founders Introduction')?.content || '') 
               }}
             />
           )}
@@ -75,7 +85,7 @@ export default function FoundersPage() {
               <div 
                 className="prose prose-lg max-w-none"
                 dangerouslySetInnerHTML={{ 
-                  __html: foundersContent.find(c => c.metadata?.name === 'Founders Story')?.content || '' 
+                  __html: processContent(foundersContent.find(c => c.metadata?.name === 'Founders Story')?.content || '') 
                 }}
               />
             </div>
@@ -86,7 +96,7 @@ export default function FoundersPage() {
               <div 
                 className="prose prose-lg max-w-none"
                 dangerouslySetInnerHTML={{ 
-                  __html: foundersContent.find(c => c.metadata?.name === 'The Vision')?.content || '' 
+                  __html: processContent(foundersContent.find(c => c.metadata?.name === 'The Vision')?.content || '') 
                 }}
               />
             </div>
@@ -97,7 +107,7 @@ export default function FoundersPage() {
               <div 
                 className="prose prose-lg max-w-none"
                 dangerouslySetInnerHTML={{ 
-                  __html: foundersContent.find(c => c.metadata?.name === 'The Journey')?.content || '' 
+                  __html: processContent(foundersContent.find(c => c.metadata?.name === 'The Journey')?.content || '') 
                 }}
               />
             </div>
@@ -111,7 +121,7 @@ export default function FoundersPage() {
               <div 
                 className="prose prose-lg max-w-none"
                 dangerouslySetInnerHTML={{ 
-                  __html: foundersContent.find(c => c.metadata?.name === 'Call to Action')?.content || '' 
+                  __html: processContent(foundersContent.find(c => c.metadata?.name === 'Call to Action')?.content || '') 
                 }}
               />
             </div>

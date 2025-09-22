@@ -99,52 +99,68 @@ const RichTextEditor = ({
     controlsContainer.appendChild(heightInput)
     controlsContainer.appendChild(applyButton)
     
-    // Create a wrapper div for the image
-    const wrapper = document.createElement('div')
-    wrapper.style.position = 'relative'
-    wrapper.style.display = 'inline-block'
-    wrapper.style.maxWidth = '100%'
-    
-    // Insert wrapper before image and move image into wrapper
-    img.parentNode?.insertBefore(wrapper, img)
-    wrapper.appendChild(img)
-    wrapper.appendChild(controlsContainer)
+    // Insert controls container after the image
+    img.parentNode?.insertBefore(controlsContainer, img.nextSibling)
     
     // Set initial values
     widthInput.value = img.offsetWidth.toString()
     heightInput.value = img.offsetHeight.toString()
     
     // Show controls on hover
-    wrapper.addEventListener('mouseenter', () => {
-      img.style.borderColor = '#3b82f6'
-      controlsContainer.style.display = 'block'
+    img.addEventListener('mouseenter', (e) => {
+      e.preventDefault()
+      e.stopPropagation()
+      try {
+        img.style.borderColor = '#3b82f6'
+        controlsContainer.style.display = 'block'
+      } catch (error) {
+        console.log('Error in mouseenter:', error)
+      }
     })
     
-    wrapper.addEventListener('mouseleave', () => {
-      img.style.borderColor = 'transparent'
-      controlsContainer.style.display = 'none'
+    img.addEventListener('mouseleave', (e) => {
+      e.preventDefault()
+      e.stopPropagation()
+      try {
+        img.style.borderColor = 'transparent'
+        controlsContainer.style.display = 'none'
+      } catch (error) {
+        console.log('Error in mouseleave:', error)
+      }
     })
     
     // Apply size changes
     const applySize = () => {
-      const width = parseInt(widthInput.value) || img.offsetWidth
-      const height = parseInt(heightInput.value) || img.offsetHeight
-      
-      if (width > 0 && height > 0) {
-        img.style.width = `${width}px`
-        img.style.height = `${height}px`
-        img.style.maxWidth = 'none'
-        console.log('Image resized to:', width, 'x', height)
+      try {
+        const width = parseInt(widthInput.value) || img.offsetWidth
+        const height = parseInt(heightInput.value) || img.offsetHeight
+        
+        if (width > 0 && height > 0) {
+          img.style.width = `${width}px`
+          img.style.height = `${height}px`
+          img.style.maxWidth = 'none'
+          console.log('Image resized to:', width, 'x', height)
+        }
+      } catch (error) {
+        console.log('Error applying size:', error)
       }
     }
     
-    applyButton.addEventListener('click', applySize)
+    applyButton.addEventListener('click', (e) => {
+      e.preventDefault()
+      e.stopPropagation()
+      applySize()
+    })
     
     widthInput.addEventListener('keypress', (e: KeyboardEvent) => {
+      e.preventDefault()
+      e.stopPropagation()
       if (e.key === 'Enter') applySize()
     })
     
     heightInput.addEventListener('keypress', (e: KeyboardEvent) => {
+      e.preventDefault()
+      e.stopPropagation()
       if (e.key === 'Enter') applySize()
     })
   }

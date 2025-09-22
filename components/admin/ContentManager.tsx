@@ -7,6 +7,7 @@ import { useWebsiteContent } from '../../hooks/useWebsiteContentSQLite'
 import { useAuthContext } from '../../contexts/AuthContext'
 import { PencilIcon, CheckIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import IndividualSupportersManager from './IndividualSupportersManager'
+import RichTextEditor from './RichTextEditor'
 
 interface ContentManagerProps {
   section: string
@@ -1317,13 +1318,13 @@ export default function ContentManager({ section, title }: ContentManagerProps) 
                         <div>
                           <label className="text-sm font-medium text-secondary-700">Content</label>
                           {editingItems.has(section.id) ? (
-                            <textarea
-                              value={editForms[section.id]?.content || ''}
-                              onChange={(e) => handleFieldChange(section.id, 'content', e.target.value)}
-                              rows={8}
-                              className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                              placeholder="Enter your gratitude content here. You can use markdown formatting and include images..."
-                            />
+                            <div className="mt-1">
+                              <RichTextEditor
+                                value={editForms[section.id]?.content || ''}
+                                onChange={(value) => handleFieldChange(section.id, 'content', value)}
+                                placeholder="Enter your gratitude content here. Use the rich text editor to format text, add images, and create engaging content..."
+                              />
+                            </div>
                           ) : (
                             <div className="mt-1 text-secondary-600 prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: section.content }} />
                           )}

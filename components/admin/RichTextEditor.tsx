@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useRef, useEffect } from 'react'
+import { useMemo, useRef, useEffect, useState } from 'react'
 import dynamic from 'next/dynamic'
 import 'react-quill/dist/quill.snow.css'
 
@@ -21,6 +21,16 @@ const RichTextEditor = ({
   className = ''
 }: RichTextEditorProps) => {
   const quillRef = useRef<any>(null)
+  const [editorReady, setEditorReady] = useState(false)
+
+  // Callback ref to detect when ReactQuill is mounted
+  const quillCallbackRef = (node: any) => {
+    quillRef.current = node
+    if (node) {
+      console.log('ReactQuill component mounted, setting editor ready')
+      setEditorReady(true)
+    }
+  }
 
   // Function to add controls to a specific image element
   const addImageControlsToElement = (img: HTMLImageElement) => {
@@ -162,34 +172,25 @@ const RichTextEditor = ({
 
   // Add image editing functionality
   useEffect(() => {
-    console.log('useEffect running, checking for editor...')
+    if (!editorReady) {
+      console.log('Editor not ready yet, waiting...')
+      return
+    }
     
-    // Wait for the editor to be fully mounted
-    const checkForEditor = () => {
-      if (!quillRef.current) {
-        console.log('quillRef.current is null, retrying...')
-        setTimeout(checkForEditor, 100)
-        return
-      }
-      
-      const editor = quillRef.current.getEditor()
+    console.log('Editor ready, setting up image controls...')
+    
+    // Wait a bit more for the editor to be fully initialized
+    setTimeout(() => {
+      const editor = quillRef.current?.getEditor()
       if (!editor) {
-        console.log('getEditor() returned null, retrying...')
-        setTimeout(checkForEditor, 100)
+        console.log('getEditor() still returned null')
         return
       }
       
       console.log('Editor found, setting up image controls...')
       setupImageControls(editor)
-    }
-    
-    checkForEditor()
-    
-    // Cleanup function
-    return () => {
-      // Cleanup will be handled by the observer's disconnect
-    }
-  }, [value])
+    }, 200)
+  }, [editorReady, value])
 
   const setupImageControls = (editor: any) => {
     const addImageControls = () => {
@@ -224,7 +225,7 @@ const RichTextEditor = ({
   return (
     <div className={`rich-text-editor ${className}`} style={{ marginBottom: '20px' }}>
       <ReactQuill
-        ref={quillRef}
+        ref={quillCallbackRef}
         theme="snow"
         value={value}
         onChange={onChange}

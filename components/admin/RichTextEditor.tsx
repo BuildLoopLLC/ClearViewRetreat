@@ -49,22 +49,19 @@ const RichTextEditor = ({
     img.style.borderRadius = '4px'
     img.style.transition = 'border-color 0.2s ease'
     
-    // Create a global controls container that's outside Quill's DOM
-    let globalControls = document.getElementById('image-resize-controls-global')
-    if (!globalControls) {
-      globalControls = document.createElement('div')
-      globalControls.id = 'image-resize-controls-global'
-      globalControls.style.position = 'fixed'
-      globalControls.style.background = 'white'
-      globalControls.style.border = '1px solid #ccc'
-      globalControls.style.borderRadius = '6px'
-      globalControls.style.padding = '8px'
-      globalControls.style.display = 'none'
-      globalControls.style.zIndex = '9999'
-      globalControls.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)'
-      globalControls.style.fontSize = '12px'
-      document.body.appendChild(globalControls)
-    }
+    // Create individual controls container for this specific image
+    const controlsContainer = document.createElement('div')
+    controlsContainer.className = 'image-resize-controls'
+    controlsContainer.style.position = 'fixed'
+    controlsContainer.style.background = 'white'
+    controlsContainer.style.border = '1px solid #ccc'
+    controlsContainer.style.borderRadius = '6px'
+    controlsContainer.style.padding = '8px'
+    controlsContainer.style.display = 'none'
+    controlsContainer.style.zIndex = '9999'
+    controlsContainer.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)'
+    controlsContainer.style.fontSize = '12px'
+    document.body.appendChild(controlsContainer)
     
     // Add dimension inputs
     const widthInput = document.createElement('input')
@@ -152,12 +149,11 @@ const RichTextEditor = ({
     widthInput.addEventListener('input', updateHeightFromWidth)
     heightInput.addEventListener('input', updateWidthFromHeight)
     
-    // Clear and populate global controls
-    globalControls.innerHTML = ''
-    globalControls.appendChild(widthInput)
-    globalControls.appendChild(heightInput)
-    globalControls.appendChild(lockButton)
-    globalControls.appendChild(applyButton)
+    // Populate controls container
+    controlsContainer.appendChild(widthInput)
+    controlsContainer.appendChild(heightInput)
+    controlsContainer.appendChild(lockButton)
+    controlsContainer.appendChild(applyButton)
     
     // Set initial values
     widthInput.value = img.offsetWidth.toString()
@@ -165,32 +161,37 @@ const RichTextEditor = ({
     
     // Show controls on hover
     img.addEventListener('mouseenter', (e) => {
+      // Hide all other controls first
+      document.querySelectorAll('.image-resize-controls').forEach(control => {
+        control.style.display = 'none'
+      })
+      
       img.style.borderColor = '#3b82f6'
       
       // Position controls near the image
       const rect = img.getBoundingClientRect()
-      globalControls.style.left = `${rect.left}px`
-      globalControls.style.top = `${rect.top - 50}px`
-      globalControls.style.display = 'block'
+      controlsContainer.style.left = `${rect.left}px`
+      controlsContainer.style.top = `${rect.top - 50}px`
+      controlsContainer.style.display = 'block'
     })
     
     img.addEventListener('mouseleave', () => {
       img.style.borderColor = 'transparent'
       // Don't hide immediately, let user interact with controls
       setTimeout(() => {
-        if (!globalControls.matches(':hover')) {
-          globalControls.style.display = 'none'
+        if (!controlsContainer.matches(':hover')) {
+          controlsContainer.style.display = 'none'
         }
       }, 100)
     })
     
     // Keep controls visible when hovering over them
-    globalControls.addEventListener('mouseenter', () => {
-      globalControls.style.display = 'block'
+    controlsContainer.addEventListener('mouseenter', () => {
+      controlsContainer.style.display = 'block'
     })
     
-    globalControls.addEventListener('mouseleave', () => {
-      globalControls.style.display = 'none'
+    controlsContainer.addEventListener('mouseleave', () => {
+      controlsContainer.style.display = 'none'
     })
     
     // Apply size changes
@@ -203,7 +204,7 @@ const RichTextEditor = ({
         img.style.height = `${height}px`
         img.style.maxWidth = 'none'
         console.log('Image resized to:', width, 'x', height)
-        globalControls.style.display = 'none'
+        controlsContainer.style.display = 'none'
       }
     }
     

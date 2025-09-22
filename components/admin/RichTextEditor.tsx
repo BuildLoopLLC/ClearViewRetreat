@@ -43,42 +43,109 @@ const RichTextEditor = ({
     console.log('Adding controls to image:', img.src)
     img.dataset.controlsAdded = 'true'
     
-    // Make image selectable with double-click
+    // Make image selectable
     img.style.cursor = 'pointer'
     img.style.border = '2px solid transparent'
     img.style.borderRadius = '4px'
     img.style.transition = 'border-color 0.2s ease'
     
-    // Show border on hover
-    img.addEventListener('mouseenter', () => {
+    // Create controls container
+    const controlsContainer = document.createElement('div')
+    controlsContainer.className = 'image-resize-controls'
+    controlsContainer.style.position = 'absolute'
+    controlsContainer.style.top = '-50px'
+    controlsContainer.style.left = '0'
+    controlsContainer.style.background = 'white'
+    controlsContainer.style.border = '1px solid #ccc'
+    controlsContainer.style.borderRadius = '6px'
+    controlsContainer.style.padding = '8px'
+    controlsContainer.style.display = 'none'
+    controlsContainer.style.zIndex = '1000'
+    controlsContainer.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)'
+    controlsContainer.style.fontSize = '12px'
+    
+    // Add dimension inputs
+    const widthInput = document.createElement('input')
+    widthInput.type = 'number'
+    widthInput.placeholder = 'Width'
+    widthInput.style.width = '60px'
+    widthInput.style.marginRight = '4px'
+    widthInput.style.padding = '4px 6px'
+    widthInput.style.border = '1px solid #ddd'
+    widthInput.style.borderRadius = '3px'
+    widthInput.style.fontSize = '12px'
+    
+    const heightInput = document.createElement('input')
+    heightInput.type = 'number'
+    heightInput.placeholder = 'Height'
+    heightInput.style.width = '60px'
+    heightInput.style.marginRight = '4px'
+    heightInput.style.padding = '4px 6px'
+    heightInput.style.border = '1px solid #ddd'
+    heightInput.style.borderRadius = '3px'
+    heightInput.style.fontSize = '12px'
+    
+    const applyButton = document.createElement('button')
+    applyButton.textContent = 'Apply'
+    applyButton.style.padding = '4px 8px'
+    applyButton.style.background = '#3b82f6'
+    applyButton.style.color = 'white'
+    applyButton.style.border = 'none'
+    applyButton.style.borderRadius = '3px'
+    applyButton.style.cursor = 'pointer'
+    applyButton.style.fontSize = '12px'
+    
+    controlsContainer.appendChild(widthInput)
+    controlsContainer.appendChild(heightInput)
+    controlsContainer.appendChild(applyButton)
+    
+    // Create a wrapper div for the image
+    const wrapper = document.createElement('div')
+    wrapper.style.position = 'relative'
+    wrapper.style.display = 'inline-block'
+    wrapper.style.maxWidth = '100%'
+    
+    // Insert wrapper before image and move image into wrapper
+    img.parentNode?.insertBefore(wrapper, img)
+    wrapper.appendChild(img)
+    wrapper.appendChild(controlsContainer)
+    
+    // Set initial values
+    widthInput.value = img.offsetWidth.toString()
+    heightInput.value = img.offsetHeight.toString()
+    
+    // Show controls on hover
+    wrapper.addEventListener('mouseenter', () => {
       img.style.borderColor = '#3b82f6'
+      controlsContainer.style.display = 'block'
     })
     
-    img.addEventListener('mouseleave', () => {
+    wrapper.addEventListener('mouseleave', () => {
       img.style.borderColor = 'transparent'
+      controlsContainer.style.display = 'none'
     })
     
-    // Show resize dialog on double-click
-    img.addEventListener('dblclick', (e: MouseEvent) => {
-      e.preventDefault()
-      e.stopPropagation()
+    // Apply size changes
+    const applySize = () => {
+      const width = parseInt(widthInput.value) || img.offsetWidth
+      const height = parseInt(heightInput.value) || img.offsetHeight
       
-      console.log('Image double-clicked, showing resize dialog')
-      
-      const width = prompt('Enter width in pixels:', img.offsetWidth.toString())
-      const height = prompt('Enter height in pixels:', img.offsetHeight.toString())
-      
-      if (width && height) {
-        const widthNum = parseInt(width)
-        const heightNum = parseInt(height)
-        
-        if (widthNum > 0 && heightNum > 0) {
-          img.style.width = `${widthNum}px`
-          img.style.height = `${heightNum}px`
-          img.style.maxWidth = 'none'
-          console.log('Image resized to:', widthNum, 'x', heightNum)
-        }
+      if (width > 0 && height > 0) {
+        img.style.width = `${width}px`
+        img.style.height = `${height}px`
+        img.style.maxWidth = 'none'
+        console.log('Image resized to:', width, 'x', height)
       }
+    }
+    
+    applyButton.addEventListener('click', applySize)
+    
+    widthInput.addEventListener('keypress', (e: KeyboardEvent) => {
+      if (e.key === 'Enter') applySize()
+    })
+    
+    heightInput.addEventListener('keypress', (e: KeyboardEvent) => {
+      if (e.key === 'Enter') applySize()
     })
   }
 

@@ -200,11 +200,25 @@ const RichTextEditor = ({
       const height = parseInt(heightInput.value) || img.offsetHeight
       
       if (width > 0 && height > 0) {
+        // Update both style and attributes to ensure Quill captures the changes
         img.style.width = `${width}px`
         img.style.height = `${height}px`
         img.style.maxWidth = 'none'
+        
+        // Also update the HTML attributes so Quill saves them
+        img.setAttribute('width', width.toString())
+        img.setAttribute('height', height.toString())
+        
         console.log('Image resized to:', width, 'x', height)
         controlsContainer.style.display = 'none'
+        
+        // Trigger Quill's change detection by updating the content
+        const editor = quillRef.current?.getEditor()
+        if (editor) {
+          // Force Quill to recognize the content change
+          const delta = editor.getContents()
+          editor.setContents(delta)
+        }
       }
     }
     

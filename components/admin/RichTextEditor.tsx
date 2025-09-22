@@ -203,7 +203,7 @@ const RichTextEditor = ({
   }, [value])
 
   return (
-    <div className={`rich-text-editor ${className}`}>
+    <div className={`rich-text-editor ${className}`} style={{ marginBottom: '20px' }}>
       <ReactQuill
         ref={quillRef}
         theme="snow"
@@ -214,7 +214,7 @@ const RichTextEditor = ({
         placeholder={placeholder}
         style={{
           height: '400px',
-          marginBottom: '50px'
+          marginBottom: '80px'
         }}
       />
       <style jsx global>{`

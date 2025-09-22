@@ -97,10 +97,66 @@ const RichTextEditor = ({
     applyButton.style.cursor = 'pointer'
     applyButton.style.fontSize = '12px'
     
+    // Aspect ratio lock button
+    const lockButton = document.createElement('button')
+    lockButton.textContent = '🔒'
+    lockButton.style.padding = '4px 6px'
+    lockButton.style.background = '#6b7280'
+    lockButton.style.color = 'white'
+    lockButton.style.border = 'none'
+    lockButton.style.borderRadius = '3px'
+    lockButton.style.cursor = 'pointer'
+    lockButton.style.fontSize = '12px'
+    lockButton.style.marginRight = '4px'
+    lockButton.title = 'Lock aspect ratio'
+    
+    let aspectRatioLocked = true
+    let originalAspectRatio = img.offsetWidth / img.offsetHeight
+    
+    // Toggle aspect ratio lock
+    const toggleAspectRatio = () => {
+      aspectRatioLocked = !aspectRatioLocked
+      if (aspectRatioLocked) {
+        lockButton.textContent = '🔒'
+        lockButton.style.background = '#6b7280'
+        lockButton.title = 'Lock aspect ratio'
+        // Recalculate aspect ratio based on current dimensions
+        originalAspectRatio = img.offsetWidth / img.offsetHeight
+      } else {
+        lockButton.textContent = '🔓'
+        lockButton.style.background = '#ef4444'
+        lockButton.title = 'Unlock aspect ratio'
+      }
+    }
+    
+    lockButton.addEventListener('click', toggleAspectRatio)
+    
+    // Update height when width changes (if locked)
+    const updateHeightFromWidth = () => {
+      if (aspectRatioLocked) {
+        const newWidth = parseInt(widthInput.value) || img.offsetWidth
+        const newHeight = Math.round(newWidth / originalAspectRatio)
+        heightInput.value = newHeight.toString()
+      }
+    }
+    
+    // Update width when height changes (if locked)
+    const updateWidthFromHeight = () => {
+      if (aspectRatioLocked) {
+        const newHeight = parseInt(heightInput.value) || img.offsetHeight
+        const newWidth = Math.round(newHeight * originalAspectRatio)
+        widthInput.value = newWidth.toString()
+      }
+    }
+    
+    widthInput.addEventListener('input', updateHeightFromWidth)
+    heightInput.addEventListener('input', updateWidthFromHeight)
+    
     // Clear and populate global controls
     globalControls.innerHTML = ''
     globalControls.appendChild(widthInput)
     globalControls.appendChild(heightInput)
+    globalControls.appendChild(lockButton)
     globalControls.appendChild(applyButton)
     
     // Set initial values

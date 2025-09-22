@@ -46,11 +46,23 @@ const RichTextEditor = ({
     // Restore saved dimensions if they exist
     const savedWidth = img.getAttribute('width')
     const savedHeight = img.getAttribute('height')
+    console.log('Checking for saved dimensions:', { savedWidth, savedHeight, imgSrc: img.src })
+    
     if (savedWidth && savedHeight) {
       img.style.width = `${savedWidth}px`
       img.style.height = `${savedHeight}px`
       img.style.maxWidth = 'none'
       console.log('Restored saved dimensions:', savedWidth, 'x', savedHeight)
+    } else {
+      // Also check if dimensions are in the style attribute
+      const styleWidth = img.style.width
+      const styleHeight = img.style.height
+      console.log('Checking style dimensions:', { styleWidth, styleHeight })
+      
+      if (styleWidth && styleHeight) {
+        img.style.maxWidth = 'none'
+        console.log('Applied style dimensions:', styleWidth, 'x', styleHeight)
+      }
     }
     
     // Make image selectable
@@ -431,10 +443,15 @@ const RichTextEditor = ({
       images.forEach((img: any) => {
         // Wait for image to load before applying controls
         if (img.complete) {
-          addImageControlsToElement(img)
+          // Add a small delay to ensure the image is fully rendered
+          setTimeout(() => {
+            addImageControlsToElement(img)
+          }, 100)
         } else {
           img.addEventListener('load', () => {
-            addImageControlsToElement(img)
+            setTimeout(() => {
+              addImageControlsToElement(img)
+            }, 100)
           })
         }
       })

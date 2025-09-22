@@ -227,22 +227,29 @@ const RichTextEditor = ({
         if (editor) {
           // Get the current HTML content
           const html = editor.root.innerHTML
+          console.log('Original HTML:', html)
           
           // Update the image in the HTML with the new dimensions
           const updatedHtml = html.replace(
             /<img([^>]*?)src="([^"]*?)"([^>]*?)>/g,
             (match, before, src, after) => {
               if (src === img.src) {
-                return `<img${before}src="${src}"${after} width="${width}" height="${height}">`
+                const newImg = `<img${before}src="${src}"${after} width="${width}" height="${height}">`
+                console.log('Updated image HTML:', newImg)
+                return newImg
               }
               return match
             }
           )
           
+          console.log('Updated HTML:', updatedHtml)
+          
           // Update the editor content with the modified HTML
           editor.root.innerHTML = updatedHtml
           
           // Trigger the onChange callback to save the changes
+          console.log('Triggering onChange with updated HTML')
+          console.log('onChange function:', onChange)
           onChange(updatedHtml)
         }
       }

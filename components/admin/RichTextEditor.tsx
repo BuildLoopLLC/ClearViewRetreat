@@ -244,12 +244,15 @@ const RichTextEditor = ({
           // Get the current HTML content
           const html = editor.root.innerHTML
           console.log('Original HTML:', html)
+          console.log('Looking for image with src:', img.src)
           
           // Update the image in the HTML with the new dimensions
           const updatedHtml = html.replace(
             /<img([^>]*?)src="([^"]*?)"([^>]*?)>/g,
             (match, before, src, after) => {
+              console.log('Found image tag:', { match, before, src, after })
               if (src === img.src) {
+                console.log('Matched image, updating...')
                 // Remove existing width and height attributes if they exist
                 const cleanBefore = before.replace(/\s+(width|height)="[^"]*"/g, '')
                 const cleanAfter = after.replace(/\s+(width|height)="[^"]*"/g, '')

@@ -177,13 +177,25 @@ const RichTextEditor = ({
   // Fallback: Try to detect editor after component mounts
   useEffect(() => {
     const detectEditor = () => {
+      console.log('Checking for editor...')
+      console.log('quillRef.current:', quillRef.current)
+      
       if (quillRef.current) {
         const editor = quillRef.current.getEditor()
+        console.log('getEditor() result:', editor)
         if (editor) {
           console.log('Editor detected via fallback method')
           setEditorReady(true)
           return
         }
+      }
+      
+      // Also try to find the editor directly in the DOM
+      const quillEditor = document.querySelector('.ql-editor')
+      if (quillEditor) {
+        console.log('Found .ql-editor in DOM, setting editor ready')
+        setEditorReady(true)
+        return
       }
       
       // Retry after a short delay
@@ -206,8 +218,12 @@ const RichTextEditor = ({
     // Wait a bit more for the editor to be fully initialized
     setTimeout(() => {
       const editor = quillRef.current?.getEditor()
+      console.log('Final editor check - editor:', editor)
+      
       if (!editor) {
-        console.log('getEditor() still returned null')
+        console.log('getEditor() still returned null, trying DOM approach')
+        // Try to set up controls even without editor object
+        setupImageControls(null)
         return
       }
       
@@ -218,8 +234,16 @@ const RichTextEditor = ({
 
   const setupImageControls = (editor: any) => {
     const addImageControls = () => {
-      const images = editor.container.querySelectorAll('.ql-editor img')
-      console.log('Found images:', images.length)
+      // Try both approaches to find images
+      let images: NodeListOf<Element>
+      if (editor && editor.container) {
+        images = editor.container.querySelectorAll('.ql-editor img')
+        console.log('Found images via editor.container:', images.length)
+      } else {
+        images = document.querySelectorAll('.ql-editor img')
+        console.log('Found images via document.querySelector:', images.length)
+      }
+      
       images.forEach((img: any) => {
         addImageControlsToElement(img)
       })
@@ -227,7 +251,7 @@ const RichTextEditor = ({
     
     // Add controls when content changes
     const observer = new MutationObserver(addImageControls)
-    const editorElement = editor.container.querySelector('.ql-editor')
+    const editorElement = editor?.container?.querySelector('.ql-editor') || document.querySelector('.ql-editor')
     if (editorElement) {
       observer.observe(editorElement, {
         childList: true,

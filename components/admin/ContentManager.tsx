@@ -54,7 +54,12 @@ export default function ContentManager({ section, title }: ContentManagerProps) 
   ) : isContactSubpage ? allContent.filter(item => 
     item.subsection === section.replace('contact-', '')
   ) : isAboutMain ? allContent.filter(item => 
-    item.subsection === 'title' || item.subsection === 'subtitle' || item.subsection === 'description' || item.subsection === 'mission' || item.subsection === 'values-title' || item.subsection?.startsWith('value-')
+    // Include items with specific subsections
+    item.subsection === 'title' || item.subsection === 'subtitle' || item.subsection === 'description' || 
+    item.subsection === 'mission' || item.subsection === 'values-title' || item.subsection?.startsWith('value-') ||
+    // Also include items with metadata names that match what we're looking for
+    item.metadata?.name === 'About Title' || item.metadata?.name === 'About Description' ||
+    item.metadata?.name === 'about-values-title' || item.metadata?.name?.startsWith('about-value-')
   ) : isCustomSections ? allContent.filter(item => 
     item.section === 'custom'
   ) : allContent
@@ -1765,15 +1770,15 @@ export default function ContentManager({ section, title }: ContentManagerProps) 
             // Special layout for about-main content
             if (section === 'about-main') {
               // Group about-main content by type
-              const mainContent = content.find(item => item.metadata?.name === 'Main About Content')
-              const mainTitle = content.find(item => item.metadata?.name === 'Main About Title')
-              const valuesTitle = content.find(item => item.metadata?.name === 'Values Section Title')
-              const value1Title = content.find(item => item.metadata?.name === 'Value 1 Title')
-              const value1Desc = content.find(item => item.metadata?.name === 'Value 1 Description')
-              const value2Title = content.find(item => item.metadata?.name === 'Value 2 Title')
-              const value2Desc = content.find(item => item.metadata?.name === 'Value 2 Description')
-              const value3Title = content.find(item => item.metadata?.name === 'Value 3 Title')
-              const value3Desc = content.find(item => item.metadata?.name === 'Value 3 Description')
+              const mainContent = content.find(item => item.metadata?.name === 'About Description')
+              const mainTitle = content.find(item => item.metadata?.name === 'About Title')
+              const valuesTitle = content.find(item => item.metadata?.name === 'about-values-title')
+              const value1Title = content.find(item => item.metadata?.name === 'about-value-1-title')
+              const value1Desc = content.find(item => item.metadata?.name === 'about-value-1-description')
+              const value2Title = content.find(item => item.metadata?.name === 'about-value-2-title')
+              const value2Desc = content.find(item => item.metadata?.name === 'about-value-2-description')
+              const value3Title = content.find(item => item.metadata?.name === 'about-value-3-title')
+              const value3Desc = content.find(item => item.metadata?.name === 'about-value-3-description')
               
               return (
                 <div className="space-y-6">

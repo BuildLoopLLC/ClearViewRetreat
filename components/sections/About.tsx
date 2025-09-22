@@ -19,6 +19,19 @@ export default function About({ showCTA = true }: AboutProps) {
     return item?.content || ''
   }
 
+  // Temporary fallback values for testing
+  const fallbackValues = {
+    title: 'About ClearView Retreat',
+    description: 'ClearView Retreat is a serene mountain retreat center dedicated to spiritual renewal and personal growth.',
+    valuesTitle: 'Our Core Values',
+    value1Title: 'Faith-Centered',
+    value1Desc: 'Everything we do is rooted in Christian principles and designed to strengthen your faith',
+    value2Title: 'Natural Connection',
+    value2Desc: 'We believe in the healing power of nature and its ability to bring us closer to our Creator',
+    value3Title: 'Community First',
+    value3Desc: 'Building meaningful relationships and fostering a sense of belonging is at the heart of our mission'
+  }
+
   if (loading || statsLoading) {
     return (
       <section className="section-padding bg-white">
@@ -45,13 +58,13 @@ export default function About({ showCTA = true }: AboutProps) {
             <div>
               <h2 
                 className="text-3xl md:text-4xl lg:text-5xl font-display font-bold text-secondary-900 mb-6"
-                dangerouslySetInnerHTML={{ __html: getContentByMetadataName('Main About Title') || 'About Clear View Retreat' }}
+                dangerouslySetInnerHTML={{ __html: getContentByMetadataName('About Title') || fallbackValues.title }}
               />
               <div className="text-lg text-secondary-600 leading-relaxed mb-6">
-                {getContentByMetadataName('Main About Content') ? (
-                  <div dangerouslySetInnerHTML={{ __html: getContentByMetadataName('Main About Content') }} />
+                {getContentByMetadataName('About Description') ? (
+                  <div dangerouslySetInnerHTML={{ __html: getContentByMetadataName('About Description') }} />
                 ) : (
-                  <p>Clear View Retreat is a Christ-centered ministry dedicated to strengthening families through intentional intimacy and meaningful relationships. Our beautiful retreat center in Tennessee provides the perfect setting for families to step away from the distractions of daily life and focus on what truly matters.</p>
+                  <p>{fallbackValues.description}</p>
                 )}
               </div>
             </div>
@@ -59,28 +72,28 @@ export default function About({ showCTA = true }: AboutProps) {
             {/* Values */}
             <div>
               <h3 className="text-2xl font-display font-semibold text-secondary-900 mb-4">
-                {getContentByMetadataName('Values Section Title')}
+                {getContentByMetadataName('about-values-title') || fallbackValues.valuesTitle}
               </h3>
               <div className="space-y-4">
                 <div className="flex items-start space-x-3">
                   <CheckCircleIcon className="h-5 w-5 text-primary-600 mt-1 flex-shrink-0" />
                   <div>
-                    <h4 className="font-semibold text-secondary-900">{getContentByMetadataName('Value 1 Title')}</h4>
-                    <p className="text-secondary-700">{getContentByMetadataName('Value 1 Description')}</p>
+                    <h4 className="font-semibold text-secondary-900">{getContentByMetadataName('about-value-1-title') || fallbackValues.value1Title}</h4>
+                    <p className="text-secondary-700">{getContentByMetadataName('about-value-1-description') || fallbackValues.value1Desc}</p>
                   </div>
                 </div>
                 <div className="flex items-start space-x-3">
                   <CheckCircleIcon className="h-5 w-5 text-primary-600 mt-1 flex-shrink-0" />
                   <div>
-                    <h4 className="font-semibold text-secondary-900">{getContentByMetadataName('Value 2 Title')}</h4>
-                    <p className="text-secondary-700">{getContentByMetadataName('Value 2 Description')}</p>
+                    <h4 className="font-semibold text-secondary-900">{getContentByMetadataName('about-value-2-title') || fallbackValues.value2Title}</h4>
+                    <p className="text-secondary-700">{getContentByMetadataName('about-value-2-description') || fallbackValues.value2Desc}</p>
                   </div>
                 </div>
                 <div className="flex items-start space-x-3">
                   <CheckCircleIcon className="h-5 w-5 text-primary-600 mt-1 flex-shrink-0" />
                   <div>
-                    <h4 className="font-semibold text-secondary-900">{getContentByMetadataName('Value 3 Title')}</h4>
-                    <p className="text-secondary-700">{getContentByMetadataName('Value 3 Description')}</p>
+                    <h4 className="font-semibold text-secondary-900">{getContentByMetadataName('about-value-3-title') || fallbackValues.value3Title}</h4>
+                    <p className="text-secondary-700">{getContentByMetadataName('about-value-3-description') || fallbackValues.value3Desc}</p>
                   </div>
                 </div>
               </div>

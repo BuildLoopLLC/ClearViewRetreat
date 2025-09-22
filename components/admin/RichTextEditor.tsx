@@ -55,10 +55,9 @@ const RichTextEditor = ({
       img.style.width = `${savedWidth}px`
       img.style.height = `${savedHeight}px`
       img.style.maxWidth = 'none'
-      img.style.height = `${savedHeight}px`
       console.log('Restored saved dimensions:', savedWidth, 'x', savedHeight)
     } else {
-      // Also check if dimensions are in the style attribute
+      // Check if dimensions are in the style attribute
       const styleWidth = img.style.width
       const styleHeight = img.style.height
       console.log('Checking style dimensions:', { styleWidth, styleHeight })
@@ -66,6 +65,27 @@ const RichTextEditor = ({
       if (styleWidth && styleHeight) {
         img.style.maxWidth = 'none'
         console.log('Applied style dimensions:', styleWidth, 'x', styleHeight)
+      } else {
+        // Check if the image has dimensions in the outerHTML
+        const outerHTML = img.outerHTML
+        console.log('Image outerHTML:', outerHTML)
+        
+        // Try to extract dimensions from the outerHTML
+        const widthMatch = outerHTML.match(/width="(\d+)"/)
+        const heightMatch = outerHTML.match(/height="(\d+)"/)
+        
+        if (widthMatch && heightMatch) {
+          const width = widthMatch[1]
+          const height = heightMatch[1]
+          console.log('Found dimensions in outerHTML:', width, 'x', height)
+          
+          img.setAttribute('width', width)
+          img.setAttribute('height', height)
+          img.style.width = `${width}px`
+          img.style.height = `${height}px`
+          img.style.maxWidth = 'none'
+          console.log('Applied dimensions from outerHTML:', width, 'x', height)
+        }
       }
     }
     
@@ -245,24 +265,22 @@ const RichTextEditor = ({
           const html = editor.root.innerHTML
           console.log('Original HTML:', html)
           console.log('Looking for image with src:', img.src)
+          console.log('Image src length:', img.src.length)
+          console.log('Image src in HTML:', html.includes(img.src))
           
           // Update the image in the HTML with the new dimensions
-          const updatedHtml = html.replace(
-            /<img([^>]*?)src="([^"]*?)"([^>]*?)>/g,
-            (match, before, src, after) => {
-              console.log('Found image tag:', { match, before, src, after })
-              if (src === img.src) {
-                console.log('Matched image, updating...')
-                // Remove existing width and height attributes if they exist
-                const cleanBefore = before.replace(/\s+(width|height)="[^"]*"/g, '')
-                const cleanAfter = after.replace(/\s+(width|height)="[^"]*"/g, '')
-                const newImg = `<img${cleanBefore}src="${src}"${cleanAfter} width="${width}" height="${height}">`
-                console.log('Updated image HTML:', newImg)
-                return newImg
-              }
-              return match
-            }
-          )
+          // Find the specific image by src and add width/height attributes
+          const imgRegex = new RegExp(`<img([^>]*?)src="${img.src.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}"([^>]*?)>`, 'g')
+          const updatedHtml = html.replace(imgRegex, (match, before, after) => {
+            console.log('Found image tag:', { match, before, after })
+            console.log('Matched image, updating...')
+            // Remove existing width and height attributes if they exist
+            const cleanBefore = before.replace(/\s+(width|height)="[^"]*"/g, '')
+            const cleanAfter = after.replace(/\s+(width|height)="[^"]*"/g, '')
+            const newImg = `<img${cleanBefore}src="${img.src}"${cleanAfter} width="${width}" height="${height}">`
+            console.log('Updated image HTML:', newImg)
+            return newImg
+          })
           
           console.log('Updated HTML:', updatedHtml)
           
@@ -272,7 +290,9 @@ const RichTextEditor = ({
           // Trigger the onChange callback to save the changes
           console.log('Triggering onChange with updated HTML')
           console.log('onChange function:', onChange)
+          console.log('Calling onChange with:', updatedHtml)
           onChange(updatedHtml)
+          console.log('onChange called successfully')
         }
       }
     }
@@ -488,6 +508,9 @@ const RichTextEditor = ({
     }
   }
 
+  // Debug the value being passed to the editor
+  console.log('RichTextEditor value:', value)
+  
   return (
     <div className={`rich-text-editor ${className}`} style={{ marginBottom: '20px' }}>
       <ReactQuill

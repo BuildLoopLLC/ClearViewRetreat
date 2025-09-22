@@ -77,13 +77,14 @@ export default function ContentManager({ section, title }: ContentManagerProps) 
     setEditForms(prev => ({
       ...prev,
       [item.id]: {
-        content: prev[item.id]?.content || item.content
+        content: item.content  // Always load from database, not from editForms
       }
     }))
     setHasChanges(true)
   }
 
   const handleFieldChange = (id: string, field: string, value: any) => {
+    console.log('handleFieldChange called:', { id, field, value: value?.substring(0, 100) + '...' })
     setEditForms(prev => ({
       ...prev,
       [id]: {
@@ -92,6 +93,7 @@ export default function ContentManager({ section, title }: ContentManagerProps) 
       }
     }))
     setHasChanges(true)
+    console.log('Edit form updated for:', id)
   }
 
   const handleSaveAll = async () => {

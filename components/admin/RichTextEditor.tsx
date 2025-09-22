@@ -30,10 +30,49 @@ const RichTextEditor = ({
         [{ 'list': 'ordered'}, { 'list': 'bullet' }],
         [{ 'indent': '-1'}, { 'indent': '+1' }],
         [{ 'align': [] }],
-        ['link', 'video'],
+        ['link', 'image', 'video'],
         ['blockquote', 'code-block'],
         ['clean']
-      ]
+      ],
+      handlers: {
+        image: () => {
+          const input = document.createElement('input')
+          input.setAttribute('type', 'file')
+          input.setAttribute('accept', 'image/*')
+          input.click()
+
+          input.onchange = async () => {
+            const file = input.files?.[0]
+            if (!file) return
+
+            try {
+              const formData = new FormData()
+              formData.append('file', file)
+              formData.append('type', 'gratitude-image')
+
+              const response = await fetch('/api/upload', {
+                method: 'POST',
+                body: formData
+              })
+
+              if (response.ok) {
+                const result = await response.json()
+                const quill = document.querySelector('.ql-editor')?.closest('.ql-container')?.querySelector('.ql-editor')
+                if (quill) {
+                  const range = quill.getSelection()
+                  quill.insertEmbed(range?.index || 0, 'image', result.url)
+                }
+              } else {
+                console.error('Failed to upload image')
+                alert('Failed to upload image. Please try again.')
+              }
+            } catch (error) {
+              console.error('Error uploading image:', error)
+              alert('Error uploading image. Please try again.')
+            }
+          }
+        }
+      }
     }
   }), [])
 
@@ -41,7 +80,7 @@ const RichTextEditor = ({
     'header', 'font', 'size',
     'bold', 'italic', 'underline', 'strike', 'blockquote',
     'list', 'bullet', 'indent',
-    'link', 'video',
+    'link', 'image', 'video',
     'color', 'background',
     'align', 'code-block'
   ]

@@ -9,7 +9,7 @@ const gratitudeSections = [
     content_type: 'text',
     content: `<h1>THANK YOU TO THE BOY SCOUTS OF TROOP 374</h1>
 
-<img src="/images/boy-scouts-troop-374.jpg" alt="Boy Scouts of Troop 374" style="max-width: 100%; height: auto; border-radius: 8px; margin: 20px 0;">`,
+<p><em>Click the image button in the rich text editor to upload a photo of the Boy Scouts working on their service project.</em></p>`,
     order: 10,
     is_active: true,
     metadata: { 
@@ -30,7 +30,7 @@ const gratitudeSections = [
 
 <p>Composite of Before During After</p>
 
-<img src="/images/global-accord-before-during-after.jpg" alt="Global Accord Team - Before During After" style="max-width: 100%; height: auto; border-radius: 8px; margin: 20px 0;">`,
+<p><em>Click the image button in the rich text editor to upload the before/during/after composite photo.</em></p>`,
     order: 20,
     is_active: true,
     metadata: { 
@@ -51,7 +51,7 @@ const gratitudeSections = [
 
 <p>The Girl Scouts cleaned up the leaves, weeds, and gravel, and gave us hardy plants and beautiful sustainable landscaping. As the stone settles in, a beautiful brick sitting area will be revealed!</p>
 
-<img src="/images/girl-scouts-landscaping.jpg" alt="Girl Scout Troop 1367 landscaping work" style="max-width: 100%; height: auto; border-radius: 8px; margin: 20px 0;">`,
+<p><em>Click the image button in the rich text editor to upload a photo of the Girl Scouts' landscaping work.</em></p>`,
     order: 30,
     is_active: true,
     metadata: { 

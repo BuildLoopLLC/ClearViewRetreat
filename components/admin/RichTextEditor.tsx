@@ -250,7 +250,10 @@ const RichTextEditor = ({
             /<img([^>]*?)src="([^"]*?)"([^>]*?)>/g,
             (match, before, src, after) => {
               if (src === img.src) {
-                const newImg = `<img${before}src="${src}"${after} width="${width}" height="${height}">`
+                // Remove existing width and height attributes if they exist
+                const cleanBefore = before.replace(/\s+(width|height)="[^"]*"/g, '')
+                const cleanAfter = after.replace(/\s+(width|height)="[^"]*"/g, '')
+                const newImg = `<img${cleanBefore}src="${src}"${cleanAfter} width="${width}" height="${height}">`
                 console.log('Updated image HTML:', newImg)
                 return newImg
               }

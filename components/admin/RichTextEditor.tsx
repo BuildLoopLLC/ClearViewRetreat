@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo } from 'react'
+import { useMemo, useRef } from 'react'
 import dynamic from 'next/dynamic'
 import 'react-quill/dist/quill.snow.css'
 
@@ -20,6 +20,7 @@ const RichTextEditor = ({
   placeholder = 'Write your content here...',
   className = ''
 }: RichTextEditorProps) => {
+  const quillRef = useRef<any>(null)
 
   const modules = useMemo(() => ({
     toolbar: {
@@ -57,18 +58,19 @@ const RichTextEditor = ({
 
               if (response.ok) {
                 const result = await response.json()
-                const quill = document.querySelector('.ql-editor')?.closest('.ql-container')?.querySelector('.ql-editor')
+                const quill = quillRef.current?.getEditor()
                 if (quill) {
                   const range = quill.getSelection()
                   quill.insertEmbed(range?.index || 0, 'image', result.url)
                 }
               } else {
-                console.error('Failed to upload image')
-                alert('Failed to upload image. Please try again.')
+                const errorData = await response.json()
+                console.error('Failed to upload image:', errorData)
+                alert(`Failed to upload image: ${errorData.error || 'Unknown error'}`)
               }
             } catch (error) {
               console.error('Error uploading image:', error)
-              alert('Error uploading image. Please try again.')
+              alert(`Error uploading image: ${error instanceof Error ? error.message : 'Unknown error'}`)
             }
           }
         }
@@ -90,6 +92,7 @@ const RichTextEditor = ({
   return (
     <div className={`rich-text-editor ${className}`}>
       <ReactQuill
+        ref={quillRef}
         theme="snow"
         value={value}
         onChange={onChange}

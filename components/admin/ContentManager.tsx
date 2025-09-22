@@ -1436,6 +1436,10 @@ export default function ContentManager({ section, title }: ContentManagerProps) 
 
       // Special layout for beliefs content
       if (section === 'about-beliefs') {
+              console.log('Beliefs section - content:', content)
+              console.log('Beliefs section - allContent:', allContent)
+              console.log('Beliefs section - loading:', loading)
+              console.log('Beliefs section - error:', error)
               // Group beliefs content by type
               const beliefsQuote = content.find(item => item.metadata?.name === 'Beliefs Quote')
               const statementTitle = content.find(item => item.metadata?.name === 'Statement of Faith Title')

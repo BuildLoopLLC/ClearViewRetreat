@@ -13,6 +13,16 @@ export default function BeliefsPage() {
     return item?.content || ''
   }
 
+  // Helper function to process content and convert newlines to HTML
+  const processContent = (content: string): string => {
+    if (!content) return ''
+    return content
+      .replace(/\n\n/g, '</p><p>') // Convert double newlines to paragraph breaks
+      .replace(/\n/g, '<br>') // Convert single newlines to line breaks
+      .replace(/^/, '<p>') // Add opening paragraph tag
+      .replace(/$/, '</p>') // Add closing paragraph tag
+  }
+
   if (loading) {
     return (
       <SubpageLayout
@@ -81,7 +91,7 @@ export default function BeliefsPage() {
             <div 
               className="text-secondary-600 leading-relaxed"
               dangerouslySetInnerHTML={{ 
-                __html: getContentByMetadataName('Statement of Faith Content') || 'We believe in God, the Creator of the heavens and earth...' 
+                __html: processContent(getContentByMetadataName('Statement of Faith Content')) || 'We believe in God, the Creator of the heavens and earth...' 
               }}
             />
           </div>
@@ -97,9 +107,12 @@ export default function BeliefsPage() {
                   <h4 className="text-lg font-semibold text-secondary-900 mb-2">
                     {getContentByMetadataName('Core Value 1 Title') || 'Biblical Authority'}
                   </h4>
-                  <p className="text-secondary-600 leading-relaxed">
-                    {getContentByMetadataName('Core Value 1 Content') || 'We believe the Bible is the inspired, infallible Word of God...'}
-                  </p>
+                  <div 
+                    className="text-secondary-600 leading-relaxed"
+                    dangerouslySetInnerHTML={{ 
+                      __html: processContent(getContentByMetadataName('Core Value 1 Content')) || 'We believe the Bible is the inspired, infallible Word of God...' 
+                    }}
+                  />
                 </div>
               </div>
 
@@ -109,9 +122,12 @@ export default function BeliefsPage() {
                   <h4 className="text-lg font-semibold text-secondary-900 mb-2">
                     {getContentByMetadataName('Core Value 2 Title') || 'Family Focus'}
                   </h4>
-                  <p className="text-secondary-600 leading-relaxed">
-                    {getContentByMetadataName('Core Value 2 Content') || 'We believe that strong families are the foundation...'}
-                  </p>
+                  <div 
+                    className="text-secondary-600 leading-relaxed"
+                    dangerouslySetInnerHTML={{ 
+                      __html: processContent(getContentByMetadataName('Core Value 2 Content')) || 'We believe that strong families are the foundation...' 
+                    }}
+                  />
                 </div>
               </div>
 
@@ -121,9 +137,12 @@ export default function BeliefsPage() {
                   <h4 className="text-lg font-semibold text-secondary-900 mb-2">
                     {getContentByMetadataName('Core Value 3 Title') || 'Intentional Relationships'}
                   </h4>
-                  <p className="text-secondary-600 leading-relaxed">
-                    {getContentByMetadataName('Core Value 3 Content') || 'We believe that meaningful relationships require intentional effort...'}
-                  </p>
+                  <div 
+                    className="text-secondary-600 leading-relaxed"
+                    dangerouslySetInnerHTML={{ 
+                      __html: processContent(getContentByMetadataName('Core Value 3 Content')) || 'We believe that meaningful relationships require intentional effort...' 
+                    }}
+                  />
                 </div>
               </div>
 
@@ -133,9 +152,12 @@ export default function BeliefsPage() {
                   <h4 className="text-lg font-semibold text-secondary-900 mb-2">
                     {getContentByMetadataName('Core Value 4 Title') || 'Community'}
                   </h4>
-                  <p className="text-secondary-600 leading-relaxed">
-                    {getContentByMetadataName('Core Value 4 Content') || 'We believe in the importance of Christian community...'}
-                  </p>
+                  <div 
+                    className="text-secondary-600 leading-relaxed"
+                    dangerouslySetInnerHTML={{ 
+                      __html: processContent(getContentByMetadataName('Core Value 4 Content')) || 'We believe in the importance of Christian community...' 
+                    }}
+                  />
                 </div>
               </div>
             </div>
@@ -148,7 +170,7 @@ export default function BeliefsPage() {
             <div 
               className="text-secondary-600 leading-relaxed"
               dangerouslySetInnerHTML={{ 
-                __html: getContentByMetadataName('Theological Discussion Content') || 'Of course, there are many issues within the realm of faith...' 
+                __html: processContent(getContentByMetadataName('Theological Discussion Content')) || 'Of course, there are many issues within the realm of faith...' 
               }}
             />
           </div>

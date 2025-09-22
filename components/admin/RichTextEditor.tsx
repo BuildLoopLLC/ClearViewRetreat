@@ -25,10 +25,14 @@ const RichTextEditor = ({
 
   // Callback ref to detect when ReactQuill is mounted
   const quillCallbackRef = (node: any) => {
+    console.log('quillCallbackRef called with node:', node)
     quillRef.current = node
     if (node) {
       console.log('ReactQuill component mounted, setting editor ready')
       setEditorReady(true)
+    } else {
+      console.log('ReactQuill component unmounted')
+      setEditorReady(false)
     }
   }
 
@@ -169,6 +173,26 @@ const RichTextEditor = ({
   ]
 
 
+
+  // Fallback: Try to detect editor after component mounts
+  useEffect(() => {
+    const detectEditor = () => {
+      if (quillRef.current) {
+        const editor = quillRef.current.getEditor()
+        if (editor) {
+          console.log('Editor detected via fallback method')
+          setEditorReady(true)
+          return
+        }
+      }
+      
+      // Retry after a short delay
+      setTimeout(detectEditor, 100)
+    }
+    
+    // Start detection after component mounts
+    setTimeout(detectEditor, 500)
+  }, [])
 
   // Add image editing functionality
   useEffect(() => {

@@ -7,28 +7,13 @@ const gratitudeSections = [
     section: 'about',
     subsection: 'gratitude',
     content_type: 'text',
-    content: `<h1>Boy Scouts of America - Troop 123</h1>
+    content: `<h1>THANK YOU TO THE BOY SCOUTS OF TROOP 374</h1>
 
-<p>We are deeply grateful to <strong>Boy Scouts of America Troop 123</strong> for their incredible partnership and support of our retreat center. Their dedication to character development, leadership, and service has been an inspiration to us all.</p>
+<p>We are deeply grateful to <strong>Boy Scouts of America Troop 374</strong> for their incredible partnership and support of our retreat center. Their dedication to character development, leadership, and service has been an inspiration to us all.</p>
 
-<h2>Their Impact</h2>
+<p>Through their service projects and community involvement, Troop 374 has made a significant impact on our facilities and programs, helping us better serve families seeking hope and healing.</p>
 
-<ul>
-<li><strong>Service Projects</strong>: Over 200 hours of community service completed at our facilities</li>
-<li><strong>Facility Improvements</strong>: Built hiking trails, maintained campgrounds, and improved accessibility</li>
-<li><strong>Youth Leadership</strong>: Provided mentorship opportunities for our young retreat participants</li>
-<li><strong>Community Building</strong>: Helped create lasting connections between families and our retreat community</li>
-</ul>
-
-<h2>Special Recognition</h2>
-
-<p>We especially want to thank Scoutmaster <strong>John Smith</strong> and Assistant Scoutmaster <strong>Sarah Johnson</strong> for their tireless dedication to both their troop and our mission. Their leadership has been instrumental in creating meaningful experiences for all involved.</p>
-
-<blockquote>
-<p><em>"The partnership between Troop 123 and Clear View Retreat has been transformative for our scouts. They've learned valuable life skills while contributing to something greater than themselves."</em> - Scoutmaster John Smith</p>
-</blockquote>
-
-<img src="/images/boy-scouts-partnership.jpg" alt="Boy Scouts working on service project at Clear View Retreat" style="max-width: 100%; height: auto; border-radius: 8px; margin: 20px 0;">`,
+<img src="/images/boy-scouts-troop-374.jpg" alt="Boy Scouts of Troop 374 working on service project at Clear View Retreat" style="max-width: 100%; height: auto; border-radius: 8px; margin: 20px 0;">`,
     order: 10,
     is_active: true,
     metadata: { 
@@ -45,36 +30,13 @@ const gratitudeSections = [
     section: 'about',
     subsection: 'gratitude',
     content_type: 'text',
-    content: `<h1>Global Accord Foundation</h1>
+    content: `<h1>THANK YOU TO THE GLOBAL ACCORD TEAM</h1>
 
-<p>Our heartfelt thanks to the <strong>Global Accord Foundation</strong> for their generous support and partnership in advancing our mission of strengthening families and building intentional intimacy through Christ-centered ministry.</p>
+<p>Our heartfelt thanks to the <strong>Global Accord Team</strong> for their generous support and partnership in advancing our mission of strengthening families and building intentional intimacy through Christ-centered ministry.</p>
 
-<h2>Their Generous Support</h2>
+<p>Their dedication to our cause has been instrumental in helping us reach more families and create meaningful experiences that transform lives.</p>
 
-<ul>
-<li><strong>Financial Support</strong>: Provided crucial funding for facility improvements and program development</li>
-<li><strong>Strategic Guidance</strong>: Shared valuable insights on nonprofit management and community outreach</li>
-<li><strong>Network Connections</strong>: Introduced us to other like-minded organizations and potential supporters</li>
-<li><strong>Program Development</strong>: Collaborated on creating new retreat programs focused on family healing</li>
-</ul>
-
-<h2>Impact on Our Mission</h2>
-
-<p>Thanks to Global Accord's support, we've been able to:</p>
-<ul>
-<li>Expand our retreat capacity by 40%</li>
-<li>Launch new programs for military families</li>
-<li>Improve accessibility throughout our facilities</li>
-<li>Develop online resources for families unable to attend in-person</li>
-</ul>
-
-<h2>Words of Gratitude</h2>
-
-<blockquote>
-<p><em>"Global Accord Foundation's belief in our mission has been a true blessing. Their support has allowed us to reach more families and create deeper, more meaningful experiences."</em> - Clear View Retreat Leadership Team</p>
-</blockquote>
-
-<img src="/images/global-accord-partnership.jpg" alt="Global Accord Foundation partnership celebration" style="max-width: 100%; height: auto; border-radius: 8px; margin: 20px 0;">`,
+<img src="/images/global-accord-team.jpg" alt="Global Accord Team partnership with Clear View Retreat" style="max-width: 100%; height: auto; border-radius: 8px; margin: 20px 0;">`,
     order: 20,
     is_active: true,
     metadata: { 
@@ -91,34 +53,13 @@ const gratitudeSections = [
     section: 'about',
     subsection: 'gratitude',
     content_type: 'text',
-    content: `<h1>Local Community Partners</h1>
+    content: `<h1>THANK YOU TO THE YOUNG LADIES OF GIRL SCOUT TROOP 1367</h1>
 
-<p>We are incredibly grateful to our <strong>local community partners</strong> who have supported us in countless ways throughout our journey. Their generosity and belief in our mission have been the foundation of our success.</p>
+<p>The Girl Scouts cleaned up the leaves, weeds, and gravel, and gave us hardy plants and beautiful sustainable landscaping. As the stone settles in, a beautiful brick sitting area will be revealed!</p>
 
-<h2>Community Support</h2>
+<p>We are incredibly grateful for their dedication to environmental stewardship and community service. Their work has transformed our outdoor spaces and created a more welcoming environment for all our retreat participants.</p>
 
-<ul>
-<li><strong>Local Churches</strong>: Provided prayer support, volunteers, and financial contributions</li>
-<li><strong>Business Partners</strong>: Offered in-kind donations, services, and expertise</li>
-<li><strong>Volunteer Groups</strong>: Contributed thousands of hours of service and support</li>
-<li><strong>Community Leaders</strong>: Advocated for our mission and helped spread awareness</li>
-</ul>
-
-<h2>Special Recognition</h2>
-
-<p>We want to especially thank:</p>
-<ul>
-<li><strong>First Baptist Church</strong> for their ongoing prayer support and volunteer teams</li>
-<li><strong>Mountain View Construction</strong> for their pro-bono work on facility improvements</li>
-<li><strong>Community Food Bank</strong> for providing meals for our retreat participants</li>
-<li><strong>Local Rotary Club</strong> for their fundraising efforts and community connections</li>
-</ul>
-
-<h2>The Ripple Effect</h2>
-
-<p>The support of our local community has created a ripple effect, touching not just our retreat center, but families throughout the region who have found hope, healing, and renewed purpose through our programs.</p>
-
-<img src="/images/community-partners.jpg" alt="Local community partners gathering at Clear View Retreat" style="max-width: 100%; height: auto; border-radius: 8px; margin: 20px 0;">`,
+<img src="/images/girl-scouts-troop-1367.jpg" alt="Girl Scout Troop 1367 working on landscaping at Clear View Retreat" style="max-width: 100%; height: auto; border-radius: 8px; margin: 20px 0;">`,
     order: 30,
     is_active: true,
     metadata: { 
@@ -126,6 +67,59 @@ const gratitudeSections = [
       sectionData: JSON.stringify({
         title: 'Local Community Partners',
         gradientColors: ['from-purple-600', 'to-purple-700']
+      })
+    },
+    user: 'admin@clearviewretreat.com'
+  },
+  {
+    id: randomUUID(),
+    section: 'about',
+    subsection: 'gratitude',
+    content_type: 'text',
+    content: `<h1>THANK YOU to these two organizations that have taught us so much about running the ministry:</h1>
+
+<h2>Get Fully Funded</h2>
+<p>Get Fully Funded has provided invaluable guidance and resources to help us develop sustainable funding strategies for our ministry.</p>
+
+<h2>Ministry Ventures</h2>
+<p>Ministry Ventures has been instrumental in helping us understand nonprofit management and organizational development.</p>
+
+<p>Both organizations have played a crucial role in our growth and ability to serve families effectively.</p>`,
+    order: 40,
+    is_active: true,
+    metadata: { 
+      name: 'Gratitude Section 4',
+      sectionData: JSON.stringify({
+        title: 'Ministry Organizations',
+        gradientColors: ['from-orange-600', 'to-orange-700']
+      })
+    },
+    user: 'admin@clearviewretreat.com'
+  },
+  {
+    id: randomUUID(),
+    section: 'about',
+    subsection: 'gratitude',
+    content_type: 'text',
+    content: `<h1>THANK YOU to these sites that allow us to advertise in order to reach more families:</h1>
+
+<h2>Christian Camp Pro</h2>
+<p>Christian Camp Pro has been an excellent platform for connecting us with families seeking Christ-centered retreat experiences.</p>
+
+<h2>Lawrence Wilson</h2>
+<p>Lawrence Wilson's platform has helped us reach a broader audience of families looking for meaningful retreat opportunities.</p>
+
+<h2>Retreat Finder</h2>
+<p>Retreat Finder has been instrumental in helping families discover our programs and services.</p>
+
+<p><em>(CVR does not monitor anything but its own listing and is not responsible for the other content of these sites.)</em></p>`,
+    order: 50,
+    is_active: true,
+    metadata: { 
+      name: 'Gratitude Section 5',
+      sectionData: JSON.stringify({
+        title: 'Advertising Partners',
+        gradientColors: ['from-indigo-600', 'to-indigo-700']
       })
     },
     user: 'admin@clearviewretreat.com'

@@ -115,27 +115,43 @@ const RichTextEditor = ({
         if (img.dataset.resizeHandled) return
         
         img.dataset.resizeHandled = 'true'
-        img.style.position = 'relative'
-        img.style.display = 'inline-block'
+        
+        // Make image resizable
+        img.style.cursor = 'pointer'
+        img.style.border = '2px solid transparent'
+        img.style.borderRadius = '4px'
+        img.style.transition = 'border-color 0.2s ease'
         
         // Add resize handle
         const handle = document.createElement('div')
         handle.className = 'image-resize-handle'
         handle.style.position = 'absolute'
-        handle.style.bottom = '0'
-        handle.style.right = '0'
+        handle.style.bottom = '2px'
+        handle.style.right = '2px'
         handle.style.display = 'none'
+        handle.style.zIndex = '1000'
         
-        img.appendChild(handle)
+        // Create a wrapper div for the image
+        const wrapper = document.createElement('div')
+        wrapper.style.position = 'relative'
+        wrapper.style.display = 'inline-block'
+        wrapper.style.maxWidth = '100%'
+        
+        // Insert wrapper before image and move image into wrapper
+        img.parentNode?.insertBefore(wrapper, img)
+        wrapper.appendChild(img)
+        wrapper.appendChild(handle)
         
         // Show handle on hover
-        img.addEventListener('mouseenter', () => {
+        wrapper.addEventListener('mouseenter', () => {
           handle.style.display = 'block'
+          img.style.borderColor = '#3b82f6'
         })
         
-        img.addEventListener('mouseleave', () => {
+        wrapper.addEventListener('mouseleave', () => {
           if (!img.classList.contains('resizing')) {
             handle.style.display = 'none'
+            img.style.borderColor = 'transparent'
           }
         })
         
@@ -148,9 +164,11 @@ const RichTextEditor = ({
         
         const startResize = (e: MouseEvent) => {
           e.preventDefault()
+          e.stopPropagation()
           isResizing = true
           img.classList.add('resizing')
           handle.style.display = 'block'
+          img.style.borderColor = '#3b82f6'
           
           startX = e.clientX
           startY = e.clientY
@@ -163,6 +181,8 @@ const RichTextEditor = ({
         
         const doResize = (e: MouseEvent) => {
           if (!isResizing) return
+          e.preventDefault()
+          e.stopPropagation()
           
           const deltaX = e.clientX - startX
           const deltaY = e.clientY - startY
@@ -170,14 +190,21 @@ const RichTextEditor = ({
           const newWidth = Math.max(50, startWidth + deltaX)
           const newHeight = Math.max(50, startHeight + deltaY)
           
+          // Update image size
           img.style.width = `${newWidth}px`
           img.style.height = `${newHeight}px`
+          img.style.maxWidth = 'none'
+          
+          // Update wrapper size
+          wrapper.style.width = `${newWidth}px`
+          wrapper.style.height = `${newHeight}px`
         }
         
         const stopResize = () => {
           isResizing = false
           img.classList.remove('resizing')
           handle.style.display = 'none'
+          img.style.borderColor = 'transparent'
           
           document.removeEventListener('mousemove', doResize)
           document.removeEventListener('mouseup', stopResize)
@@ -189,13 +216,16 @@ const RichTextEditor = ({
     
     // Add resize handles when content changes
     const observer = new MutationObserver(addImageResizeHandles)
-    observer.observe(editor.container.querySelector('.ql-editor')!, {
-      childList: true,
-      subtree: true
-    })
-    
-    // Initial setup
-    addImageResizeHandles()
+    const editorElement = editor.container.querySelector('.ql-editor')
+    if (editorElement) {
+      observer.observe(editorElement, {
+        childList: true,
+        subtree: true
+      })
+      
+      // Initial setup
+      addImageResizeHandles()
+    }
     
     return () => {
       observer.disconnect()

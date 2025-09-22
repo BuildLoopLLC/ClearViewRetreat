@@ -36,7 +36,7 @@ const RichTextEditor = ({
         ['clean']
       ],
       handlers: {
-        image: () => {
+        image: function() {
           const input = document.createElement('input')
           input.setAttribute('type', 'file')
           input.setAttribute('accept', 'image/*')
@@ -59,16 +59,17 @@ const RichTextEditor = ({
               if (response.ok) {
                 const result = await response.json()
                 console.log('Upload successful:', result)
-                const quill = quillRef.current?.getEditor()
+                
+                // Get the current Quill instance from the toolbar context
+                const quill = this.quill
                 if (quill) {
                   const range = quill.getSelection()
                   const index = range ? range.index : quill.getLength()
                   
                   console.log('Inserting image at index:', index)
                   
-                  // Insert the image as HTML
-                  const imageHtml = `<img src="${result.url}" alt="Uploaded image" style="max-width: 100%; height: auto; border-radius: 8px; margin: 16px 0;">`
-                  quill.clipboard.dangerouslyPasteHTML(index, imageHtml)
+                  // Insert the image using insertEmbed
+                  quill.insertEmbed(index, 'image', result.url)
                   
                   // Move cursor after the image
                   quill.setSelection(index + 1)

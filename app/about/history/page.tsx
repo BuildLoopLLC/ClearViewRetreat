@@ -13,6 +13,16 @@ export default function HistoryPage() {
     return item?.content || ''
   }
 
+  // Helper function to process content and convert newlines to HTML
+  const processContent = (content: string): string => {
+    if (!content) return ''
+    return content
+      .replace(/\n\n/g, '</p><p>') // Convert double newlines to paragraph breaks
+      .replace(/\n/g, '<br>') // Convert single newlines to line breaks
+      .replace(/^/, '<p>') // Add opening paragraph tag
+      .replace(/$/, '</p>') // Add closing paragraph tag
+  }
+
   if (loading) {
     return (
       <SubpageLayout
@@ -68,7 +78,7 @@ export default function HistoryPage() {
           <div 
             className="text-xl text-secondary-600 leading-relaxed mb-8"
             dangerouslySetInnerHTML={{ 
-              __html: getContentByMetadataName('History Introduction') || 'Our organization was founded with a vision to strengthen families and build intentional intimacy through Christ-centered ministry.' 
+              __html: processContent(getContentByMetadataName('History Introduction')) || 'Our organization was founded with a vision to strengthen families and build intentional intimacy through Christ-centered ministry.' 
             }}
           />
         </div>
@@ -82,7 +92,7 @@ export default function HistoryPage() {
             <div 
               className="text-secondary-600 leading-relaxed"
               dangerouslySetInnerHTML={{ 
-                __html: getContentByMetadataName('Foundation Section Content') || 'Jim and Kim Nestle established Intentional Intimacy International (III) in the spring of 2008...' 
+                __html: processContent(getContentByMetadataName('Foundation Section Content')) || 'Jim and Kim Nestle established Intentional Intimacy International (III) in the spring of 2008...' 
               }}
             />
           </div>
@@ -91,18 +101,24 @@ export default function HistoryPage() {
             <h3 className="text-2xl font-display font-semibold text-secondary-900 mb-6">
               {getContentByMetadataName('Partnership Section Title') || 'Our Partnership with Churches'}
             </h3>
-            <p className="text-secondary-600 leading-relaxed">
-              {getContentByMetadataName('Partnership Section Content') || 'CVR wants to partner with your church leadership...'}
-            </p>
+            <div 
+              className="text-secondary-600 leading-relaxed"
+              dangerouslySetInnerHTML={{ 
+                __html: processContent(getContentByMetadataName('Partnership Section Content')) || 'CVR wants to partner with your church leadership...' 
+              }}
+            />
           </div>
 
           <div className="bg-white rounded-2xl p-8 shadow-lg border border-secondary-200">
             <h3 className="text-2xl font-display font-semibold text-secondary-900 mb-6">
               {getContentByMetadataName('Different Section Title') || 'Why We\'re Different'}
             </h3>
-            <p className="text-secondary-600 leading-relaxed mb-6">
-              {getContentByMetadataName('Different Section Intro') || 'By bringing families away from familiar, sometimes stressful environments...'}
-            </p>
+            <div 
+              className="text-secondary-600 leading-relaxed mb-6"
+              dangerouslySetInnerHTML={{ 
+                __html: processContent(getContentByMetadataName('Different Section Intro')) || 'By bringing families away from familiar, sometimes stressful environments...' 
+              }}
+            />
             
             <div className="space-y-6">
               <div className="flex items-start space-x-4">
@@ -111,9 +127,12 @@ export default function HistoryPage() {
                   <h4 className="text-lg font-semibold text-secondary-900 mb-2">
                     {getContentByMetadataName('Different Point 1 Title') || 'Small Group Focus'}
                   </h4>
-                  <p className="text-secondary-600 leading-relaxed">
-                    {getContentByMetadataName('Different Point 1 Content') || 'We want each group that comes away together to be small...'}
-                  </p>
+                  <div 
+                    className="text-secondary-600 leading-relaxed"
+                    dangerouslySetInnerHTML={{ 
+                      __html: processContent(getContentByMetadataName('Different Point 1 Content')) || 'We want each group that comes away together to be small...' 
+                    }}
+                  />
                 </div>
               </div>
 
@@ -123,9 +142,12 @@ export default function HistoryPage() {
                   <h4 className="text-lg font-semibold text-secondary-900 mb-2">
                     {getContentByMetadataName('Different Point 2 Title') || 'Easing the Burden on Leaders'}
                   </h4>
-                  <p className="text-secondary-600 leading-relaxed">
-                    {getContentByMetadataName('Different Point 2 Content') || 'We want to ease the burden on church leaders...'}
-                  </p>
+                  <div 
+                    className="text-secondary-600 leading-relaxed"
+                    dangerouslySetInnerHTML={{ 
+                      __html: processContent(getContentByMetadataName('Different Point 2 Content')) || 'We want to ease the burden on church leaders...' 
+                    }}
+                  />
                 </div>
               </div>
 
@@ -135,9 +157,12 @@ export default function HistoryPage() {
                   <h4 className="text-lg font-semibold text-secondary-900 mb-2">
                     {getContentByMetadataName('Different Point 3 Title') || 'Focus on Relationships'}
                   </h4>
-                  <p className="text-secondary-600 leading-relaxed">
-                    {getContentByMetadataName('Different Point 3 Content') || 'We want to focus on relationships...'}
-                  </p>
+                  <div 
+                    className="text-secondary-600 leading-relaxed"
+                    dangerouslySetInnerHTML={{ 
+                      __html: processContent(getContentByMetadataName('Different Point 3 Content')) || 'We want to focus on relationships...' 
+                    }}
+                  />
                 </div>
               </div>
 
@@ -147,9 +172,12 @@ export default function HistoryPage() {
                   <h4 className="text-lg font-semibold text-secondary-900 mb-2">
                     {getContentByMetadataName('Different Point 4 Title') || 'Natural Setting'}
                   </h4>
-                  <p className="text-secondary-600 leading-relaxed">
-                    {getContentByMetadataName('Different Point 4 Content') || 'We want to provide a natural setting...'}
-                  </p>
+                  <div 
+                    className="text-secondary-600 leading-relaxed"
+                    dangerouslySetInnerHTML={{ 
+                      __html: processContent(getContentByMetadataName('Different Point 4 Content')) || 'We want to provide a natural setting...' 
+                    }}
+                  />
                 </div>
               </div>
             </div>

@@ -58,10 +58,24 @@ const RichTextEditor = ({
 
               if (response.ok) {
                 const result = await response.json()
+                console.log('Upload successful:', result)
                 const quill = quillRef.current?.getEditor()
                 if (quill) {
                   const range = quill.getSelection()
-                  quill.insertEmbed(range?.index || 0, 'image', result.url)
+                  const index = range ? range.index : quill.getLength()
+                  
+                  console.log('Inserting image at index:', index)
+                  
+                  // Insert the image as HTML
+                  const imageHtml = `<img src="${result.url}" alt="Uploaded image" style="max-width: 100%; height: auto; border-radius: 8px; margin: 16px 0;">`
+                  quill.clipboard.dangerouslyPasteHTML(index, imageHtml)
+                  
+                  // Move cursor after the image
+                  quill.setSelection(index + 1)
+                  
+                  console.log('Image inserted successfully')
+                } else {
+                  console.error('Quill editor not found')
                 }
               } else {
                 const errorData = await response.json()

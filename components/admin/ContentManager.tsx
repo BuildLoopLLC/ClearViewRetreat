@@ -77,7 +77,7 @@ export default function ContentManager({ section, title }: ContentManagerProps) 
     setEditForms(prev => ({
       ...prev,
       [item.id]: {
-        content: item.content
+        content: prev[item.id]?.content || item.content
       }
     }))
     setHasChanges(true)

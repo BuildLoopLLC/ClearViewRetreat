@@ -104,32 +104,69 @@ const RichTextEditor = ({
 
 
 
-  // Add image resizing functionality
+  // Add image editing functionality
   useEffect(() => {
     const editor = quillRef.current?.getEditor()
     if (!editor) return
 
-    const addImageResizeHandles = () => {
+    const addImageControls = () => {
       const images = editor.container.querySelectorAll('.ql-editor img')
       images.forEach((img: any) => {
-        if (img.dataset.resizeHandled) return
+        if (img.dataset.controlsAdded) return
         
-        img.dataset.resizeHandled = 'true'
+        img.dataset.controlsAdded = 'true'
         
-        // Make image resizable
+        // Make image selectable
         img.style.cursor = 'pointer'
         img.style.border = '2px solid transparent'
         img.style.borderRadius = '4px'
         img.style.transition = 'border-color 0.2s ease'
         
-        // Add resize handle
-        const handle = document.createElement('div')
-        handle.className = 'image-resize-handle'
-        handle.style.position = 'absolute'
-        handle.style.bottom = '2px'
-        handle.style.right = '2px'
-        handle.style.display = 'none'
-        handle.style.zIndex = '1000'
+        // Create controls container
+        const controlsContainer = document.createElement('div')
+        controlsContainer.className = 'image-controls'
+        controlsContainer.style.position = 'absolute'
+        controlsContainer.style.top = '-40px'
+        controlsContainer.style.left = '0'
+        controlsContainer.style.background = 'white'
+        controlsContainer.style.border = '1px solid #ccc'
+        controlsContainer.style.borderRadius = '4px'
+        controlsContainer.style.padding = '8px'
+        controlsContainer.style.display = 'none'
+        controlsContainer.style.zIndex = '1000'
+        controlsContainer.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)'
+        
+        // Add dimension inputs
+        const widthInput = document.createElement('input')
+        widthInput.type = 'number'
+        widthInput.placeholder = 'Width'
+        widthInput.style.width = '60px'
+        widthInput.style.marginRight = '4px'
+        widthInput.style.padding = '2px 4px'
+        widthInput.style.border = '1px solid #ddd'
+        widthInput.style.borderRadius = '2px'
+        
+        const heightInput = document.createElement('input')
+        heightInput.type = 'number'
+        heightInput.placeholder = 'Height'
+        heightInput.style.width = '60px'
+        heightInput.style.marginRight = '4px'
+        heightInput.style.padding = '2px 4px'
+        heightInput.style.border = '1px solid #ddd'
+        heightInput.style.borderRadius = '2px'
+        
+        const applyButton = document.createElement('button')
+        applyButton.textContent = 'Apply'
+        applyButton.style.padding = '2px 8px'
+        applyButton.style.background = '#3b82f6'
+        applyButton.style.color = 'white'
+        applyButton.style.border = 'none'
+        applyButton.style.borderRadius = '2px'
+        applyButton.style.cursor = 'pointer'
+        
+        controlsContainer.appendChild(widthInput)
+        controlsContainer.appendChild(heightInput)
+        controlsContainer.appendChild(applyButton)
         
         // Create a wrapper div for the image
         const wrapper = document.createElement('div')
@@ -140,82 +177,71 @@ const RichTextEditor = ({
         // Insert wrapper before image and move image into wrapper
         img.parentNode?.insertBefore(wrapper, img)
         wrapper.appendChild(img)
-        wrapper.appendChild(handle)
+        wrapper.appendChild(controlsContainer)
         
-        // Show handle on hover
-        wrapper.addEventListener('mouseenter', () => {
-          handle.style.display = 'block'
-          img.style.borderColor = '#3b82f6'
+        // Set initial values
+        widthInput.value = img.offsetWidth.toString()
+        heightInput.value = img.offsetHeight.toString()
+        
+        // Show controls on click
+        img.addEventListener('click', (e: MouseEvent) => {
+          e.preventDefault()
+          e.stopPropagation()
+          
+          // Hide other controls
+          editor.container.querySelectorAll('.image-controls').forEach((control: any) => {
+            control.style.display = 'none'
+          })
+          
+          controlsContainer.style.display = 'block'
+          widthInput.focus()
         })
         
-        wrapper.addEventListener('mouseleave', () => {
-          if (!img.classList.contains('resizing')) {
-            handle.style.display = 'none'
-            img.style.borderColor = 'transparent'
+        // Hide controls when clicking outside
+        document.addEventListener('click', (e: MouseEvent) => {
+          if (!wrapper.contains(e.target as Node)) {
+            controlsContainer.style.display = 'none'
           }
         })
         
-        // Handle resize
-        let isResizing = false
-        let startX = 0
-        let startY = 0
-        let startWidth = 0
-        let startHeight = 0
+        // Apply size changes
+        const applySize = () => {
+          const width = parseInt(widthInput.value) || img.offsetWidth
+          const height = parseInt(heightInput.value) || img.offsetHeight
+          
+          if (width > 0 && height > 0) {
+            img.style.width = `${width}px`
+            img.style.height = `${height}px`
+            img.style.maxWidth = 'none'
+            controlsContainer.style.display = 'none'
+          }
+        }
         
-        const startResize = (e: MouseEvent) => {
-          e.preventDefault()
-          e.stopPropagation()
-          isResizing = true
-          img.classList.add('resizing')
-          handle.style.display = 'block'
+        applyButton.addEventListener('click', applySize)
+        
+        widthInput.addEventListener('keypress', (e: KeyboardEvent) => {
+          if (e.key === 'Enter') applySize()
+        })
+        
+        heightInput.addEventListener('keypress', (e: KeyboardEvent) => {
+          if (e.key === 'Enter') applySize()
+        })
+        
+        // Show border on hover
+        img.addEventListener('mouseenter', () => {
           img.style.borderColor = '#3b82f6'
-          
-          startX = e.clientX
-          startY = e.clientY
-          startWidth = img.offsetWidth
-          startHeight = img.offsetHeight
-          
-          document.addEventListener('mousemove', doResize)
-          document.addEventListener('mouseup', stopResize)
-        }
+        })
         
-        const doResize = (e: MouseEvent) => {
-          if (!isResizing) return
-          e.preventDefault()
-          e.stopPropagation()
-          
-          const deltaX = e.clientX - startX
-          const deltaY = e.clientY - startY
-          
-          const newWidth = Math.max(50, startWidth + deltaX)
-          const newHeight = Math.max(50, startHeight + deltaY)
-          
-          // Update image size
-          img.style.width = `${newWidth}px`
-          img.style.height = `${newHeight}px`
-          img.style.maxWidth = 'none'
-          
-          // Update wrapper size
-          wrapper.style.width = `${newWidth}px`
-          wrapper.style.height = `${newHeight}px`
-        }
-        
-        const stopResize = () => {
-          isResizing = false
-          img.classList.remove('resizing')
-          handle.style.display = 'none'
-          img.style.borderColor = 'transparent'
-          
-          document.removeEventListener('mousemove', doResize)
-          document.removeEventListener('mouseup', stopResize)
-        }
-        
-        handle.addEventListener('mousedown', startResize)
+        img.addEventListener('mouseleave', () => {
+          if (controlsContainer.style.display !== 'block') {
+            img.style.borderColor = 'transparent'
+          }
+        })
       })
     }
     
-    // Add resize handles when content changes
-    const observer = new MutationObserver(addImageResizeHandles)
+    // Add controls when content changes
+    const observer = new MutationObserver(addImageControls)
     const editorElement = editor.container.querySelector('.ql-editor')
     if (editorElement) {
       observer.observe(editorElement, {
@@ -224,7 +250,7 @@ const RichTextEditor = ({
       })
       
       // Initial setup
-      addImageResizeHandles()
+      addImageControls()
     }
     
     return () => {

@@ -225,9 +225,25 @@ const RichTextEditor = ({
         // Trigger Quill's change detection by updating the content
         const editor = quillRef.current?.getEditor()
         if (editor) {
-          // Force Quill to recognize the content change
-          const delta = editor.getContents()
-          editor.setContents(delta)
+          // Get the current HTML content
+          const html = editor.root.innerHTML
+          
+          // Update the image in the HTML with the new dimensions
+          const updatedHtml = html.replace(
+            /<img([^>]*?)src="([^"]*?)"([^>]*?)>/g,
+            (match, before, src, after) => {
+              if (src === img.src) {
+                return `<img${before}src="${src}"${after} width="${width}" height="${height}">`
+              }
+              return match
+            }
+          )
+          
+          // Update the editor content with the modified HTML
+          editor.root.innerHTML = updatedHtml
+          
+          // Trigger the onChange callback to save the changes
+          onChange(updatedHtml)
         }
       }
     }

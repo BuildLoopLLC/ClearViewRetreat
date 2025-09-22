@@ -1160,14 +1160,13 @@ export default function ContentManager({ section, title }: ContentManagerProps) 
             section: 'about',
             subsection: 'gratitude',
             content_type: 'text',
-            content: `# New Gratitude Section ${sectionNumber}\n\nAdd your content here...`,
+            content: `<h1>New Gratitude Section ${sectionNumber}</h1>\n\n<p>Add your content here...</p>`,
             order: sectionNumber * 10,
             is_active: true,
             metadata: { 
               name: `Gratitude Section ${sectionNumber}`,
               sectionData: JSON.stringify({
-                title: `New Gratitude Section ${sectionNumber}`,
-                gradientColors: ['from-primary-600', 'to-primary-700']
+                title: `New Gratitude Section ${sectionNumber}`
               })
             },
             user: user?.email || 'admin@clearviewretreat.com'
@@ -1300,21 +1299,6 @@ export default function ContentManager({ section, title }: ContentManagerProps) 
                       </div>
                       
                       <div className="space-y-3">
-                        <div>
-                          <label className="text-sm font-medium text-secondary-700">Section Title</label>
-                          <input
-                            type="text"
-                            value={title}
-                            onChange={(e) => {
-                              const newSectionData = { ...sectionData, title: e.target.value }
-                              // Update the section data in metadata
-                              const updatedMetadata = { ...section.metadata, sectionData: JSON.stringify(newSectionData) }
-                              // This would need to be saved via API
-                            }}
-                            className="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                          />
-                        </div>
-                        
                         <div>
                           <label className="text-sm font-medium text-secondary-700">Content</label>
                           {editingItems.has(section.id) ? (

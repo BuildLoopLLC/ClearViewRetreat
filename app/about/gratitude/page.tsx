@@ -158,24 +158,15 @@ export default function GratitudePage() {
 
         {/* Dynamic Gratitude Sections */}
         {getDynamicSections().map((section, index) => {
-          const sectionData = section.metadata?.sectionData ? JSON.parse(section.metadata.sectionData) : {}
-          const gradientColors = sectionData.gradientColors || ['from-primary-600', 'to-primary-700']
-          const title = sectionData.title || section.metadata?.name?.replace('Gratitude Section ', '') || 'Gratitude Section'
-          
           return (
             <div key={section.id} className="mb-16">
-              <div className="bg-white rounded-3xl shadow-xl border border-secondary-200 overflow-hidden">
-                <div className={`bg-gradient-to-r ${gradientColors.join(' ')} px-8 py-6`}>
-                  <h3 className="text-2xl md:text-3xl font-display font-bold text-white text-center mb-4">
-                    {title}
-                  </h3>
-                  <div 
-                    className="prose prose-lg max-w-none text-white"
-                    dangerouslySetInnerHTML={{ 
-                      __html: processContent(section.content || '') 
-                    }}
-                  />
-                </div>
+              <div className="bg-white rounded-3xl shadow-xl border border-secondary-200 overflow-hidden p-8">
+                <div 
+                  className="prose prose-lg max-w-none"
+                  dangerouslySetInnerHTML={{ 
+                    __html: processContent(section.content || '') 
+                  }}
+                />
               </div>
             </div>
           )

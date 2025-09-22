@@ -22,6 +22,52 @@ const RichTextEditor = ({
 }: RichTextEditorProps) => {
   const quillRef = useRef<any>(null)
 
+  // Function to add controls to a specific image element
+  const addImageControlsToElement = (img: HTMLImageElement) => {
+    if (img.dataset.controlsAdded) return
+    
+    console.log('Adding controls to image:', img.src)
+    img.dataset.controlsAdded = 'true'
+    
+    // Make image selectable with double-click
+    img.style.cursor = 'pointer'
+    img.style.border = '2px solid transparent'
+    img.style.borderRadius = '4px'
+    img.style.transition = 'border-color 0.2s ease'
+    
+    // Show border on hover
+    img.addEventListener('mouseenter', () => {
+      img.style.borderColor = '#3b82f6'
+    })
+    
+    img.addEventListener('mouseleave', () => {
+      img.style.borderColor = 'transparent'
+    })
+    
+    // Show resize dialog on double-click
+    img.addEventListener('dblclick', (e: MouseEvent) => {
+      e.preventDefault()
+      e.stopPropagation()
+      
+      console.log('Image double-clicked, showing resize dialog')
+      
+      const width = prompt('Enter width in pixels:', img.offsetWidth.toString())
+      const height = prompt('Enter height in pixels:', img.offsetHeight.toString())
+      
+      if (width && height) {
+        const widthNum = parseInt(width)
+        const heightNum = parseInt(height)
+        
+        if (widthNum > 0 && heightNum > 0) {
+          img.style.width = `${widthNum}px`
+          img.style.height = `${heightNum}px`
+          img.style.maxWidth = 'none'
+          console.log('Image resized to:', widthNum, 'x', heightNum)
+        }
+      }
+    })
+  }
+
   const modules = useMemo(() => ({
     toolbar: {
       container: [
@@ -75,6 +121,16 @@ const RichTextEditor = ({
                   quill.setSelection(index + 1)
                   
                   console.log('Image inserted successfully')
+                  
+                  // Add controls to the newly inserted image
+                  setTimeout(() => {
+                    const images = quill.container.querySelectorAll('.ql-editor img')
+                    const newImage = images[images.length - 1] // Get the last image (most recently added)
+                    if (newImage && !newImage.dataset.controlsAdded) {
+                      console.log('Adding controls to newly inserted image')
+                      addImageControlsToElement(newImage)
+                    }
+                  }, 50)
                 } else {
                   console.error('Quill editor not found')
                 }
@@ -106,55 +162,19 @@ const RichTextEditor = ({
 
   // Add image editing functionality
   useEffect(() => {
+    console.log('useEffect running, checking for editor...')
     const editor = quillRef.current?.getEditor()
-    if (!editor) return
+    if (!editor) {
+      console.log('No editor found')
+      return
+    }
+    console.log('Editor found, setting up image controls...')
 
     const addImageControls = () => {
       const images = editor.container.querySelectorAll('.ql-editor img')
       console.log('Found images:', images.length)
       images.forEach((img: any) => {
-        if (img.dataset.controlsAdded) return
-        
-        console.log('Adding controls to image:', img.src)
-        img.dataset.controlsAdded = 'true'
-        
-        // Make image selectable with double-click
-        img.style.cursor = 'pointer'
-        img.style.border = '2px solid transparent'
-        img.style.borderRadius = '4px'
-        img.style.transition = 'border-color 0.2s ease'
-        
-        // Show border on hover
-        img.addEventListener('mouseenter', () => {
-          img.style.borderColor = '#3b82f6'
-        })
-        
-        img.addEventListener('mouseleave', () => {
-          img.style.borderColor = 'transparent'
-        })
-        
-        // Show resize dialog on double-click
-        img.addEventListener('dblclick', (e: MouseEvent) => {
-          e.preventDefault()
-          e.stopPropagation()
-          
-          console.log('Image double-clicked, showing resize dialog')
-          
-          const width = prompt('Enter width in pixels:', img.offsetWidth.toString())
-          const height = prompt('Enter height in pixels:', img.offsetHeight.toString())
-          
-          if (width && height) {
-            const widthNum = parseInt(width)
-            const heightNum = parseInt(height)
-            
-            if (widthNum > 0 && heightNum > 0) {
-              img.style.width = `${widthNum}px`
-              img.style.height = `${heightNum}px`
-              img.style.maxWidth = 'none'
-              console.log('Image resized to:', widthNum, 'x', heightNum)
-            }
-          }
-        })
+        addImageControlsToElement(img)
       })
     }
     
@@ -167,8 +187,11 @@ const RichTextEditor = ({
         subtree: true
       })
       
-      // Initial setup
-      addImageControls()
+      // Initial setup with delay to ensure editor is ready
+      setTimeout(() => {
+        console.log('Running initial addImageControls...')
+        addImageControls()
+      }, 100)
     }
     
     return () => {

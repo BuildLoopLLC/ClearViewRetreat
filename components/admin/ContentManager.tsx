@@ -5,7 +5,7 @@ import { cacheManager } from '../../hooks/useWebsiteContentSQLite'
 import { WebsiteContent } from '../../types/firebase'
 import { useWebsiteContent } from '../../hooks/useWebsiteContentSQLite'
 import { useAuthContext } from '../../contexts/AuthContext'
-import { PencilIcon, CheckIcon, XMarkIcon } from '@heroicons/react/24/outline'
+import { PencilIcon, CheckIcon, XMarkIcon, ChevronDownIcon, ChevronRightIcon } from '@heroicons/react/24/outline'
 import IndividualSupportersManager from './IndividualSupportersManager'
 import RichTextEditor from './RichTextEditor'
 
@@ -37,6 +37,7 @@ export default function ContentManager({ section, title }: ContentManagerProps) 
   const [hasChanges, setHasChanges] = useState(false)
   const [isSavingAll, setIsSavingAll] = useState(false)
   const [isEditingSupporters, setIsEditingSupporters] = useState(false)
+  const [isSupportersExpanded, setIsSupportersExpanded] = useState(false)
 
   // Filter content based on the section
   const content = isStatisticsSubsection ? allContent.filter(item => {
@@ -1236,7 +1237,23 @@ export default function ContentManager({ section, title }: ContentManagerProps) 
 
             {/* Individual Supporters */}
             <div className="border border-gray-200 rounded-lg p-6 bg-gray-50">
-              <IndividualSupportersManager
+              <div className="flex justify-between items-center mb-4">
+                <h4 className="text-lg font-semibold text-secondary-900">Individual Supporters</h4>
+                <button
+                  onClick={() => setIsSupportersExpanded(!isSupportersExpanded)}
+                  className="flex items-center space-x-2 text-sm text-primary-600 hover:text-primary-700 transition-colors"
+                >
+                  <span>{isSupportersExpanded ? 'Collapse' : 'Expand'}</span>
+                  {isSupportersExpanded ? (
+                    <ChevronDownIcon className="w-4 h-4" />
+                  ) : (
+                    <ChevronRightIcon className="w-4 h-4" />
+                  )}
+                </button>
+              </div>
+              
+              {isSupportersExpanded && (
+                <IndividualSupportersManager
                 supporters={individualSupporters ? (() => {
                   try {
                     const supportersArray = JSON.parse(individualSupporters.content || '[]')
@@ -1266,7 +1283,8 @@ export default function ContentManager({ section, title }: ContentManagerProps) 
                 isEditing={isEditingSupporters}
                 onEdit={handleSupportersEdit}
                 onCancel={handleSupportersCancel}
-              />
+                />
+              )}
             </div>
 
             {/* Dynamic Gratitude Sections */}

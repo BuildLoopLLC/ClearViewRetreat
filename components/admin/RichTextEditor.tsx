@@ -43,40 +43,122 @@ const RichTextEditor = ({
     console.log('Adding controls to image:', img.src)
     img.dataset.controlsAdded = 'true'
     
-    // Make image selectable with a simple click approach
+    // Make image selectable
     img.style.cursor = 'pointer'
     img.style.border = '2px solid transparent'
     img.style.borderRadius = '4px'
     img.style.transition = 'border-color 0.2s ease'
     
-    // Show border on hover (simple CSS approach)
-    img.addEventListener('mouseenter', () => {
+    // Create a global controls container that's outside Quill's DOM
+    let globalControls = document.getElementById('image-resize-controls-global')
+    if (!globalControls) {
+      globalControls = document.createElement('div')
+      globalControls.id = 'image-resize-controls-global'
+      globalControls.style.position = 'fixed'
+      globalControls.style.background = 'white'
+      globalControls.style.border = '1px solid #ccc'
+      globalControls.style.borderRadius = '6px'
+      globalControls.style.padding = '8px'
+      globalControls.style.display = 'none'
+      globalControls.style.zIndex = '9999'
+      globalControls.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)'
+      globalControls.style.fontSize = '12px'
+      document.body.appendChild(globalControls)
+    }
+    
+    // Add dimension inputs
+    const widthInput = document.createElement('input')
+    widthInput.type = 'number'
+    widthInput.placeholder = 'Width'
+    widthInput.style.width = '60px'
+    widthInput.style.marginRight = '4px'
+    widthInput.style.padding = '4px 6px'
+    widthInput.style.border = '1px solid #ddd'
+    widthInput.style.borderRadius = '3px'
+    widthInput.style.fontSize = '12px'
+    
+    const heightInput = document.createElement('input')
+    heightInput.type = 'number'
+    heightInput.placeholder = 'Height'
+    heightInput.style.width = '60px'
+    heightInput.style.marginRight = '4px'
+    heightInput.style.padding = '4px 6px'
+    heightInput.style.border = '1px solid #ddd'
+    heightInput.style.borderRadius = '3px'
+    heightInput.style.fontSize = '12px'
+    
+    const applyButton = document.createElement('button')
+    applyButton.textContent = 'Apply'
+    applyButton.style.padding = '4px 8px'
+    applyButton.style.background = '#3b82f6'
+    applyButton.style.color = 'white'
+    applyButton.style.border = 'none'
+    applyButton.style.borderRadius = '3px'
+    applyButton.style.cursor = 'pointer'
+    applyButton.style.fontSize = '12px'
+    
+    // Clear and populate global controls
+    globalControls.innerHTML = ''
+    globalControls.appendChild(widthInput)
+    globalControls.appendChild(heightInput)
+    globalControls.appendChild(applyButton)
+    
+    // Set initial values
+    widthInput.value = img.offsetWidth.toString()
+    heightInput.value = img.offsetHeight.toString()
+    
+    // Show controls on hover
+    img.addEventListener('mouseenter', (e) => {
       img.style.borderColor = '#3b82f6'
+      
+      // Position controls near the image
+      const rect = img.getBoundingClientRect()
+      globalControls.style.left = `${rect.left}px`
+      globalControls.style.top = `${rect.top - 50}px`
+      globalControls.style.display = 'block'
     })
     
     img.addEventListener('mouseleave', () => {
       img.style.borderColor = 'transparent'
+      // Don't hide immediately, let user interact with controls
+      setTimeout(() => {
+        if (!globalControls.matches(':hover')) {
+          globalControls.style.display = 'none'
+        }
+      }, 100)
     })
     
-    // Simple click to resize approach
-    img.addEventListener('click', (e) => {
-      e.preventDefault()
-      e.stopPropagation()
+    // Keep controls visible when hovering over them
+    globalControls.addEventListener('mouseenter', () => {
+      globalControls.style.display = 'block'
+    })
+    
+    globalControls.addEventListener('mouseleave', () => {
+      globalControls.style.display = 'none'
+    })
+    
+    // Apply size changes
+    const applySize = () => {
+      const width = parseInt(widthInput.value) || img.offsetWidth
+      const height = parseInt(heightInput.value) || img.offsetHeight
       
-      const width = prompt('Enter width in pixels:', img.offsetWidth.toString())
-      const height = prompt('Enter height in pixels:', img.offsetHeight.toString())
-      
-      if (width && height) {
-        const widthNum = parseInt(width)
-        const heightNum = parseInt(height)
-        
-        if (widthNum > 0 && heightNum > 0) {
-          img.style.width = `${widthNum}px`
-          img.style.height = `${heightNum}px`
-          img.style.maxWidth = 'none'
-          console.log('Image resized to:', widthNum, 'x', heightNum)
-        }
+      if (width > 0 && height > 0) {
+        img.style.width = `${width}px`
+        img.style.height = `${height}px`
+        img.style.maxWidth = 'none'
+        console.log('Image resized to:', width, 'x', height)
+        globalControls.style.display = 'none'
       }
+    }
+    
+    applyButton.addEventListener('click', applySize)
+    
+    widthInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') applySize()
+    })
+    
+    heightInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') applySize()
     })
   }
 

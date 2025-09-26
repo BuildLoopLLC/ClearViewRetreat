@@ -8,7 +8,8 @@ import {
   CheckCircleIcon,
   PhoneIcon,
   EnvelopeIcon,
-  MapPinIcon
+  MapPinIcon,
+  HeartIcon
 } from '@heroicons/react/24/outline'
 import { useWebsiteContent } from '@/hooks/useWebsiteContentSQLite'
 
@@ -89,6 +90,45 @@ export default function EventPaymentPage() {
             <p className="text-lg text-secondary-600">
               {getContentByMetadataName('contact-phone') || 'If you need further information, please contact 615-739-0634.'}
             </p>
+          </div>
+
+          {/* Call to Action for Donations */}
+          <div className="mt-12 p-8 bg-primary-50 border border-primary-200 rounded-xl">
+            <h3 className="text-2xl font-bold text-secondary-900 mb-4 text-center">Support Our Mission</h3>
+            <p className="text-lg text-secondary-600 mb-6 text-center">
+              Your generous donations help us continue our mission of spiritual growth and community support.
+            </p>
+            <div className="text-center">
+              <Link
+                href="/donate"
+                className="btn-primary text-lg px-8 py-4 inline-flex items-center justify-center group"
+              >
+                Make a Donation
+                <HeartIcon className="ml-2 h-5 w-5 group-hover:scale-110 transition-transform duration-200" />
+              </Link>
+            </div>
+          </div>
+
+          {/* Contact Information */}
+          <div className="mt-8 p-6 bg-gray-50 border border-gray-200 rounded-xl">
+            <h3 className="text-xl font-semibold text-secondary-900 mb-4 text-center">Need Help?</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+              <div className="flex flex-col items-center">
+                <PhoneIcon className="h-8 w-8 text-primary-600 mb-2" />
+                <p className="font-medium text-secondary-900">Phone</p>
+                <p className="text-sm text-secondary-600">615-739-0634</p>
+              </div>
+              <div className="flex flex-col items-center">
+                <EnvelopeIcon className="h-8 w-8 text-primary-600 mb-2" />
+                <p className="font-medium text-secondary-900">Email</p>
+                <p className="text-sm text-secondary-600">cvr@ClearViewRetreat.org</p>
+              </div>
+              <div className="flex flex-col items-center">
+                <MapPinIcon className="h-8 w-8 text-primary-600 mb-2" />
+                <p className="font-medium text-secondary-900">Address</p>
+                <p className="text-sm text-secondary-600">149 Scenic Hill Road<br />Lancing, TN 37770</p>
+              </div>
+            </div>
           </div>
         </div>
       </div>

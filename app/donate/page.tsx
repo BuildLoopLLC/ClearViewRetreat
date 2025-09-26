@@ -30,6 +30,12 @@ export default function DonatePage() {
     return content.replace(/\n/g, '<br>')
   }
 
+  const getPayPalUrl = () => {
+    // Extract PayPal URL from donation methods content
+    const content = getContentByMetadataName('donation-methods')
+    const urlMatch = content.match(/https:\/\/[^\s]+/)
+    return urlMatch ? urlMatch[0] : 'https://www.paypal.com/donate'
+  }
 
   if (loading) {
     return (
@@ -69,9 +75,29 @@ export default function DonatePage() {
         <div className="bg-white rounded-xl shadow-sm p-8">
           <h2 className="text-3xl font-bold text-secondary-900 mb-8 text-center">Financial Donation</h2>
           
+          <div className="prose prose-lg max-w-none text-secondary-600 mb-8">
+            <div dangerouslySetInnerHTML={{ 
+              __html: processContent(getContentByMetadataName('donation-intro')) 
+            }} />
+          </div>
+
+          <div className="text-center mb-8">
+            <div className="prose prose-lg max-w-none text-secondary-600">
+              <div dangerouslySetInnerHTML={{ 
+                __html: processContent(getContentByMetadataName('donation-methods')) 
+              }} />
+            </div>
+          </div>
+
+          <div className="prose prose-lg max-w-none text-secondary-600 mb-8">
+            <div dangerouslySetInnerHTML={{ 
+              __html: processContent(getContentByMetadataName('tax-information')) 
+            }} />
+          </div>
+
           <div className="prose prose-lg max-w-none text-secondary-600">
             <div dangerouslySetInnerHTML={{ 
-              __html: processContent(getContentByMetadataName('donation-content')) 
+              __html: processContent(getContentByMetadataName('donation-options')) 
             }} />
           </div>
         </div>

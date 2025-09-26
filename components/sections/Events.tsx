@@ -23,7 +23,7 @@ interface EventsProps {
 }
 
 export default function Events({ showCTA = true }: EventsProps) {
-  const { content: eventsContent, getContentValue, loading } = useWebsiteContent('events')
+  const { content: eventsContent, getContentByMetadataName, loading } = useWebsiteContent('events')
   
   // Process events from database content
   const upcomingEvents: Event[] = eventsContent
@@ -66,10 +66,10 @@ export default function Events({ showCTA = true }: EventsProps) {
             transition={{ duration: 0.6 }}
           >
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-display font-bold text-secondary-900 mb-6">
-              {getContentValue('title')}
+              {getContentByMetadataName('title')}
             </h2>
             <p className="text-xl text-secondary-600 max-w-3xl mx-auto leading-relaxed">
-              {getContentValue('subtitle')}
+              {getContentByMetadataName('subtitle')}
             </p>
           </motion.div>
         </div>
@@ -262,7 +262,7 @@ export default function Events({ showCTA = true }: EventsProps) {
                   href="/events"
                   className="btn bg-white text-primary-600 hover:bg-primary-50 text-lg px-8 py-4"
                 >
-                  {getContentValue('cta')}
+                  View All Events
                 </Link>
                 <Link
                   href="/contact"

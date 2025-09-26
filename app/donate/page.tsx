@@ -26,6 +26,13 @@ export default function DonatePage() {
     return content.replace(/\n/g, '<br>')
   }
 
+  const getPayPalUrl = () => {
+    // Extract PayPal URL from donation methods content
+    const content = getContentByMetadataName('donation-methods')
+    const urlMatch = content.match(/https:\/\/[^\s]+/)
+    return urlMatch ? urlMatch[0] : 'https://www.paypal.com/donate'
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen bg-secondary-50 flex items-center justify-center">
@@ -71,10 +78,19 @@ export default function DonatePage() {
           </div>
 
           <div className="text-center mb-8">
-            <div className="prose prose-lg max-w-none text-secondary-600">
+            <div className="prose prose-lg max-w-none text-secondary-600 mb-6">
               <div dangerouslySetInnerHTML={{ 
                 __html: processContent(getContentByMetadataName('donation-methods')) 
               }} />
+            </div>
+            <div className="flex justify-center">
+              <div className="bg-white p-4 rounded-lg shadow-sm border">
+                <img 
+                  src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(getPayPalUrl())}`}
+                  alt="PayPal Donation QR Code"
+                  className="w-48 h-48"
+                />
+              </div>
             </div>
           </div>
 

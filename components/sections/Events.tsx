@@ -5,46 +5,45 @@ import Link from 'next/link'
 import { CalendarIcon, MapPinIcon, UsersIcon, ArrowRightIcon } from '@heroicons/react/24/outline'
 import { useWebsiteContent } from '@/hooks/useWebsiteContentSQLite'
 
-// Mock data - in real app this would come from the database
-const upcomingEvents = [
-  {
-    id: 1,
-    title: 'Spring Renewal Retreat',
-    date: 'March 15-17, 2024',
-    location: 'Main Lodge',
-    participants: '25/30',
-    image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80',
-    description: 'A weekend of spiritual renewal, prayer, and community building in the beauty of spring.',
-    featured: true,
-  },
-  {
-    id: 2,
-    title: 'Family Adventure Camp',
-    date: 'April 5-7, 2024',
-    location: 'Outdoor Pavilion',
-    participants: '40/50',
-    image: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?ixlib=rb-4.0.3&auto=format&fit=crop&w=2071&q=80',
-    description: 'Fun-filled activities for the whole family, including hiking, crafts, and worship.',
-    featured: false,
-  },
-  {
-    id: 3,
-    title: 'Men\'s Wilderness Challenge',
-    date: 'April 19-21, 2024',
-    location: 'Wilderness Area',
-    participants: '15/20',
-    image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80',
-    description: 'An outdoor adventure designed to challenge men physically and spiritually.',
-    featured: false,
-  },
-]
+interface Event {
+  id: string
+  title: string
+  date: string
+  location: string
+  participants: string
+  image: string
+  description: string
+  featured: boolean
+  price?: string
+  category?: string
+}
 
 interface EventsProps {
   showCTA?: boolean
 }
 
 export default function Events({ showCTA = true }: EventsProps) {
-  const { getContentValue, loading } = useWebsiteContent('events')
+  const { content: eventsContent, getContentValue, loading } = useWebsiteContent('events')
+  
+  // Process events from database content
+  const upcomingEvents: Event[] = eventsContent
+    .filter(item => item.metadata?.name && item.metadata.name.startsWith('Event'))
+    .map(item => {
+      const metadata = item.metadata || {}
+      return {
+        id: item.id,
+        title: metadata.title || 'Untitled Event',
+        date: metadata.date || '',
+        location: metadata.location || '',
+        participants: `${metadata.currentAttendees || 0}/${metadata.maxAttendees || '∞'}`,
+        image: metadata.image || 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80',
+        description: item.content || '',
+        featured: metadata.featured === true || metadata.featured === 'true',
+        price: metadata.price || '',
+        category: metadata.category || ''
+      }
+    })
+    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
 
   if (loading) {
     return (
@@ -74,6 +73,41 @@ export default function Events({ showCTA = true }: EventsProps) {
             </p>
           </motion.div>
         </div>
+
+        {/* No Events Message */}
+        {upcomingEvents.length === 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="text-center py-16"
+          >
+            <div className="bg-white rounded-2xl shadow-lg p-12 max-w-2xl mx-auto">
+              <CalendarIcon className="h-16 w-16 text-gray-400 mx-auto mb-6" />
+              <h3 className="text-2xl font-display font-semibold text-secondary-900 mb-4">
+                No Events Currently Scheduled
+              </h3>
+              <p className="text-lg text-secondary-600 mb-8">
+                We're working on planning amazing events for you. Check back soon for updates on upcoming retreats, workshops, and special gatherings.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Link
+                  href="/contact"
+                  className="btn-primary text-lg px-8 py-4"
+                >
+                  Contact Us
+                </Link>
+                <Link
+                  href="/about"
+                  className="btn-outline text-lg px-8 py-4"
+                >
+                  Learn More
+                </Link>
+              </div>
+            </div>
+          </motion.div>
+        )}
 
         {/* Featured Event */}
         {upcomingEvents.filter(event => event.featured).map((event) => (

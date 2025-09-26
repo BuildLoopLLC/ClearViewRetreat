@@ -2449,12 +2449,23 @@ export default function ContentManager({ section, title }: ContentManagerProps) 
                     
                     {editingItems.has(item.id) ? (
                       <div className="space-y-3">
-                        <textarea
-                          value={editForms[item.id]?.content || ''}
-                          onChange={(e) => handleFieldChange(item.id, 'content', e.target.value)}
-                          className="textarea w-full"
-                          rows={3}
-                        />
+                        {section === 'payment' || section === 'donation' ? (
+                          <RichTextEditor
+                            value={editForms[item.id]?.content || ''}
+                            onChange={(value) => handleFieldChange(item.id, 'content', value)}
+                            placeholder={section === 'payment' 
+                              ? "Enter payment information here. Use the rich text editor to format text, add links, and create engaging content..."
+                              : "Enter donation information here. Use the rich text editor to format text, add links, and create engaging content..."
+                            }
+                          />
+                        ) : (
+                          <textarea
+                            value={editForms[item.id]?.content || ''}
+                            onChange={(e) => handleFieldChange(item.id, 'content', e.target.value)}
+                            className="textarea w-full"
+                            rows={3}
+                          />
+                        )}
                       </div>
                     ) : (
                       <div className="text-secondary-900">{item.content}</div>

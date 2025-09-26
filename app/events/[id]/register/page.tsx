@@ -185,6 +185,19 @@ export default function EventRegistrationPage() {
       await new Promise(resolve => setTimeout(resolve, 2000))
       
       setSuccess(true)
+      
+      // Redirect based on event price after showing success message
+      setTimeout(() => {
+        const eventPrice = event?.price ? parseFloat(event.price.replace('$', '')) : 0
+        if (eventPrice > 0) {
+          // Event has a price, redirect to payment page
+          router.push('/events/payment')
+        } else {
+          // Free event, redirect to donation page
+          router.push('/donate')
+        }
+      }, 3000) // Show success message for 3 seconds before redirect
+      
     } catch (err: any) {
       setError('Registration failed: ' + err.message)
     } finally {
@@ -222,19 +235,27 @@ export default function EventRegistrationPage() {
   }
 
   if (success) {
+    const eventPrice = event?.price ? parseFloat(event.price.replace('$', '')) : 0
+    const redirectMessage = eventPrice > 0 
+      ? "Redirecting you to the payment page..." 
+      : "Redirecting you to the donation page..."
+    
     return (
       <div className="min-h-screen bg-secondary-50 flex items-center justify-center">
         <div className="text-center max-w-md mx-auto px-4">
           <CheckCircleIcon className="h-16 w-16 text-green-500 mx-auto mb-4" />
           <h1 className="text-2xl font-bold text-secondary-900 mb-4">Registration Successful!</h1>
-          <p className="text-secondary-600 mb-8">
+          <p className="text-secondary-600 mb-4">
             Thank you for registering for <strong>{event.title}</strong>. 
             You will receive a confirmation email shortly with event details.
+          </p>
+          <p className="text-primary-600 font-medium mb-8">
+            {redirectMessage}
           </p>
           <div className="space-y-4">
             <Link
               href="/events"
-              className="btn-primary inline-flex items-center"
+              className="btn-outline inline-flex items-center"
             >
               View All Events
             </Link>

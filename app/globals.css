@@ -107,6 +107,7 @@
     /* Ensure sufficient contrast */
     background-color: #0284c7; /* primary-600 */
     color: #ffffff;
+    padding: 10px 20px;
   }
   
   .btn-primary:hover {

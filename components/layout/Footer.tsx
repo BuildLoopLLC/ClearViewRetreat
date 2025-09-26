@@ -23,11 +23,11 @@ const navigation = {
     { name: 'With Gratitude', href: '/about/gratitude' },
   ],
   events: [
-    { name: 'Upcoming Events', href: '/events/upcoming' },
+    { name: 'Upcoming Events', href: '/events' },
     { name: 'Past Events', href: '/events/past' },
     { name: 'Event Registration', href: '/events/register' },
     { name: 'Event Types', href: '/events/types' },
-    { name: 'Testimonials', href: '/events/testimonials' },
+    { name: 'Payment', href: '/events/payment' },
   ],
   contact: [
     { name: 'Get in Touch', href: '/contact/contact-us' },

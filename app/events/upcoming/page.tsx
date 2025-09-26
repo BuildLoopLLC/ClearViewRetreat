@@ -10,6 +10,7 @@ interface Event {
   id: string
   title: string
   date: string
+  endDate: string
   location: string
   participants: string
   image: string
@@ -22,6 +23,45 @@ interface Event {
 export default function UpcomingEventsPage() {
   const { content: eventsContent, loading } = useWebsiteContent('events')
   
+  // Helper function to format date
+  const formatDate = (dateString: string) => {
+    if (!dateString) return 'Date TBD'
+    try {
+      const date = new Date(dateString)
+      if (isNaN(date.getTime())) return 'Invalid date'
+      return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      })
+    } catch {
+      return 'Invalid date'
+    }
+  }
+
+  // Helper function to format date range
+  const formatDateRange = (startDate: string, endDate: string) => {
+    if (!startDate) return 'Date TBD'
+    
+    const start = formatDate(startDate)
+    if (!endDate || startDate === endDate) return start
+    
+    try {
+      const end = new Date(endDate)
+      if (isNaN(end.getTime())) return start
+      
+      const endFormatted = end.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      })
+      
+      return `${start} - ${endFormatted}`
+    } catch {
+      return start
+    }
+  }
+  
   // Process events from database content
   const upcomingEvents: Event[] = eventsContent
     .filter(item => item.metadata?.name && item.metadata.name.startsWith('Event'))
@@ -30,11 +70,12 @@ export default function UpcomingEventsPage() {
       return {
         id: item.id,
         title: metadata.title || 'Untitled Event',
-        date: metadata.date || '',
+        date: metadata.startDate || '',
+        endDate: metadata.endDate || '',
         location: metadata.location || '',
         participants: `${metadata.currentAttendees || 0}/${metadata.maxAttendees || '∞'}`,
         image: metadata.image || 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80',
-        description: item.content || '',
+        description: metadata.description || '', // Use short description, not long content
         featured: metadata.featured === true || metadata.featured === 'true',
         price: metadata.price || '',
         category: metadata.category || ''
@@ -165,7 +206,7 @@ export default function UpcomingEventsPage() {
                   <div className="space-y-3 mb-8">
                     <div className="flex items-center space-x-3">
                       <CalendarIcon className="h-5 w-5 text-primary-600" />
-                      <span className="text-secondary-700">{event.date}</span>
+                      <span className="text-secondary-700">{formatDateRange(event.date, event.endDate)}</span>
                     </div>
                     <div className="flex items-center space-x-3">
                       <MapPinIcon className="h-5 w-5 text-primary-600" />
@@ -239,7 +280,7 @@ export default function UpcomingEventsPage() {
                   <div className="space-y-2 mb-6 text-sm text-secondary-600">
                     <div className="flex items-center space-x-2">
                       <CalendarIcon className="h-4 w-4 text-primary-600" />
-                      <span>{event.date}</span>
+                      <span>{formatDateRange(event.date, event.endDate)}</span>
                     </div>
                     <div className="flex items-center space-x-2">
                       <MapPinIcon className="h-4 w-4 text-primary-600" />

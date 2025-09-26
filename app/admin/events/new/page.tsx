@@ -67,18 +67,31 @@ export default function NewEventPage() {
       const tagsArray = formData.tags.split(',').map(tag => tag.trim()).filter(tag => tag)
       
       const eventData = {
-        ...formData,
-        tags: tagsArray,
-        authorName: user?.displayName || 'Admin',
-        authorEmail: user?.email || '',
-        publishedAt: formData.published ? new Date().toISOString() : null,
         section: 'events',
+        subsection: null,
         contentType: 'text' as const,
+        content: formData.content, // Event description
+        metadata: {
+          name: `Event: ${formData.title}`,
+          title: formData.title,
+          slug: formData.slug,
+          description: formData.description,
+          startDate: formData.startDate,
+          endDate: formData.endDate,
+          location: formData.location,
+          maxAttendees: formData.maxAttendees ? parseInt(formData.maxAttendees) : null,
+          currentAttendees: 0,
+          price: formData.price ? parseFloat(formData.price) : 0,
+          category: formData.category,
+          tags: tagsArray,
+          published: formData.published,
+          publishedAt: formData.published ? new Date().toISOString() : null,
+          authorName: user?.displayName || 'Admin',
+          authorEmail: user?.email || ''
+        },
         order: 0,
         isActive: formData.published,
-        currentAttendees: 0,
-        maxAttendees: formData.maxAttendees ? parseInt(formData.maxAttendees) : null,
-        price: parseFloat(formData.price) || 0
+        user: user?.email || 'admin@clearviewretreat.com'
       }
 
       const response = await fetch('/api/sqlite-content', {

@@ -36,7 +36,31 @@ export default function EventManagementPage() {
         throw new Error('Failed to fetch events')
       }
       const data = await response.json()
-      setEvents(data)
+      
+      // Transform the data to match the expected Event interface
+      const transformedEvents = data.map((item: any) => ({
+        id: item.id,
+        title: item.metadata?.title || 'Untitled Event',
+        slug: item.metadata?.slug || '',
+        description: item.metadata?.description || item.content || '',
+        content: item.content || '',
+        startDate: item.metadata?.startDate || '',
+        endDate: item.metadata?.endDate || '',
+        location: item.metadata?.location || '',
+        maxAttendees: item.metadata?.maxAttendees || null,
+        currentAttendees: item.metadata?.currentAttendees || 0,
+        price: item.metadata?.price || 0,
+        category: item.metadata?.category || '',
+        tags: item.metadata?.tags || [],
+        published: item.metadata?.published || false,
+        publishedAt: item.metadata?.publishedAt || null,
+        authorName: item.metadata?.authorName || '',
+        authorEmail: item.metadata?.authorEmail || '',
+        createdAt: item.createdAt,
+        updatedAt: item.updatedAt
+      }))
+      
+      setEvents(transformedEvents)
     } catch (err: any) {
       setError(err.message)
     } finally {
@@ -68,23 +92,42 @@ export default function EventManagementPage() {
   }
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    })
+    if (!dateString) return 'No date set'
+    try {
+      const date = new Date(dateString)
+      if (isNaN(date.getTime())) return 'Invalid date'
+      return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      })
+    } catch {
+      return 'Invalid date'
+    }
   }
 
   const formatTime = (dateString: string) => {
-    return new Date(dateString).toLocaleTimeString('en-US', {
-      hour: 'numeric',
-      minute: '2-digit',
-      hour12: true
-    })
+    if (!dateString) return 'No time set'
+    try {
+      const date = new Date(dateString)
+      if (isNaN(date.getTime())) return 'Invalid time'
+      return date.toLocaleTimeString('en-US', {
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true
+      })
+    } catch {
+      return 'Invalid time'
+    }
   }
 
   const isUpcoming = (dateString: string) => {
-    return new Date(dateString) > new Date()
+    if (!dateString) return false
+    try {
+      return new Date(dateString) > new Date()
+    } catch {
+      return false
+    }
   }
 
   if (loading) {
@@ -205,11 +248,11 @@ export default function EventManagementPage() {
                         </div>
                         <div className="flex items-center space-x-2">
                           <CurrencyDollarIcon className="h-4 w-4" />
-                          <span>${event.price}</span>
+                          <span>{event.price && event.price > 0 ? `$${event.price}` : 'Free'}</span>
                         </div>
                         <div className="flex items-center space-x-2">
                           <UserGroupIcon className="h-4 w-4" />
-                          <span>{event.currentAttendees} / {event.maxAttendees || '∞'} attendees</span>
+                          <span>{event.currentAttendees} / {event.maxAttendees ? event.maxAttendees : '∞'} attendees</span>
                         </div>
                         <div className="flex items-center space-x-2">
                           <span className="text-xs bg-gray-100 px-2 py-1 rounded">{event.category}</span>

@@ -22,7 +22,6 @@ export default function NewEventPage() {
   
   const [formData, setFormData] = useState({
     title: '',
-    slug: '',
     description: '',
     content: '',
     startDate: '',
@@ -45,21 +44,6 @@ export default function NewEventPage() {
     }))
   }
 
-  const generateSlug = (title: string) => {
-    return title
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/(^-|-$)/g, '')
-  }
-
-  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const title = e.target.value
-    setFormData(prev => ({
-      ...prev,
-      title,
-      slug: generateSlug(title)
-    }))
-  }
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -135,7 +119,6 @@ export default function NewEventPage() {
         metadata: {
           name: `Event: ${formData.title}`,
           title: formData.title,
-          slug: formData.slug,
           description: formData.description,
           startDate: formData.startDate,
           endDate: formData.endDate,
@@ -254,28 +237,13 @@ export default function NewEventPage() {
                   id="title"
                   name="title"
                   value={formData.title}
-                  onChange={handleTitleChange}
+                  onChange={handleInputChange}
                   className="input w-full"
                   placeholder="Enter event title"
                   required
                 />
               </div>
               
-              <div>
-                <label htmlFor="slug" className="block text-sm font-medium text-secondary-700 mb-2">
-                  URL Slug *
-                </label>
-                <input
-                  type="text"
-                  id="slug"
-                  name="slug"
-                  value={formData.slug}
-                  onChange={handleInputChange}
-                  className="input w-full"
-                  placeholder="url-friendly-slug"
-                  required
-                />
-              </div>
               
               <div>
                 <label htmlFor="category" className="block text-sm font-medium text-secondary-700 mb-2">

@@ -41,7 +41,6 @@ export default function EventManagementPage() {
       const transformedEvents = data.map((item: any) => ({
         id: item.id,
         title: item.metadata?.title || 'Untitled Event',
-        slug: item.metadata?.slug || '',
         description: item.metadata?.description || item.content || '',
         content: item.content || '',
         startDate: item.metadata?.startDate || '',

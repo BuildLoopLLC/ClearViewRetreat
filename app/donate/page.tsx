@@ -23,6 +23,10 @@ export default function DonatePage() {
 
   const processContent = (content: string) => {
     if (!content) return ''
+    // If content contains HTML tags, return as-is, otherwise convert line breaks
+    if (content.includes('<') && content.includes('>')) {
+      return content
+    }
     return content.replace(/\n/g, '<br>')
   }
 
@@ -78,19 +82,10 @@ export default function DonatePage() {
           </div>
 
           <div className="text-center mb-8">
-            <div className="prose prose-lg max-w-none text-secondary-600 mb-6">
+            <div className="prose prose-lg max-w-none text-secondary-600">
               <div dangerouslySetInnerHTML={{ 
                 __html: processContent(getContentByMetadataName('donation-methods')) 
               }} />
-            </div>
-            <div className="flex justify-center">
-              <div className="bg-white p-4 rounded-lg shadow-sm border">
-                <img 
-                  src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(getPayPalUrl())}`}
-                  alt="PayPal Donation QR Code"
-                  className="w-48 h-48"
-                />
-              </div>
             </div>
           </div>
 

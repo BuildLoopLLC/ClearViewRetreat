@@ -262,7 +262,7 @@ export default function EventManagementPage() {
                     
                     <div className="ml-4 flex items-center space-x-2">
                       <Link
-                        href={`/events/${event.slug}`}
+                        href={`/events/${event.id}`}
                         className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                         title="View Event"
                       >

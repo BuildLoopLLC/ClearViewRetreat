@@ -7,6 +7,82 @@ import 'react-quill/dist/quill.snow.css'
 // Dynamically import ReactQuill to avoid SSR issues
 const ReactQuill = dynamic(() => import('react-quill'), { ssr: false })
 
+// Custom Image Blot that preserves width and height attributes
+let Quill: any = null
+let ImageBlot: any = null
+
+// We'll initialize these when the component mounts
+const initializeQuill = async () => {
+  if (!Quill) {
+    Quill = (await import('quill')).default
+    
+    if (!ImageBlot) {
+      ImageBlot = Quill.import('formats/image')
+      
+      class CustomImageBlot extends ImageBlot {
+        static create(value: any) {
+          const node = super.create(value)
+          if (typeof value === 'string') {
+            node.setAttribute('src', value)
+            // Add inline styles to make images display inline
+            node.style.display = 'inline-block'
+            node.style.verticalAlign = 'top'
+            node.style.margin = '0 8px 8px 0'
+          } else if (typeof value === 'object') {
+            node.setAttribute('src', value.src)
+            if (value.width) node.setAttribute('width', value.width)
+            if (value.height) node.setAttribute('height', value.height)
+            // Add inline styles to make images display inline
+            node.style.display = 'inline-block'
+            node.style.verticalAlign = 'top'
+            node.style.margin = '0 8px 8px 0'
+          }
+          return node
+        }
+
+        static blotName = 'image'
+        static tagName = 'img'
+        static className = 'ql-image'
+        static blotLevel = 'inline'
+
+        static value(node: any) {
+          return {
+            src: node.getAttribute('src'),
+            width: node.getAttribute('width'),
+            height: node.getAttribute('height')
+          }
+        }
+
+        static formats(node: any) {
+          const formats: any = {}
+          if (node.hasAttribute('width')) {
+            formats.width = node.getAttribute('width')
+          }
+          if (node.hasAttribute('height')) {
+            formats.height = node.getAttribute('height')
+          }
+          return formats
+        }
+
+        format(name: string, value: any) {
+          if (name === 'width' || name === 'height') {
+            if (value) {
+              this.domNode.setAttribute(name, value)
+            } else {
+              this.domNode.removeAttribute(name)
+            }
+          } else {
+            super.format(name, value)
+          }
+        }
+      }
+      
+      // Register the custom image blot
+      Quill.register('formats/image', CustomImageBlot)
+    }
+  }
+}
+
 interface RichTextEditorProps {
   value: string
   onChange: (value: string) => void
@@ -22,6 +98,11 @@ const RichTextEditor = ({
 }: RichTextEditorProps) => {
   const quillRef = useRef<any>(null)
   const [editorReady, setEditorReady] = useState(false)
+  
+  // Initialize Quill with custom image blot
+  useEffect(() => {
+    initializeQuill()
+  }, [])
 
   // Callback ref to detect when ReactQuill is mounted
   const quillCallbackRef = (node: any) => {
@@ -55,6 +136,10 @@ const RichTextEditor = ({
       img.style.width = `${savedWidth}px`
       img.style.height = `${savedHeight}px`
       img.style.maxWidth = 'none'
+      // Ensure inline display for images
+      img.style.display = 'inline-block'
+      img.style.verticalAlign = 'top'
+      img.style.margin = '0 8px 8px 0'
       console.log('Restored saved dimensions:', savedWidth, 'x', savedHeight)
     } else {
       // Check if dimensions are in the style attribute
@@ -64,6 +149,10 @@ const RichTextEditor = ({
       
       if (styleWidth && styleHeight) {
         img.style.maxWidth = 'none'
+        // Ensure inline display for images
+        img.style.display = 'inline-block'
+        img.style.verticalAlign = 'top'
+        img.style.margin = '0 8px 8px 0'
         console.log('Applied style dimensions:', styleWidth, 'x', styleHeight)
       } else {
         // Check if the image has dimensions in the outerHTML
@@ -81,10 +170,14 @@ const RichTextEditor = ({
           
           img.setAttribute('width', width)
           img.setAttribute('height', height)
-          img.style.width = `${width}px`
-          img.style.height = `${height}px`
-          img.style.maxWidth = 'none'
-          console.log('Applied dimensions from outerHTML:', width, 'x', height)
+            img.style.width = `${width}px`
+            img.style.height = `${height}px`
+            img.style.maxWidth = 'none'
+            // Ensure inline display for images
+            img.style.display = 'inline-block'
+            img.style.verticalAlign = 'top'
+            img.style.margin = '0 8px 8px 0'
+            console.log('Applied dimensions from outerHTML:', width, 'x', height)
         }
       }
     }
@@ -107,32 +200,52 @@ const RichTextEditor = ({
     controlsContainer.style.zIndex = '9999'
     controlsContainer.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)'
     controlsContainer.style.fontSize = '12px'
+    controlsContainer.style.width = 'auto'
+    controlsContainer.style.minWidth = '300px'
     document.body.appendChild(controlsContainer)
     
-    // Add dimension inputs
+    // Add dimension inputs with labels - all on same line
+    const widthLabel = document.createElement('label')
+    widthLabel.textContent = 'Width:'
+    widthLabel.style.cssText = `
+      font-size: 12px;
+      color: #666;
+      margin-right: 4px;
+      font-weight: bold;
+    `
+    
     const widthInput = document.createElement('input')
     widthInput.type = 'number'
     widthInput.placeholder = 'Width'
     widthInput.style.width = '60px'
-    widthInput.style.marginRight = '4px'
     widthInput.style.padding = '4px 6px'
     widthInput.style.border = '1px solid #ddd'
     widthInput.style.borderRadius = '3px'
     widthInput.style.fontSize = '12px'
+    widthInput.style.marginRight = '12px'
+    
+    const heightLabel = document.createElement('label')
+    heightLabel.textContent = 'Height:'
+    heightLabel.style.cssText = `
+      font-size: 12px;
+      color: #666;
+      margin-right: 4px;
+      font-weight: bold;
+    `
     
     const heightInput = document.createElement('input')
     heightInput.type = 'number'
     heightInput.placeholder = 'Height'
     heightInput.style.width = '60px'
-    heightInput.style.marginRight = '4px'
     heightInput.style.padding = '4px 6px'
     heightInput.style.border = '1px solid #ddd'
     heightInput.style.borderRadius = '3px'
     heightInput.style.fontSize = '12px'
+    heightInput.style.marginRight = '12px'
     
     const applyButton = document.createElement('button')
     applyButton.textContent = 'Apply'
-    applyButton.style.padding = '4px 8px'
+    applyButton.style.padding = '6px 12px'
     applyButton.style.background = '#3b82f6'
     applyButton.style.color = 'white'
     applyButton.style.border = 'none'
@@ -143,7 +256,7 @@ const RichTextEditor = ({
     // Aspect ratio lock button
     const lockButton = document.createElement('button')
     lockButton.textContent = '🔒'
-    lockButton.style.padding = '4px 6px'
+    lockButton.style.padding = '6px 8px'
     lockButton.style.background = '#6b7280'
     lockButton.style.color = 'white'
     lockButton.style.border = 'none'
@@ -174,6 +287,7 @@ const RichTextEditor = ({
     
     lockButton.addEventListener('click', toggleAspectRatio)
     
+    
     // Update height when width changes (if locked)
     const updateHeightFromWidth = () => {
       if (aspectRatioLocked) {
@@ -196,7 +310,9 @@ const RichTextEditor = ({
     heightInput.addEventListener('input', updateWidthFromHeight)
     
     // Populate controls container
+    controlsContainer.appendChild(widthLabel)
     controlsContainer.appendChild(widthInput)
+    controlsContainer.appendChild(heightLabel)
     controlsContainer.appendChild(heightInput)
     controlsContainer.appendChild(lockButton)
     controlsContainer.appendChild(applyButton)
@@ -354,8 +470,9 @@ const RichTextEditor = ({
                   
                   console.log('Inserting image at index:', index)
                   
-                  // Insert the image using insertEmbed
-                  quill.insertEmbed(index, 'image', result.url)
+                  // Insert the image as HTML to avoid p tag wrapping
+                  const imageHtml = `<img src="${result.url}" style="display: inline-block; vertical-align: top; margin: 0 8px 8px 0;">`
+                  quill.clipboard.dangerouslyPasteHTML(index, imageHtml)
                   
                   // Move cursor after the image
                   quill.setSelection(index + 1)
@@ -386,6 +503,9 @@ const RichTextEditor = ({
           }
         }
       }
+    },
+    clipboard: {
+      matchVisual: false
     }
   }), [])
 
@@ -395,7 +515,8 @@ const RichTextEditor = ({
     'list', 'bullet', 'indent',
     'link', 'image', 'video',
     'color', 'background',
-    'align', 'code-block'
+    'align', 'code-block',
+    'width', 'height'
   ]
 
 
@@ -510,6 +631,8 @@ const RichTextEditor = ({
 
   // Debug the value being passed to the editor
   console.log('RichTextEditor value:', value)
+  console.log('Value contains width attributes:', value.includes('width='))
+  console.log('Value contains height attributes:', value.includes('height='))
   
   return (
     <div className={`rich-text-editor ${className}`} style={{ marginBottom: '20px' }}>
@@ -548,16 +671,29 @@ const RichTextEditor = ({
         }
         
         .rich-text-editor .ql-editor img {
-          max-width: 100%;
-          height: auto;
-          border-radius: 8px;
-          margin: 16px 0;
-          cursor: pointer;
-          transition: all 0.2s ease;
+          max-width: 100% !important;
+          height: auto !important;
+          border-radius: 8px !important;
+          margin: 16px 0 !important;
+          cursor: pointer !important;
+          transition: all 0.2s ease !important;
+          display: inline-block !important;
+          vertical-align: top !important;
         }
         
         .rich-text-editor .ql-editor img:hover {
           box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .rich-text-editor .ql-editor p {
+          margin: 0 !important;
+          padding: 0 !important;
+        }
+        
+        .rich-text-editor .ql-editor p img {
+          display: inline-block !important;
+          vertical-align: top !important;
+          margin: 0 8px 8px 0 !important;
         }
         
         .rich-text-editor .ql-editor img.resizing {

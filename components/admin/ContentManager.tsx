@@ -39,6 +39,112 @@ export default function ContentManager({ section, title }: ContentManagerProps) 
   const [isEditingSupporters, setIsEditingSupporters] = useState(false)
   const [isSupportersExpanded, setIsSupportersExpanded] = useState(false)
 
+  // Function to move section up
+  const moveSectionUp = async (sectionId: string) => {
+    const currentContent = isStatisticsSubsection ? allContent.filter(item => {
+      if (section === 'statistics-testimonials') {
+        return item.subsection?.startsWith('testimonial-stat-') || item.subsection === 'testimonials-stat-satisfaction'
+      } else if (section === 'statistics-hero') {
+        return item.subsection?.startsWith('hero-stat-')
+      } else if (section === 'statistics-about') {
+        return item.subsection?.startsWith('about-stat-')
+      }
+      return false
+    }) : isFooterSocial ? allContent.filter(item => item.subsection === 'social') :
+         isAboutSubpage ? allContent.filter(item => item.subsection === 'gratitude') :
+         isContactSubpage ? allContent.filter(item => item.subsection === 'contact-us') :
+         isCustomSections ? allContent.filter(item => item.section === 'custom') :
+         allContent
+
+    const dynamicSections = currentContent.filter(item => 
+      item.metadata?.name && 
+      item.metadata.name.startsWith('Gratitude Section')
+    ).sort((a, b) => (a.order || 0) - (b.order || 0))
+
+    const currentIndex = dynamicSections.findIndex(s => s.id === sectionId)
+    if (currentIndex <= 0) return
+    
+    const currentSection = dynamicSections[currentIndex]
+    const previousSection = dynamicSections[currentIndex - 1]
+    
+    // Swap orders
+    const tempOrder = currentSection.order
+    currentSection.order = previousSection.order
+    previousSection.order = tempOrder
+    
+    // Update both sections
+    try {
+      await Promise.all([
+        fetch(`/api/sqlite-content?id=${currentSection.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ order: currentSection.order })
+        }),
+        fetch(`/api/sqlite-content?id=${previousSection.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ order: previousSection.order })
+        })
+      ])
+      refreshContent()
+    } catch (error) {
+      console.error('Error reordering sections:', error)
+    }
+  }
+
+  // Function to move section down
+  const moveSectionDown = async (sectionId: string) => {
+    const currentContent = isStatisticsSubsection ? allContent.filter(item => {
+      if (section === 'statistics-testimonials') {
+        return item.subsection?.startsWith('testimonial-stat-') || item.subsection === 'testimonials-stat-satisfaction'
+      } else if (section === 'statistics-hero') {
+        return item.subsection?.startsWith('hero-stat-')
+      } else if (section === 'statistics-about') {
+        return item.subsection?.startsWith('about-stat-')
+      }
+      return false
+    }) : isFooterSocial ? allContent.filter(item => item.subsection === 'social') :
+         isAboutSubpage ? allContent.filter(item => item.subsection === 'gratitude') :
+         isContactSubpage ? allContent.filter(item => item.subsection === 'contact-us') :
+         isCustomSections ? allContent.filter(item => item.section === 'custom') :
+         allContent
+
+    const dynamicSections = currentContent.filter(item => 
+      item.metadata?.name && 
+      item.metadata.name.startsWith('Gratitude Section')
+    ).sort((a, b) => (a.order || 0) - (b.order || 0))
+
+    const currentIndex = dynamicSections.findIndex(s => s.id === sectionId)
+    if (currentIndex >= dynamicSections.length - 1) return
+    
+    const currentSection = dynamicSections[currentIndex]
+    const nextSection = dynamicSections[currentIndex + 1]
+    
+    // Swap orders
+    const tempOrder = currentSection.order
+    currentSection.order = nextSection.order
+    nextSection.order = tempOrder
+    
+    // Update both sections
+    try {
+      await Promise.all([
+        fetch(`/api/sqlite-content?id=${currentSection.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ order: currentSection.order })
+        }),
+        fetch(`/api/sqlite-content?id=${nextSection.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ order: nextSection.order })
+        })
+      ])
+      refreshContent()
+    } catch (error) {
+      console.error('Error reordering sections:', error)
+    }
+  }
+
   // Filter content based on the section
   const content = isStatisticsSubsection ? allContent.filter(item => {
     if (section === 'statistics-testimonials') {
@@ -73,6 +179,11 @@ export default function ContentManager({ section, title }: ContentManagerProps) 
 
 
   const handleEdit = (item: WebsiteContent) => {
+    console.log('handleEdit called for item:', item.id)
+    console.log('Database content:', item.content)
+    console.log('Content contains width attributes:', item.content.includes('width='))
+    console.log('Content contains height attributes:', item.content.includes('height='))
+    
     setEditingItems(prev => new Set(prev).add(item.id))
     setEditForms(prev => ({
       ...prev,
@@ -1156,20 +1267,24 @@ export default function ContentManager({ section, title }: ContentManagerProps) 
           item.metadata.name.startsWith('Gratitude Section')
         ).sort((a, b) => (a.order || 0) - (b.order || 0))
 
+
         // Function to add a new gratitude section
         const addGratitudeSection = async () => {
-          const sectionNumber = dynamicSections.length + 1
+          // Find the highest order number and add 10 to place it at the end
+          const maxOrder = Math.max(...dynamicSections.map(s => s.order || 0), 0)
+          const newOrder = maxOrder + 10
+          
           const newSection = {
             section: 'about',
             subsection: 'gratitude',
             content_type: 'text',
-            content: `<h1>New Gratitude Section ${sectionNumber}</h1>\n\n<p>Add your content here...</p>`,
-            order: sectionNumber * 10,
+            content: `<h1>New Gratitude Section</h1>\n\n<p>Add your content here...</p>`,
+            order: newOrder,
             is_active: true,
             metadata: { 
-              name: `Gratitude Section ${sectionNumber}`,
+              name: `Gratitude Section ${Date.now()}`,
               sectionData: JSON.stringify({
-                title: `New Gratitude Section ${sectionNumber}`
+                title: `New Gratitude Section`
               })
             },
             user: user?.email || 'admin@clearviewretreat.com'
@@ -1303,13 +1418,30 @@ export default function ContentManager({ section, title }: ContentManagerProps) 
               
               <div className="space-y-4">
                 {dynamicSections.map((section, index) => {
-                  const sectionData = section.metadata?.sectionData ? JSON.parse(section.metadata.sectionData) : {}
-                  const title = sectionData.title || section.metadata?.name?.replace('Gratitude Section ', '') || 'Gratitude Section'
-                  
                   return (
                     <div key={section.id} className="border border-gray-300 rounded-lg p-4 bg-white">
-                      <div className="flex justify-between items-start mb-3">
-                        <h5 className="text-md font-semibold text-secondary-800">{title}</h5>
+                      <div className="flex justify-between items-center mb-3">
+                        <div className="flex items-center space-x-2">
+                          <span className="text-sm text-gray-500">Section {index + 1}</span>
+                          {index > 0 && (
+                            <button
+                              onClick={() => moveSectionUp(section.id)}
+                              className="text-blue-600 hover:text-blue-700 text-sm px-2 py-1"
+                              title="Move up"
+                            >
+                              ↑
+                            </button>
+                          )}
+                          {index < dynamicSections.length - 1 && (
+                            <button
+                              onClick={() => moveSectionDown(section.id)}
+                              className="text-blue-600 hover:text-blue-700 text-sm px-2 py-1"
+                              title="Move down"
+                            >
+                              ↓
+                            </button>
+                          )}
+                        </div>
                         <button
                           onClick={() => removeGratitudeSection(section.id)}
                           className="text-red-600 hover:text-red-700 text-sm px-2 py-1"

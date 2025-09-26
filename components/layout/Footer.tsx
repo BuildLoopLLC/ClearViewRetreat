@@ -156,6 +156,7 @@ export default function Footer() {
 
           {/* About Section */}
           <div className="space-y-6">
+          <h3 className="text-lg font-semibold text-white">About</h3>
             <h3 className="text-lg font-semibold text-white">{getContentValue('quick-links-title')}</h3>
             <ul className="space-y-3">
               {navigation.about.map((item) => (
@@ -190,6 +191,7 @@ export default function Footer() {
 
           {/* Contact Section */}
           <div className="space-y-6">
+          <h3 className="text-lg font-semibold text-white">Contact</h3>
             <h3 className="text-lg font-semibold text-white">{getContentValue('contact-info-title')}</h3>
             <ul className="space-y-3">
               {navigation.contact.map((item) => (

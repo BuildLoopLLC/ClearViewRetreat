@@ -167,10 +167,68 @@ export default function GratitudePage() {
                     __html: processContent(section.content || '') 
                   }}
                 />
+                <style jsx global>{`
+                  .prose img:not(.ql-align-center):not(.ql-align-right) {
+                    display: inline-block;
+                    vertical-align: top;
+                    margin: 0 8px 8px 0;
+                  }
+                  .prose img.ql-align-center {
+                    display: block !important;
+                    margin: 0 auto 8px auto !important;
+                  }
+                  .prose img.ql-align-right {
+                    display: block !important;
+                    margin: 0 0 8px auto !important;
+                  }
+                  .prose p img {
+                    margin: 0;
+                  }
+                  .prose p img:first-child {
+                    margin-left: 0;
+                  }
+                  .prose p img:last-child {
+                    margin-right: 0;
+                  }
+                  .prose .ql-align-center {
+                    text-align: center !important;
+                  }
+                  .prose .ql-align-right {
+                    text-align: right !important;
+                  }
+                `}</style>
               </div>
             </div>
           )
         })}
+
+        {/* Call to Action */}
+        {gratitudeContent && gratitudeContent.find(c => c.metadata?.name === 'Call to Action')?.content && (
+          <div className="text-center">
+            <div className="bg-gradient-to-r from-primary-50 to-accent-50 rounded-2xl p-8">
+              <div 
+                className="prose prose-lg max-w-none mb-6"
+                dangerouslySetInnerHTML={{ 
+                  __html: processContent(gratitudeContent.find(c => c.metadata?.name === 'Call to Action')?.content || '') 
+                }}
+              />
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <a
+                  href="/contact"
+                  className="btn-primary text-lg px-8 py-4 inline-flex items-center justify-center"
+                >
+                  Contact Us
+                </a>
+                <a
+                  href="/about"
+                  className="btn-outline text-lg px-8 py-4 inline-flex items-center justify-center"
+                >
+                  Learn More About Us
+                </a>
+              </div>
+            </div>
+          </div>
+        )}
 
       </div>
     </SubpageLayout>

@@ -95,6 +95,22 @@ const pageSections: PageSection[] = [
     ]
   },
   {
+    id: 'payment',
+    title: 'Payment Page',
+    description: 'Event payment information and instructions',
+    sections: [
+      { id: 'payment', title: 'Payment Information', description: 'Payment methods, instructions, and contact information' }
+    ]
+  },
+  {
+    id: 'donation',
+    title: 'Donation Page',
+    description: 'Donation information and giving options',
+    sections: [
+      { id: 'donation', title: 'Donation Information', description: 'Donation methods, impact information, and giving options' }
+    ]
+  },
+  {
     id: 'custom',
     title: 'Custom Sections',
     description: 'Create and manage custom content sections with images and rich text',

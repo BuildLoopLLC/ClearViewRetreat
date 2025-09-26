@@ -404,14 +404,14 @@ export default function NewEventPage() {
           <div className="flex justify-end space-x-4">
             <Link
               href="/admin/events"
-              className="btn"
+              className="btn px-6 py-3"
             >
               Cancel
             </Link>
             <button
               type="submit"
               disabled={loading}
-              className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
+              className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed px-6 py-3"
             >
               {loading ? 'Creating...' : 'Create Event'}
             </button>

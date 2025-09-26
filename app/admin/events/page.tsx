@@ -12,7 +12,8 @@ import {
   EyeIcon,
   ClockIcon,
   MapPinIcon,
-  CurrencyDollarIcon
+  CurrencyDollarIcon,
+  UserGroupIcon
 } from '@heroicons/react/24/outline'
 import { Event } from '@/types/firebase'
 

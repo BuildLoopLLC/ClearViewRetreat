@@ -18,6 +18,7 @@ export default function NewEventPage() {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [imageUploading, setImageUploading] = useState(false)
   
   const [formData, setFormData] = useState({
     title: '',
@@ -31,7 +32,9 @@ export default function NewEventPage() {
     price: '',
     category: '',
     tags: '',
-    published: false
+    published: false,
+    image: '',
+    featured: false
   })
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -58,6 +61,36 @@ export default function NewEventPage() {
     }))
   }
 
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setImageUploading(true)
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData
+      })
+
+      if (!response.ok) {
+        throw new Error('Failed to upload image')
+      }
+
+      const data = await response.json()
+      setFormData(prev => ({
+        ...prev,
+        image: data.url
+      }))
+    } catch (err: any) {
+      setError('Failed to upload image: ' + err.message)
+    } finally {
+      setImageUploading(false)
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
@@ -65,6 +98,34 @@ export default function NewEventPage() {
 
     try {
       const tagsArray = formData.tags.split(',').map(tag => tag.trim()).filter(tag => tag)
+      
+      // If this event is being set as featured, unfeature all other events
+      if (formData.featured) {
+        try {
+          const response = await fetch('/api/sqlite-content?section=events')
+          if (response.ok) {
+            const events = await response.json()
+            for (const event of events) {
+              if (event.metadata?.featured) {
+                const updateData = {
+                  ...event,
+                  metadata: {
+                    ...event.metadata,
+                    featured: false
+                  }
+                }
+                await fetch(`/api/sqlite-content?id=${event.id}`, {
+                  method: 'PUT',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify(updateData)
+                })
+              }
+            }
+          }
+        } catch (err) {
+          console.error('Error unfeaturing other events:', err)
+        }
+      }
       
       const eventData = {
         section: 'events',
@@ -87,7 +148,9 @@ export default function NewEventPage() {
           published: formData.published,
           publishedAt: formData.published ? new Date().toISOString() : null,
           authorName: user?.displayName || 'Admin',
-          authorEmail: user?.email || ''
+          authorEmail: user?.email || '',
+          image: formData.image,
+          featured: formData.featured
         },
         order: 0,
         isActive: formData.published,
@@ -391,26 +454,79 @@ export default function NewEventPage() {
             </div>
           </div>
 
+          {/* Image Upload */}
+          <div className="bg-white rounded-xl shadow-sm p-6">
+            <h2 className="text-lg font-semibold text-secondary-900 mb-6">Event Image</h2>
+            
+            <div>
+              <label htmlFor="image" className="block text-sm font-medium text-secondary-700 mb-2">
+                Event Image
+              </label>
+              <input
+                type="file"
+                id="image"
+                accept="image/*"
+                onChange={handleImageUpload}
+                className="input w-full"
+                disabled={imageUploading}
+              />
+              {imageUploading && (
+                <p className="text-sm text-blue-600 mt-2">Uploading image...</p>
+              )}
+              {formData.image && (
+                <div className="mt-4">
+                  <img
+                    src={formData.image}
+                    alt="Event preview"
+                    className="w-32 h-32 object-cover rounded-lg"
+                  />
+                </div>
+              )}
+              <p className="text-xs text-gray-500 mt-1">
+                Upload an image to represent this event. Recommended size: 800x600px
+              </p>
+            </div>
+          </div>
+
           {/* Publishing Options */}
           <div className="bg-white rounded-xl shadow-sm p-6">
             <h2 className="text-lg font-semibold text-secondary-900 mb-6">Publishing Options</h2>
             
-            <div className="flex items-center">
-              <input
-                type="checkbox"
-                id="published"
-                name="published"
-                checked={formData.published}
-                onChange={handleInputChange}
-                className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
-              />
-              <label htmlFor="published" className="ml-2 text-sm text-secondary-700">
-                Publish immediately
-              </label>
+            <div className="space-y-4">
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  id="published"
+                  name="published"
+                  checked={formData.published}
+                  onChange={handleInputChange}
+                  className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                />
+                <label htmlFor="published" className="ml-2 text-sm text-secondary-700">
+                  Publish immediately
+                </label>
+              </div>
+              <p className="text-xs text-gray-500">
+                Uncheck to save as draft
+              </p>
+              
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  id="featured"
+                  name="featured"
+                  checked={formData.featured}
+                  onChange={handleInputChange}
+                  className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                />
+                <label htmlFor="featured" className="ml-2 text-sm text-secondary-700">
+                  Featured Event
+                </label>
+              </div>
+              <p className="text-xs text-gray-500">
+                Only one event can be featured at a time. This will unfeature any other featured event.
+              </p>
             </div>
-            <p className="text-xs text-gray-500 mt-1">
-              Uncheck to save as draft
-            </p>
           </div>
 
           {/* Actions */}

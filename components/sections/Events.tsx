@@ -199,7 +199,7 @@ export default function Events({ showCTA = true }: EventsProps) {
                   
                   <div className="flex flex-col sm:flex-row gap-4">
                     <Link
-                      href="/events"
+                      href={`/events/${event.id}`}
                       className="btn-primary text-lg px-8 py-4 inline-flex items-center justify-center group"
                     >
                       Learn More

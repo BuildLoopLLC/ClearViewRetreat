@@ -6,9 +6,6 @@ import {
   ArrowLeftIcon,
   CreditCardIcon,
   CheckCircleIcon,
-  PhoneIcon,
-  EnvelopeIcon,
-  MapPinIcon,
   HeartIcon
 } from '@heroicons/react/24/outline'
 import { useWebsiteContent } from '@/hooks/useWebsiteContentSQLite'
@@ -110,25 +107,18 @@ export default function EventPaymentPage() {
           </div>
 
           {/* Contact Information */}
-          <div className="mt-8 p-6 bg-gray-50 border border-gray-200 rounded-xl">
-            <h3 className="text-xl font-semibold text-secondary-900 mb-4 text-center">Need Help?</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
-              <div className="flex flex-col items-center">
-                <PhoneIcon className="h-8 w-8 text-primary-600 mb-2" />
-                <p className="font-medium text-secondary-900">Phone</p>
-                <p className="text-sm text-secondary-600">615-739-0634</p>
-              </div>
-              <div className="flex flex-col items-center">
-                <EnvelopeIcon className="h-8 w-8 text-primary-600 mb-2" />
-                <p className="font-medium text-secondary-900">Email</p>
-                <p className="text-sm text-secondary-600">cvr@ClearViewRetreat.org</p>
-              </div>
-              <div className="flex flex-col items-center">
-                <MapPinIcon className="h-8 w-8 text-primary-600 mb-2" />
-                <p className="font-medium text-secondary-900">Address</p>
-                <p className="text-sm text-secondary-600">149 Scenic Hill Road<br />Lancing, TN 37770</p>
-              </div>
-            </div>
+          <div className="mt-8 p-6 bg-gray-50 border border-gray-200 rounded-xl text-center">
+            <h3 className="text-xl font-semibold text-secondary-900 mb-4">Need Help?</h3>
+            <p className="text-secondary-600 mb-6">
+              Have questions about payment or need assistance? We're here to help!
+            </p>
+            <Link
+              href="/contact"
+              className="btn-outline text-lg px-8 py-4 inline-flex items-center justify-center group"
+            >
+              Contact Us
+              <ArrowRightIcon className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform duration-200" />
+            </Link>
           </div>
         </div>
       </div>

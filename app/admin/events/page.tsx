@@ -111,7 +111,7 @@ export default function EventManagementPage() {
             <div className="flex items-center space-x-4">
               <Link
                 href="/admin/events/new"
-                className="btn-primary flex items-center space-x-2"
+                className="btn-primary flex items-center space-x-2 px-6 py-3"
               >
                 <PlusIcon className="h-5 w-5" />
                 <span>New Event</span>
@@ -162,7 +162,7 @@ export default function EventManagementPage() {
               <p className="text-gray-500 mb-4">Get started by creating your first event.</p>
               <Link
                 href="/admin/events/new"
-                className="btn-primary inline-flex items-center space-x-2"
+                className="btn-primary inline-flex items-center space-x-2 px-6 py-3"
               >
                 <PlusIcon className="h-5 w-5" />
                 <span>Create First Event</span>

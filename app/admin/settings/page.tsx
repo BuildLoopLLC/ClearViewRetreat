@@ -109,14 +109,6 @@ const pageSections: PageSection[] = [
     sections: [
       { id: 'donation', title: 'Donation Information', description: 'Donation methods, impact information, and giving options' }
     ]
-  },
-  {
-    id: 'custom',
-    title: 'Custom Sections',
-    description: 'Create and manage custom content sections with images and rich text',
-    sections: [
-      { id: 'custom-sections', title: 'Custom Sections', description: 'Create and manage custom content sections' }
-    ]
   }
 ]
 

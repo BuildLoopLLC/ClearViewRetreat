@@ -7,15 +7,43 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const section = searchParams.get('section')
     const subsection = searchParams.get('subsection')
+    const id = searchParams.get('id')
     
+    const db = getDatabase()
+    
+    // If ID is provided, fetch single item by ID
+    if (id) {
+      const query = 'SELECT * FROM website_content WHERE id = ?'
+      const row = db.prepare(query).get(id)
+      
+      if (!row) {
+        return NextResponse.json(
+          { error: 'Content not found' },
+          { status: 404 }
+        )
+      }
+      
+      // Convert metadata from JSON string back to object and normalize field names
+      const content = {
+        ...row,
+        contentType: row.content_type, // Convert content_type to contentType
+        order: row.order_index, // Convert order_index to order
+        isActive: row.is_active === 1, // Convert is_active to isActive boolean
+        createdAt: row.created_at, // Convert created_at to createdAt
+        updatedAt: row.updated_at, // Convert updated_at to updatedAt
+        metadata: row.metadata ? JSON.parse(row.metadata) : {}
+      }
+      
+      return NextResponse.json(content)
+    }
+    
+    // Otherwise, fetch by section (existing logic)
     if (!section) {
       return NextResponse.json(
         { error: 'Section parameter is required' },
         { status: 400 }
       )
     }
-
-    const db = getDatabase()
     
     let query = 'SELECT * FROM website_content WHERE section = ? AND is_active = 1'
     let params: any[] = [section]

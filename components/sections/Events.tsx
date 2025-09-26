@@ -4,7 +4,6 @@ import { motion } from 'framer-motion'
 import Link from 'next/link'
 import { CalendarIcon, MapPinIcon, UsersIcon, ArrowRightIcon } from '@heroicons/react/24/outline'
 import { useWebsiteContent } from '@/hooks/useWebsiteContentSQLite'
-
 interface Event {
   id: string
   title: string
@@ -162,10 +161,11 @@ export default function Events({ showCTA = true }: EventsProps) {
           >
             <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
               <div className="grid grid-cols-1 lg:grid-cols-2">
-                <div className="relative h-64 lg:h-full">
+                <div className="relative h-64 lg:h-full" style={{ cursor: 'pointer' }}>
                   <div 
                     className="w-full h-full bg-cover bg-center bg-no-repeat"
                     style={{ backgroundImage: `url('${event.image}')` }}
+                    onClick={() => window.location.href = `/events/${event.id}`}
                   />
                   <div className="absolute top-4 left-4">
                     <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-primary-100 text-primary-800">
@@ -230,10 +230,11 @@ export default function Events({ showCTA = true }: EventsProps) {
               className="group"
             >
               <div className="card h-full overflow-hidden hover:shadow-2xl transition-all duration-300 group-hover:-translate-y-2">
-                <div className="aspect-[4/3] overflow-hidden">
+                <div className="aspect-[4/3] overflow-hidden" style={{ cursor: 'pointer' }}>
                   <div 
                     className="w-full h-full bg-cover bg-center bg-no-repeat group-hover:scale-110 transition-transform duration-500"
                     style={{ backgroundImage: `url('${event.image}')` }}
+                    onClick={() => window.location.href = `/events/${event.id}`}
                   />
                 </div>
                 

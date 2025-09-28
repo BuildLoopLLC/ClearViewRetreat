@@ -98,11 +98,45 @@ const RichTextEditor = ({
 }: RichTextEditorProps) => {
   const quillRef = useRef<any>(null)
   const [editorReady, setEditorReady] = useState(false)
+  const [isHtmlMode, setIsHtmlMode] = useState(false)
+  const [htmlValue, setHtmlValue] = useState(value)
   
   // Initialize Quill with custom image blot
   useEffect(() => {
     initializeQuill()
   }, [])
+
+  // Update htmlValue when value prop changes
+  useEffect(() => {
+    setHtmlValue(value)
+  }, [value])
+
+  // Toggle between HTML and visual mode
+  const toggleHtmlMode = () => {
+    if (isHtmlMode) {
+      // Switching from HTML to visual mode
+      onChange(htmlValue)
+    } else {
+      // Switching from visual to HTML mode
+      const editor = quillRef.current?.getEditor()
+      if (editor) {
+        const currentHtml = editor.root.innerHTML
+        setHtmlValue(currentHtml)
+      }
+    }
+    setIsHtmlMode(!isHtmlMode)
+  }
+
+  // Handle HTML textarea changes
+  const handleHtmlChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setHtmlValue(e.target.value)
+  }
+
+  // Apply HTML changes
+  const applyHtmlChanges = () => {
+    onChange(htmlValue)
+    setIsHtmlMode(false)
+  }
 
   // Callback ref to detect when ReactQuill is mounted
   const quillCallbackRef = (node: any) => {
@@ -435,9 +469,13 @@ const RichTextEditor = ({
         [{ 'align': [] }],
         ['link', 'image', 'video'],
         ['blockquote', 'code-block'],
-        ['clean']
+        ['clean'],
+        ['html-source']
       ],
       handlers: {
+        'html-source': function() {
+          toggleHtmlMode()
+        },
         image: function() {
           const input = document.createElement('input')
           input.setAttribute('type', 'file')
@@ -553,6 +591,32 @@ const RichTextEditor = ({
     setTimeout(detectEditor, 500)
   }, [])
 
+  // Add HTML source button to toolbar
+  useEffect(() => {
+    if (!editorReady) return
+    
+    const editor = quillRef.current?.getEditor()
+    if (!editor) return
+    
+    // Add HTML source button to toolbar
+    const toolbar = editor.getModule('toolbar')
+    if (toolbar) {
+      const toolbarContainer = toolbar.container
+      const htmlSourceButton = document.createElement('button')
+      htmlSourceButton.className = 'ql-html-source'
+      htmlSourceButton.title = 'Toggle HTML Source'
+      htmlSourceButton.addEventListener('click', toggleHtmlMode)
+      
+      // Insert the button before the clean button
+      const cleanButton = toolbarContainer.querySelector('.ql-clean')
+      if (cleanButton) {
+        toolbarContainer.insertBefore(htmlSourceButton, cleanButton)
+      } else {
+        toolbarContainer.appendChild(htmlSourceButton)
+      }
+    }
+  }, [editorReady])
+
   // Add image editing functionality
   useEffect(() => {
     if (!editorReady) {
@@ -636,19 +700,50 @@ const RichTextEditor = ({
   
   return (
     <div className={`rich-text-editor ${className}`} style={{ marginBottom: '20px' }}>
-      <ReactQuill
-        ref={quillCallbackRef}
-        theme="snow"
-        value={value}
-        onChange={onChange}
-        modules={modules}
-        formats={formats}
-        placeholder={placeholder}
-        style={{
-          height: '400px',
-          marginBottom: '80px'
-        }}
-      />
+      {isHtmlMode ? (
+        <div className="html-source-editor">
+          <div className="html-source-header">
+            <h4 className="text-sm font-medium text-gray-700 mb-2">HTML Source</h4>
+            <div className="flex space-x-2">
+              <button
+                type="button"
+                onClick={applyHtmlChanges}
+                className="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700"
+              >
+                Apply Changes
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsHtmlMode(false)}
+                className="px-3 py-1 bg-gray-500 text-white text-sm rounded hover:bg-gray-600"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+          <textarea
+            value={htmlValue}
+            onChange={handleHtmlChange}
+            placeholder="Edit HTML source code..."
+            className="w-full h-96 p-3 border border-gray-300 rounded-md font-mono text-sm"
+            style={{ resize: 'vertical' }}
+          />
+        </div>
+      ) : (
+        <ReactQuill
+          ref={quillCallbackRef}
+          theme="snow"
+          value={value}
+          onChange={onChange}
+          modules={modules}
+          formats={formats}
+          placeholder={placeholder}
+          style={{
+            height: '400px',
+            marginBottom: '80px'
+          }}
+        />
+      )}
       <style jsx global>{`
         .rich-text-editor .ql-editor {
           min-height: 350px;
@@ -739,6 +834,52 @@ const RichTextEditor = ({
           padding: 2px 6px;
           border-radius: 4px;
           font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+          font-size: 14px;
+        }
+        
+        .html-source-editor {
+          border: 1px solid #ccc;
+          border-radius: 8px;
+          overflow: hidden;
+        }
+        
+        .html-source-header {
+          background: #f8f9fa;
+          padding: 12px 16px;
+          border-bottom: 1px solid #e9ecef;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+        
+        .html-source-editor textarea {
+          border: none;
+          outline: none;
+          font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+          line-height: 1.5;
+        }
+        
+        .html-source-editor textarea:focus {
+          box-shadow: none;
+        }
+        
+        /* HTML Source button in toolbar */
+        .ql-toolbar .ql-html-source {
+          background: none;
+          border: none;
+          cursor: pointer;
+          padding: 5px;
+          margin: 0 2px;
+          border-radius: 3px;
+        }
+        
+        .ql-toolbar .ql-html-source:hover {
+          background-color: #e6f3ff;
+        }
+        
+        .ql-toolbar .ql-html-source::before {
+          content: '</>';
+          font-weight: bold;
           font-size: 14px;
         }
       `}</style>

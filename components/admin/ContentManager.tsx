@@ -22,6 +22,7 @@ export default function ContentManager({ section, title }: ContentManagerProps) 
   const isAboutSubpage = section.startsWith('about-') && !isAboutMain
   const isContactSubpage = section.startsWith('contact-')
   const isCustomSections = section === 'custom-sections'
+  const isEventsSection = section === 'events'
   const actualSection = isStatisticsSubsection ? 'statistics' : 
                        isFooterSocial ? 'footer' : 
                        isAboutSubpage ? 'about' : 
@@ -170,6 +171,9 @@ export default function ContentManager({ section, title }: ContentManagerProps) 
     item.metadata?.name === 'about-values-title' || item.metadata?.name?.startsWith('about-value-')
   ) : isCustomSections ? allContent.filter(item => 
     item.section === 'custom'
+  ) : isEventsSection ? allContent.filter(item => 
+    // Only show section-level content (title/subtitle), exclude individual events
+    item.metadata?.name === 'title' || item.metadata?.name === 'subtitle'
   ) : allContent
 
 

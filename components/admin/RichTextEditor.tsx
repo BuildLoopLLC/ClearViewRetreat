@@ -15,6 +15,7 @@ let ImageBlot: any = null
 const initializeQuill = async () => {
   if (!Quill) {
     Quill = (await import('quill')).default
+    const Delta = Quill.import('delta')
     
     if (!ImageBlot) {
       ImageBlot = Quill.import('formats/image')
@@ -114,7 +115,7 @@ const RichTextEditor = ({
   // Toggle between HTML and visual mode
   const toggleHtmlMode = () => {
     if (isHtmlMode) {
-      // Switching from HTML to visual mode
+      // Switching from HTML to visual mode - preserve raw HTML without sanitization
       onChange(htmlValue)
     } else {
       // Switching from visual to HTML mode
@@ -703,7 +704,10 @@ const RichTextEditor = ({
       {isHtmlMode ? (
         <div className="html-source-editor">
           <div className="html-source-header">
-            <h4 className="text-sm font-medium text-gray-700 mb-2">HTML Source</h4>
+            <div>
+              <h4 className="text-sm font-medium text-gray-700 mb-1">HTML Source</h4>
+              <p className="text-xs text-gray-500">Raw HTML mode - preserves all tags and attributes including &lt;input&gt; and &lt;style&gt;</p>
+            </div>
             <div className="flex space-x-2">
               <button
                 type="button"

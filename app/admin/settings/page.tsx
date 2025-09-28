@@ -57,14 +57,6 @@ const pageSections: PageSection[] = [
     ]
   },
   {
-    id: 'events',
-    title: 'Events Page',
-    description: 'Events and retreat information',
-    sections: [
-      { id: 'events', title: 'Events Section', description: 'Events and retreat content' }
-    ]
-  },
-  {
     id: 'gallery',
     title: 'Gallery Page',
     description: 'Photo galleries and visual content',

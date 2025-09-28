@@ -62,6 +62,16 @@ export default function UpcomingEventsPage() {
     }
   }
   
+  // Helper function to check if an event is upcoming
+  const isUpcomingEvent = (startDate: string, endDate: string) => {
+    if (!endDate) {
+      // If no end date, check start date
+      return new Date(startDate) > new Date()
+    }
+    // Check if end date is in the future
+    return new Date(endDate) > new Date()
+  }
+
   // Process events from database content
   const upcomingEvents: Event[] = eventsContent
     .filter(item => item.metadata?.name && item.metadata.name.startsWith('Event'))
@@ -81,6 +91,7 @@ export default function UpcomingEventsPage() {
         category: metadata.category || ''
       }
     })
+    .filter(event => isUpcomingEvent(event.date, event.endDate)) // Only show upcoming events
     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
 
   // Get unique categories from events

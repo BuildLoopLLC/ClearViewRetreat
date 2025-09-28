@@ -2,11 +2,11 @@ import Events from '@/components/sections/Events'
 import SubpageNavigation from '@/components/ui/SubpageNavigation'
 
 const eventsSubpages = [
-  // {
-  //   title: 'Upcoming Events',
-  //   href: '/events/upcoming',
-  //   description: 'View our calendar of upcoming seminars, workshops, and retreats.'
-  // },
+  {
+    title: 'Upcoming Events',
+    href: '/events/upcoming',
+    description: 'View our calendar of upcoming seminars, workshops, and retreats.'
+  },
   {
     title: 'Past Events',
     href: '/events/past',

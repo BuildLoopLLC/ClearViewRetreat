@@ -271,20 +271,6 @@ export default function EventRegistrationPage() {
           <p className="text-primary-600 font-medium mb-8">
             {redirectMessage}
           </p>
-          <div className="space-y-4">
-            <Link
-              href="/events"
-              className="btn-outline inline-flex items-center"
-            >
-              View All Events
-            </Link>
-            <Link
-              href={`/events/${event.id}`}
-              className="btn-outline inline-flex items-center ml-4"
-            >
-              Event Details
-            </Link>
-          </div>
         </div>
       </div>
     )

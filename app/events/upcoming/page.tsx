@@ -181,7 +181,7 @@ export default function UpcomingEventsPage() {
                 <button
                   key={category}
                   onClick={() => setSelectedCategory(category)}
-                  className={`px-4 py-2 rounded-full border transition-all duration-200 ${
+                  className={`px-4 py-2 rounded-full border transition-all duration-200 capitalize ${
                     selectedCategory === category
                       ? 'border-primary-500 text-primary-600 bg-primary-50'
                       : 'border-secondary-300 text-secondary-700 hover:border-primary-500 hover:text-primary-600 hover:bg-primary-50'
@@ -206,8 +206,9 @@ export default function UpcomingEventsPage() {
           >
             <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
               <div className="grid grid-cols-1 lg:grid-cols-2">
-                <div className="relative h-64 lg:h-full">
+                <div className="relative h-64 lg:h-full" style={{ cursor: 'pointer' }}>
                   <div 
+                    onClick={() => window.location.href = `/events/${event.id}`}
                     className="w-full h-full bg-cover bg-center bg-no-repeat"
                     style={{ backgroundImage: `url('${event.image}')` }}
                   />
@@ -279,13 +280,14 @@ export default function UpcomingEventsPage() {
               className="group"
             >
               <div className="card h-full overflow-hidden hover:shadow-2xl transition-all duration-300 group-hover:-translate-y-2 border border-secondary-200">
-                <div className="aspect-[4/3] overflow-hidden relative">
+                <div className="aspect-[4/3] overflow-hidden relative" style={{ cursor: 'pointer' }}>
                   <div 
+                    onClick={() => window.location.href = `/events/${event.id}`}
                     className="w-full h-full bg-cover bg-center bg-no-repeat group-hover:scale-110 transition-transform duration-500"
                     style={{ backgroundImage: `url('${event.image}')` }}
                   />
                   <div className="absolute top-3 right-3">
-                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-accent-100 text-accent-800">
+                    <span className="capitalize inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-accent-100 text-accent-800">
                       {event.category}
                     </span>
                   </div>

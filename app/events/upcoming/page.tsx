@@ -98,11 +98,6 @@ export default function UpcomingEventsPage() {
 
   // Get unique categories from events
   const categories = ['All', ...Array.from(new Set(upcomingEvents.map(event => event.category).filter(Boolean)))] as string[]
-  
-  // Debug logging
-  console.log('Upcoming events:', upcomingEvents.length)
-  console.log('Categories:', categories)
-  console.log('Should show filter:', upcomingEvents.length > 0 && categories.length > 1)
 
   // Filter events by category
   const filteredEvents = selectedCategory === 'All' 

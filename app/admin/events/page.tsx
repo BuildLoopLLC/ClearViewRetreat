@@ -37,8 +37,13 @@ export default function EventManagementPage() {
       }
       const data = await response.json()
       
+      // Filter out section headers and only include actual events
+      const eventItems = data.filter((item: any) => 
+        item.metadata?.name && item.metadata.name.startsWith('Event')
+      )
+      
       // Transform the data to match the expected Event interface
-      const transformedEvents = data.map((item: any) => ({
+      const transformedEvents = eventItems.map((item: any) => ({
         id: item.id,
         title: item.metadata?.title || 'Untitled Event',
         description: item.metadata?.description || item.content || '',

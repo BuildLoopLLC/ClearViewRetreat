@@ -98,6 +98,11 @@ export default function UpcomingEventsPage() {
 
   // Get unique categories from events
   const categories = ['All', ...Array.from(new Set(upcomingEvents.map(event => event.category).filter(Boolean)))] as string[]
+  
+  // Debug logging
+  console.log('Upcoming events:', upcomingEvents.length)
+  console.log('Categories:', categories)
+  console.log('Should show filter:', upcomingEvents.length > 0 && categories.length > 1)
 
   // Filter events by category
   const filteredEvents = selectedCategory === 'All' 
@@ -173,7 +178,7 @@ export default function UpcomingEventsPage() {
         )}
 
         {/* Event Categories Filter */}
-        {upcomingEvents.length > 0 && (
+        {upcomingEvents.length > 0 && categories.length > 1 && (
           <div className="mb-12">
             <h3 className="text-lg font-semibold text-secondary-900 mb-4">Filter by Category</h3>
             <div className="flex flex-wrap gap-3">

@@ -173,7 +173,7 @@ export default function UpcomingEventsPage() {
         )}
 
         {/* Event Categories Filter */}
-        {upcomingEvents.length > 0 && categories.length > 1 && (
+        {upcomingEvents.length > 0 && (
           <div className="mb-12">
             <h3 className="text-lg font-semibold text-secondary-900 mb-4">Filter by Category</h3>
             <div className="flex flex-wrap gap-3">

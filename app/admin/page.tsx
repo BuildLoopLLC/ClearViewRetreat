@@ -238,6 +238,7 @@ export default function AdminDashboard() {
   const quickActions = [
     { name: 'Manage Blog Posts', href: '/admin/blog', icon: DocumentTextIcon, color: 'text-blue-600' },
     { name: 'Manage Events', href: '/admin/events', icon: CalendarIcon, color: 'text-green-600' },
+    { name: 'Event Registrations', href: '/admin/registrations', icon: UserGroupIcon, color: 'text-emerald-600' },
     { name: 'Manage Photo Gallery', href: '/admin/gallery', icon: PhotoIcon, color: 'text-purple-600' },
     { name: 'View Analytics', href: '/admin/analytics', icon: ChartBarIcon, color: 'text-indigo-600' },
     { name: 'Manage Users', href: '/admin/users', icon: UsersIcon, color: 'text-orange-600' },

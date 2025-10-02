@@ -180,23 +180,42 @@ export default function EventRegistrationPage() {
     setError('')
 
     try {
-      // Here you would typically send the registration data to your backend
-      // For now, we'll just simulate a successful registration
-      await new Promise(resolve => setTimeout(resolve, 2000))
+      // Send registration data to the API
+      const response = await fetch('/api/registrations', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          eventId: eventId,
+          ...registrationData
+        })
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Registration failed')
+      }
+
+      const result = await response.json()
       
-      setSuccess(true)
-      
-      // Redirect based on event price after showing success message
-      setTimeout(() => {
-        const eventPrice = event?.price ? parseFloat(event.price.replace('$', '')) : 0
-        if (eventPrice > 0) {
-          // Event has a price, redirect to payment page
-          router.push('/events/payment')
-        } else {
-          // Free event, redirect to donation page
-          router.push('/donate')
-        }
-      }, 3000) // Show success message for 3 seconds before redirect
+      if (result.success) {
+        setSuccess(true)
+        
+        // Redirect based on event price after showing success message
+        setTimeout(() => {
+          const eventPrice = event?.price ? parseFloat(event.price.replace('$', '')) : 0
+          if (eventPrice > 0) {
+            // Event has a price, redirect to payment page
+            router.push('/events/payment')
+          } else {
+            // Free event, redirect to donation page
+            router.push('/donate')
+          }
+        }, 5000) // Show success message for 5 seconds before redirect
+      } else {
+        throw new Error(result.message || 'Registration failed')
+      }
       
     } catch (err: any) {
       setError('Registration failed: ' + err.message)

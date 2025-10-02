@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import SubpageLayout from '@/components/ui/SubpageLayout'
 import { motion } from 'framer-motion'
 import { CalendarIcon, MapPinIcon, UsersIcon, ArrowRightIcon } from '@heroicons/react/24/outline'
@@ -22,6 +23,7 @@ interface Event {
 
 export default function UpcomingEventsPage() {
   const { content: eventsContent, loading } = useWebsiteContent('events')
+  const [selectedCategory, setSelectedCategory] = useState('All')
   
   // Helper function to format date
   const formatDate = (dateString: string) => {
@@ -95,7 +97,12 @@ export default function UpcomingEventsPage() {
     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
 
   // Get unique categories from events
-  const categories = ['All', ...Array.from(new Set(upcomingEvents.map(event => event.category).filter(Boolean)))]
+  const categories = ['All', ...Array.from(new Set(upcomingEvents.map(event => event.category).filter(Boolean)))] as string[]
+
+  // Filter events by category
+  const filteredEvents = selectedCategory === 'All' 
+    ? upcomingEvents 
+    : upcomingEvents.filter(event => event.category === selectedCategory)
 
   if (loading) {
     return (
@@ -173,7 +180,12 @@ export default function UpcomingEventsPage() {
               {categories.map((category) => (
                 <button
                   key={category}
-                  className="px-4 py-2 rounded-full border border-secondary-300 text-secondary-700 hover:border-primary-500 hover:text-primary-600 hover:bg-primary-50 transition-all duration-200"
+                  onClick={() => setSelectedCategory(category)}
+                  className={`px-4 py-2 rounded-full border transition-all duration-200 ${
+                    selectedCategory === category
+                      ? 'border-primary-500 text-primary-600 bg-primary-50'
+                      : 'border-secondary-300 text-secondary-700 hover:border-primary-500 hover:text-primary-600 hover:bg-primary-50'
+                  }`}
                 >
                   {category}
                 </button>
@@ -183,7 +195,7 @@ export default function UpcomingEventsPage() {
         )}
 
         {/* Featured Event */}
-        {upcomingEvents.filter(event => event.featured).map((event) => (
+        {filteredEvents.filter(event => event.featured).map((event) => (
           <motion.div
             key={event.id}
             initial={{ opacity: 0, y: 30 }}
@@ -257,7 +269,7 @@ export default function UpcomingEventsPage() {
 
         {/* Other Events Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {upcomingEvents.filter(event => !event.featured).map((event, index) => (
+          {filteredEvents.filter(event => !event.featured).map((event, index) => (
             <motion.div
               key={event.id}
               initial={{ opacity: 0, y: 30 }}
@@ -327,6 +339,32 @@ export default function UpcomingEventsPage() {
             </motion.div>
           ))}
         </div>
+
+        {/* No Events Found for Filter */}
+        {upcomingEvents.length > 0 && filteredEvents.length === 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="text-center py-16"
+          >
+            <div className="bg-white rounded-2xl shadow-lg p-12 max-w-2xl mx-auto">
+              <CalendarIcon className="h-16 w-16 text-gray-400 mx-auto mb-6" />
+              <h3 className="text-2xl font-display font-semibold text-secondary-900 mb-4">
+                No Events Found
+              </h3>
+              <p className="text-lg text-secondary-600 mb-8">
+                No upcoming events found in the "{selectedCategory}" category. Try selecting a different category or check back later.
+              </p>
+              <button
+                onClick={() => setSelectedCategory('All')}
+                className="btn-primary text-lg px-8 py-4"
+              >
+                Show All Events
+              </button>
+            </div>
+          </motion.div>
+        )}
       </div>
     </SubpageLayout>
   )

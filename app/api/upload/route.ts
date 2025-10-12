@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
       .toBuffer()
 
     // Determine folder based on type
-    let folder = S3_CONFIG.FOLDERS.IMAGES
+    let folder: string = S3_CONFIG.FOLDERS.IMAGES
     if (type === 'blog-main-image') {
       folder = S3_CONFIG.FOLDERS.BLOG_POSTS
     } else if (type === 'event-image') {

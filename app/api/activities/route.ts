@@ -113,22 +113,3 @@ export async function POST(request: NextRequest) {
     )
   }
 }
-
-// Helper function to log activities (can be imported by other API routes)
-export async function logActivity(activityData: Omit<Activity, 'id' | 'timestamp' | 'createdAt' | 'updatedAt'>) {
-  try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/activities`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(activityData),
-    })
-    
-    if (!response.ok) {
-      console.error('Failed to log activity:', await response.text())
-    }
-  } catch (error) {
-    console.error('Error logging activity:', error)
-  }
-}

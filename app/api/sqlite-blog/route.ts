@@ -96,7 +96,7 @@ export async function GET(request: NextRequest) {
     const posts = db.prepare(query).all(...params)
     
     // Convert all posts to camelCase format
-    const convertedPosts = posts.map(post => convertDbPostToResponse(post))
+    const convertedPosts = posts.map((post: any) => convertDbPostToResponse(post))
     
     return NextResponse.json(convertedPosts)
   } catch (error) {
@@ -156,14 +156,11 @@ export async function POST(request: NextRequest) {
     
     // Return the created post
     const select = db.prepare('SELECT * FROM blog_posts WHERE id = ?')
-    const post = select.get(id) as BlogPost
+    const post = select.get(id) as any
     
-    const postWithParsedTags = {
-      ...post,
-      tags: post.tags ? JSON.parse(post.tags) : []
-    }
+    const convertedPost = convertDbPostToResponse(post)
     
-    return NextResponse.json(postWithParsedTags)
+    return NextResponse.json(convertedPost)
   } catch (error) {
     console.error('Error creating blog post:', error)
     return NextResponse.json({ error: 'Failed to create blog post' }, { status: 500 })
@@ -221,18 +218,15 @@ export async function PUT(request: NextRequest) {
     
     // Return the updated post
     const select = db.prepare('SELECT * FROM blog_posts WHERE id = ?')
-    const post = select.get(id) as BlogPost
+    const post = select.get(id) as any
     
     if (!post) {
       return NextResponse.json({ error: 'Blog post not found' }, { status: 404 })
     }
     
-    const postWithParsedTags = {
-      ...post,
-      tags: post.tags ? JSON.parse(post.tags) : []
-    }
+    const convertedPost = convertDbPostToResponse(post)
     
-    return NextResponse.json(postWithParsedTags)
+    return NextResponse.json(convertedPost)
   } catch (error) {
     console.error('Error updating blog post:', error)
     return NextResponse.json({ error: 'Failed to update blog post' }, { status: 500 })

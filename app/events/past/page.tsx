@@ -97,7 +97,7 @@ export default function PastEventsPage() {
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()) // Sort by most recent first
 
   // Get unique categories from events
-  const categories = ['All', ...Array.from(new Set(pastEvents.map(event => event.category).filter(Boolean)))]
+  const categories: string[] = ['All', ...Array.from(new Set(pastEvents.map(event => event.category).filter((cat): cat is string => Boolean(cat))))]
 
   // Filter events by category
   const filteredEvents = selectedCategory === 'All' 

@@ -156,7 +156,7 @@ export default function BoardPage() {
                     ) : (
                       <div className="w-24 h-24 bg-gradient-to-br from-primary-100 to-accent-100 rounded-full mx-auto mb-4 flex items-center justify-center">
                         <span className="text-2xl font-semibold text-primary-600">
-                          {member.name.split(' ').map(n => n[0]).join('')}
+                          {member.name.split(' ').map((n: string) => n[0]).join('')}
                         </span>
                       </div>
                     )}

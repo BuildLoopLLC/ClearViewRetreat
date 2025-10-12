@@ -111,7 +111,7 @@ export async function POST(request: NextRequest) {
       authorName: data.authorName || 'Admin',
       authorEmail: data.authorEmail || 'admin@clearviewretreat.com',
       published: data.published || false,
-      publishedAt: data.published ? new Date().toISOString() : null,
+      publishedAt: data.published ? new Date().toISOString() : undefined,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       tags: data.tags ? data.tags.split(',').map((tag: string) => tag.trim()) : [],

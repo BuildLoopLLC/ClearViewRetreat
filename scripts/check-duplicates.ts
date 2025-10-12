@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { config } from 'dotenv'
 import { initializeApp, getApps, cert } from 'firebase-admin/app'
 import { getFirestore } from 'firebase-admin/firestore'

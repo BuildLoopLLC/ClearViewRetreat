@@ -521,7 +521,7 @@ export default function ContentManager({ section, title }: ContentManagerProps) 
               return acc
             }, {} as Record<string, { number: WebsiteContent | null, label: WebsiteContent | null }>)
 
-            return Object.entries(groupedStats).map(([baseKey, stats]) => {
+            return Object.entries(groupedStats).map(([baseKey, stats]: [string, any]) => {
               const statNumber = stats.number
               const statLabel = stats.label
               const statIndex = baseKey.replace(/^(stat-|hero-stat-|about-stat-)/, '')
@@ -2295,7 +2295,7 @@ export default function ContentManager({ section, title }: ContentManagerProps) 
                     </button>
                   </div>
                   
-                  {Object.entries(boardMembers).map(([memberNumber, member]) => (
+                  {Object.entries(boardMembers).map(([memberNumber, member]: [string, any]) => (
                 <div key={memberNumber} className="border border-gray-200 rounded-lg p-6 bg-gray-50">
                   <div className="flex items-center justify-between mb-4">
                     <h4 className="text-lg font-semibold text-secondary-900">
@@ -2474,11 +2474,11 @@ export default function ContentManager({ section, title }: ContentManagerProps) 
                               ? "Enter payment information here. Use the rich text editor to format text, add links, and create engaging content..."
                               : section === 'donation'
                               ? "Enter donation information here. Use the rich text editor to format text, add links, and create engaging content..."
-                              : section === 'events-registration-links'
+                              : item.subsection === 'events-registration-links'
                               ? "Enter registration links and forms here. Use the rich text editor to format text, add links, and create engaging content..."
-                              : section === 'events-registration-calendar'
+                              : item.subsection === 'events-registration-calendar'
                               ? "Enter calendar configuration and event availability information here. Use the rich text editor to format text and add details..."
-                              : section === 'events-registration-payment'
+                              : item.subsection === 'events-registration-payment'
                               ? "Enter payment instructions, mailing address, and payment details here. Use the rich text editor to format text and add information..."
                               : "Enter registration page content here. Use the rich text editor to format text, add images, and create engaging content..."
                             }

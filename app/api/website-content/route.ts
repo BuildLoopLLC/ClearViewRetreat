@@ -73,7 +73,7 @@ export async function GET(request: NextRequest) {
     }))
     
     // Sort by order
-    const sortedContent = content.sort((a, b) => (a.order || 0) - (b.order || 0))
+    const sortedContent = content.sort((a: any, b: any) => (a.order || 0) - (b.order || 0))
     
     // Create response with caching headers
     const response = NextResponse.json(sortedContent)

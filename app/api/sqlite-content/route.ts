@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
     // If ID is provided, fetch single item by ID
     if (id) {
       const query = 'SELECT * FROM website_content WHERE id = ?'
-      const row = db.prepare(query).get(id)
+      const row = db.prepare(query).get(id) as any
       
       if (!row) {
         return NextResponse.json(
@@ -58,7 +58,7 @@ export async function GET(request: NextRequest) {
     const rows = db.prepare(query).all(...params)
     
     // Convert metadata from JSON string back to object and normalize field names
-    const content = rows.map(row => ({
+    const content = rows.map((row: any) => ({
       ...row,
       contentType: row.content_type, // Convert content_type to contentType
       order: row.order_index, // Convert order_index to order

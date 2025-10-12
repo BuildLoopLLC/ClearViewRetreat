@@ -64,7 +64,6 @@ const pageSections: PageSection[] = [
     sections: [
       { id: 'events', title: 'Events Section', description: 'Events section title and subtitle' },
       { id: 'events-registration', title: 'Event Registration', description: 'Registration page content with links, calendar, and payment instructions' },
-      { id: 'blocked-dates', title: 'Blocked Dates', description: 'Manage blocked date ranges that appear as unavailable on the calendar' }
     ]
   },
   {

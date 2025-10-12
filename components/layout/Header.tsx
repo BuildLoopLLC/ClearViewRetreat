@@ -2,17 +2,56 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
+import { Bars3Icon, XMarkIcon, ChevronDownIcon } from '@heroicons/react/24/outline'
 import { motion, AnimatePresence } from 'framer-motion'
 import AFrameIcon from '@/components/ui/AFrameIcon'
 
 const navigation = [
   { name: 'Home', href: '/' },
-  { name: 'About', href: '/about' },
-  { name: 'Events', href: '/events' },
+  { 
+    name: 'About', 
+    href: '/about',
+    sublinks: [
+      { name: 'History', href: '/about/history' },
+      { name: 'Beliefs', href: '/about/beliefs' },
+      { name: 'Board of Trustees', href: '/about/board' },
+      { name: 'Founders', href: '/about/founders' },
+      { name: 'With Gratitude', href: '/about/gratitude' },
+    ]
+  },
+  { 
+    name: 'Events', 
+    href: '/events',
+    sublinks: [
+      { name: 'Upcoming Events', href: '/events/upcoming' },
+      { name: 'Past Events', href: '/events/past' },
+      { name: 'Event Types', href: '/events/types' },
+      { name: 'Event Registration', href: '/events/registration' },
+      { name: 'Payment', href: '/events/payment' },
+    ]
+  },
   { name: 'Blog', href: '/blog' },
-  { name: 'Gallery', href: '/gallery' },
-  { name: 'Contact', href: '/contact' },
+  { 
+    name: 'Gallery', 
+    href: '/gallery',
+    sublinks: [
+      { name: 'Retreat Center', href: '/gallery/retreat-center' },
+      { name: 'Event Photos', href: '/gallery/events' },
+      { name: 'Nature & Grounds', href: '/gallery/nature' },
+      { name: 'Community Life', href: '/gallery/community' },
+    ]
+  },
+  { 
+    name: 'Contact', 
+    href: '/contact',
+    sublinks: [
+      { name: 'Get in Touch', href: '/contact/contact-us' },
+      { name: 'Location & Directions', href: '/contact/location' },
+      { name: 'Staff Directory', href: '/contact/staff' },
+      { name: 'Volunteer Opportunities', href: '/contact/volunteer' },
+      { name: 'Prayer Requests', href: '/contact/prayer' },
+    ]
+  },
 ]
 
 export default function Header() {
@@ -35,15 +74,38 @@ export default function Header() {
         </div>
 
         {/* Desktop Navigation */}
-        <div className="hidden lg:flex lg:gap-x-12">
+        <div className="hidden lg:flex lg:gap-x-8">
           {navigation.map((item) => (
-            <Link
-              key={item.name}
-              href={item.href}
-              className="text-sm font-semibold leading-6 text-secondary-700 hover:text-primary-600 transition-colors duration-200"
-            >
-              {item.name}
-            </Link>
+            <div key={item.name} className="relative group">
+              <Link
+                href={item.href}
+                className="flex items-center text-sm font-semibold leading-6 text-secondary-700 hover:text-primary-600 transition-colors duration-200 py-2"
+              >
+                {item.name}
+                {item.sublinks && (
+                  <ChevronDownIcon className="ml-1 h-4 w-4 text-secondary-500 group-hover:text-primary-600 transition-transform duration-200 group-hover:rotate-180" />
+                )}
+              </Link>
+              
+              {/* Dropdown Menu */}
+              {item.sublinks && (
+                <div className="absolute left-0 mt-0 w-56 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                  <div className="mt-2 bg-white rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 overflow-hidden">
+                    <div className="py-1">
+                      {item.sublinks.map((sublink) => (
+                        <Link
+                          key={sublink.href}
+                          href={sublink.href}
+                          className="block px-4 py-2.5 text-sm text-secondary-700 hover:bg-primary-50 hover:text-primary-600 transition-colors duration-150"
+                        >
+                          {sublink.name}
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
           ))}
         </div>
 

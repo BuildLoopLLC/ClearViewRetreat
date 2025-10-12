@@ -61,7 +61,9 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(posts, {
       headers: {
-        'Cache-Control': 'public, max-age=300', // Cache for 5 minutes
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
       },
     })
   } catch (error) {

@@ -14,7 +14,7 @@ const eventsSubpages = [
   },
   {
     title: 'Event Registration',
-    href: '/events/register',
+    href: '/events/registration',
     description: 'Register for upcoming events and secure your spot.'
   },
   {

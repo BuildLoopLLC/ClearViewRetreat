@@ -25,10 +25,10 @@ export default function BlogPostContent({ post }: BlogPostContentProps) {
 
         {/* Meta */}
         <div className="flex items-center space-x-6 text-gray-600 mb-6">
-          <div className="flex items-center space-x-2">
+          {/* <div className="flex items-center space-x-2">
             <UserIcon className="h-5 w-5" />
             <span>{post.authorName}</span>
-          </div>
+          </div> */}
           <div className="flex items-center space-x-2">
             <CalendarIcon className="h-5 w-5" />
             <span>{new Date(post.createdAt).toLocaleDateString()}</span>

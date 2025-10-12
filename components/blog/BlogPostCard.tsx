@@ -3,12 +3,23 @@ import { DocumentTextIcon, CalendarIcon, UserIcon } from '@heroicons/react/24/ou
 import { BlogPost } from '@/types/firebase'
 import SecureImage from '@/components/ui/SecureImage'
 
+interface Category {
+  id: string
+  name: string
+  slug: string
+  description: string
+  color: string
+  createdAt: string
+  updatedAt: string
+}
+
 interface BlogPostCardProps {
   post: BlogPost
   featured?: boolean
+  category?: Category
 }
 
-export default function BlogPostCard({ post, featured = false }: BlogPostCardProps) {
+export default function BlogPostCard({ post, featured = false, category }: BlogPostCardProps) {
   const cardClasses = featured 
     ? "bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300"
     : "bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow duration-300"
@@ -37,8 +48,10 @@ export default function BlogPostCard({ post, featured = false }: BlogPostCardPro
         <div className="p-6">
           {/* Category */}
           <div className="mb-3">
-            <span className="inline-flex px-3 py-1 text-xs font-semibold rounded-full bg-primary-100 text-primary-800">
-              {post.category}
+            <span className={`inline-flex px-3 py-1 text-xs font-semibold rounded-full ${
+              category?.color || 'bg-primary-100 text-primary-800'
+            }`}>
+              {category?.name || post.category}
             </span>
           </div>
 
@@ -58,10 +71,10 @@ export default function BlogPostCard({ post, featured = false }: BlogPostCardPro
 
           {/* Meta */}
           <div className="flex items-center space-x-4 text-sm text-gray-500">
-            <div className="flex items-center space-x-1">
+            {/* <div className="flex items-center space-x-1">
               <UserIcon className="h-4 w-4" />
               <span>{post.authorName}</span>
-            </div>
+            </div> */}
             <div className="flex items-center space-x-1">
               <CalendarIcon className="h-4 w-4" />
               <span>{new Date(post.createdAt).toLocaleDateString()}</span>

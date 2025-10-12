@@ -228,13 +228,21 @@ export default function Gallery({ showViewFullGallery = true }: GalleryProps) {
               These photos only capture a glimpse of what ClearView Retreat has to offer. 
               Come visit us and create your own memories in this beautiful place.
             </p>
-            <div className={`flex ${showViewFullGallery ? 'flex-col sm:flex-row gap-4 justify-center' : 'justify-center'}`}>
+            <div className={`flex ${showViewFullGallery || !showViewFullGallery ? 'flex-col sm:flex-row gap-4 justify-center' : 'justify-center'}`}>
               {showViewFullGallery && (
                 <a
                   href="/gallery"
                   className="btn bg-white text-secondary-700 hover:bg-secondary-50 text-lg px-8 py-4"
                 >
-                  {getContentValue('cta')}
+                  View Full Gallery
+                </a>
+              )}
+              {!showViewFullGallery && (
+                <a
+                  href="/events"
+                  className="btn bg-white text-secondary-700 hover:bg-secondary-50 text-lg px-8 py-4"
+                >
+                  Events & Retreats
                 </a>
               )}
               <a

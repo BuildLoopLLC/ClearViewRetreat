@@ -8,6 +8,7 @@ import { useAuthContext } from '../../contexts/AuthContext'
 import { PencilIcon, CheckIcon, XMarkIcon, ChevronDownIcon, ChevronRightIcon } from '@heroicons/react/24/outline'
 import IndividualSupportersManager from './IndividualSupportersManager'
 import RichTextEditor from './RichTextEditor'
+import BlockedDatesManager from './BlockedDatesManager'
 
 interface ContentManagerProps {
   section: string
@@ -23,12 +24,16 @@ export default function ContentManager({ section, title }: ContentManagerProps) 
   const isContactSubpage = section.startsWith('contact-')
   const isCustomSections = section === 'custom-sections'
   const isEventsSection = section === 'events'
+  const isEventsRegistration = section === 'events-registration'
+  const isBlockedDates = section === 'blocked-dates'
   const actualSection = isStatisticsSubsection ? 'statistics' : 
                        isFooterSocial ? 'footer' : 
                        isAboutSubpage ? 'about' : 
                        isContactSubpage ? 'contact' : 
                        isAboutMain ? 'about' :
                        isCustomSections ? 'custom' :
+                       isEventsRegistration ? 'events' :
+                       isBlockedDates ? 'blocked-dates' :
                        section
   
   const { content: allContent, loading, error, refreshContent } = useWebsiteContent(actualSection)
@@ -174,6 +179,9 @@ export default function ContentManager({ section, title }: ContentManagerProps) 
   ) : isEventsSection ? allContent.filter(item => 
     // Only show section-level content (title/subtitle), exclude individual events
     item.metadata?.name === 'title' || item.metadata?.name === 'subtitle'
+  ) : isEventsRegistration ? allContent.filter(item => 
+    // Show only registration page content
+    item.subsection === 'registration'
   ) : allContent
 
 
@@ -463,6 +471,11 @@ export default function ContentManager({ section, title }: ContentManagerProps) 
   }
 
   const context = getSectionContext(section)
+
+  // Special handling for blocked dates section
+  if (isBlockedDates) {
+    return <BlockedDatesManager />
+  }
 
   return (
     <div className="bg-white rounded-xl shadow-sm p-6">
@@ -2453,13 +2466,21 @@ export default function ContentManager({ section, title }: ContentManagerProps) 
                     
                     {editingItems.has(item.id) ? (
                       <div className="space-y-3">
-                        {section === 'payment' || section === 'donation' ? (
+                        {section === 'payment' || section === 'donation' || isEventsRegistration ? (
                           <RichTextEditor
                             value={editForms[item.id]?.content || ''}
                             onChange={(value) => handleFieldChange(item.id, 'content', value)}
                             placeholder={section === 'payment' 
                               ? "Enter payment information here. Use the rich text editor to format text, add links, and create engaging content..."
-                              : "Enter donation information here. Use the rich text editor to format text, add links, and create engaging content..."
+                              : section === 'donation'
+                              ? "Enter donation information here. Use the rich text editor to format text, add links, and create engaging content..."
+                              : section === 'events-registration-links'
+                              ? "Enter registration links and forms here. Use the rich text editor to format text, add links, and create engaging content..."
+                              : section === 'events-registration-calendar'
+                              ? "Enter calendar configuration and event availability information here. Use the rich text editor to format text and add details..."
+                              : section === 'events-registration-payment'
+                              ? "Enter payment instructions, mailing address, and payment details here. Use the rich text editor to format text and add information..."
+                              : "Enter registration page content here. Use the rich text editor to format text, add images, and create engaging content..."
                             }
                           />
                         ) : (
@@ -2472,7 +2493,13 @@ export default function ContentManager({ section, title }: ContentManagerProps) 
                         )}
                       </div>
                     ) : (
-                      <div className="text-secondary-900">{item.content}</div>
+                      <div className="text-secondary-900">
+                        {isEventsRegistration ? (
+                          <div dangerouslySetInnerHTML={{ __html: item.content }} />
+                        ) : (
+                          item.content
+                        )}
+                      </div>
                     )}
                   </div>
                   

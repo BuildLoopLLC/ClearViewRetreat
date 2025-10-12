@@ -19,33 +19,61 @@ interface BlogPost {
   category: string
 }
 
+// Helper function to convert database fields to camelCase
+function convertDbPostToResponse(post: any): BlogPost {
+  return {
+    id: post.id,
+    title: post.title,
+    slug: post.slug,
+    content: post.content,
+    excerpt: post.excerpt,
+    mainImage: post.main_image,
+    thumbnail: post.thumbnail,
+    authorName: post.author_name,
+    authorEmail: post.author_email,
+    published: post.published === 1,
+    publishedAt: post.published_at,
+    createdAt: post.created_at,
+    updatedAt: post.updated_at,
+    tags: post.tags ? JSON.parse(post.tags) : [],
+    category: post.category
+  }
+}
+
 // GET - Fetch blog posts
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     const id = searchParams.get('id')
+    const slug = searchParams.get('slug')
     const published = searchParams.get('published')
     const category = searchParams.get('category')
     const limit = parseInt(searchParams.get('limit') || '50')
 
     const db = getDatabase()
     
-    // If ID is provided, fetch single blog post
+    // If ID is provided, fetch single blog post by ID
     if (id) {
       const query = 'SELECT * FROM blog_posts WHERE id = ?'
-      const post = db.prepare(query).get(id) as BlogPost | undefined
+      const post = db.prepare(query).get(id)
       
       if (!post) {
         return NextResponse.json({ error: 'Blog post not found' }, { status: 404 })
       }
       
-      // Parse tags from JSON string
-      const postWithParsedTags = {
-        ...post,
-        tags: post.tags ? JSON.parse(post.tags) : []
+      return NextResponse.json(convertDbPostToResponse(post))
+    }
+    
+    // If slug is provided, fetch single blog post by slug
+    if (slug) {
+      const query = 'SELECT * FROM blog_posts WHERE slug = ?'
+      const post = db.prepare(query).get(slug)
+      
+      if (!post) {
+        return NextResponse.json({ error: 'Blog post not found' }, { status: 404 })
       }
       
-      return NextResponse.json(postWithParsedTags)
+      return NextResponse.json(convertDbPostToResponse(post))
     }
 
     // Build query for multiple blog posts
@@ -65,15 +93,12 @@ export async function GET(request: NextRequest) {
     query += ' ORDER BY published_at DESC, created_at DESC LIMIT ?'
     params.push(limit)
     
-    const posts = db.prepare(query).all(...params) as BlogPost[]
+    const posts = db.prepare(query).all(...params)
     
-    // Parse tags for each post
-    const postsWithParsedTags = posts.map(post => ({
-      ...post,
-      tags: post.tags ? JSON.parse(post.tags) : []
-    }))
+    // Convert all posts to camelCase format
+    const convertedPosts = posts.map(post => convertDbPostToResponse(post))
     
-    return NextResponse.json(postsWithParsedTags)
+    return NextResponse.json(convertedPosts)
   } catch (error) {
     console.error('Error fetching blog posts:', error)
     return NextResponse.json({ error: 'Failed to fetch blog posts' }, { status: 500 })

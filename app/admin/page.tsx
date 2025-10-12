@@ -20,7 +20,7 @@ interface DashboardStats {
   blogPosts: number
   events: number
   galleries: number
-  contacts: number
+  users: number
 }
 
 // Activity interface
@@ -42,7 +42,7 @@ export default function AdminDashboard() {
     blogPosts: 0,
     events: 0,
     galleries: 0,
-    contacts: 0
+    users: 0
   })
   const [activities, setActivities] = useState<Activity[]>([])
   const [loading, setLoading] = useState(true)
@@ -67,13 +67,13 @@ export default function AdminDashboard() {
     try {
       setActivitiesLoading(true)
       const offset = (page - 1) * ITEMS_PER_PAGE
-      const response = await fetch(`/api/activities?limit=${ITEMS_PER_PAGE}&offset=${offset}`)
+      const response = await fetch(`/api/sqlite-activities?limit=${ITEMS_PER_PAGE}&offset=${offset}`)
       if (response.ok) {
         const activitiesData = await response.json()
         setActivities(activitiesData)
         
         // Get total count for pagination (fetch a larger sample to estimate)
-        const countResponse = await fetch('/api/activities?limit=1000')
+        const countResponse = await fetch('/api/sqlite-activities?limit=1000')
         if (countResponse.ok) {
           const allActivities = await countResponse.json()
           setTotalActivities(allActivities.length)
@@ -120,25 +120,25 @@ export default function AdminDashboard() {
       try {
         hasFetchedData.current = true
         setLoading(true)
-        const [blogRes, eventsRes, galleriesRes, contactsRes] = await Promise.all([
-          fetch('/api/sqlite-content?section=blog'),
-          fetch('/api/sqlite-content?section=events'),
+        const [blogRes, eventsRes, galleriesRes, usersRes] = await Promise.all([
+          fetch('/api/sqlite-blog'),
+          fetch('/api/events'),
           fetch('/api/sqlite-content?section=galleries'),
-          fetch('/api/sqlite-content?section=contacts')
+          fetch('/api/users?action=count')
         ])
 
-        const [blogData, eventsData, galleriesData, contactsData] = await Promise.all([
+        const [blogData, eventsData, galleriesData, usersData] = await Promise.all([
           blogRes.json(),
           eventsRes.json(),
           galleriesRes.json(),
-          contactsRes.json()
+          usersRes.json()
         ])
 
         setStats({
-          blogPosts: blogData.length,
-          events: eventsData.length,
-          galleries: galleriesData.length,
-          contacts: contactsData.length
+          blogPosts: Array.isArray(blogData) ? blogData.length : 0,
+          events: Array.isArray(eventsData) ? eventsData.length : 0,
+          galleries: Array.isArray(galleriesData) ? galleriesData.length : 0,
+          users: usersData.count || 0
         })
 
         // Fetch activities separately
@@ -231,17 +231,16 @@ export default function AdminDashboard() {
   const statsData = [
     { name: 'Blog Posts', value: stats.blogPosts.toString(), icon: DocumentTextIcon, color: 'text-blue-600', bgColor: 'bg-blue-50' },
     { name: 'Events', value: stats.events.toString(), icon: CalendarIcon, color: 'text-green-600', bgColor: 'bg-green-50' },
-    { name: 'Galleries', value: stats.galleries.toString(), icon: PhotoIcon, color: 'text-purple-600', bgColor: 'bg-purple-50' },
-    { name: 'Contacts', value: stats.contacts.toString(), icon: EnvelopeIcon, color: 'text-orange-600', bgColor: 'bg-orange-50' },
+    { name: 'Gallery Photos', value: stats.galleries.toString(), icon: PhotoIcon, color: 'text-purple-600', bgColor: 'bg-purple-50' },
+    { name: 'Admin Users', value: stats.users.toString(), icon: UsersIcon, color: 'text-orange-600', bgColor: 'bg-orange-50' },
   ]
 
   const quickActions = [
     { name: 'Manage Blog Posts', href: '/admin/blog', icon: DocumentTextIcon, color: 'text-blue-600' },
     { name: 'Manage Events', href: '/admin/events', icon: CalendarIcon, color: 'text-green-600' },
+    { name: 'Calendar Events', href: '/admin/events-management', icon: CalendarIcon, color: 'text-indigo-600' },
     { name: 'Event Registrations', href: '/admin/registrations', icon: UserGroupIcon, color: 'text-emerald-600' },
     { name: 'Manage Photo Gallery', href: '/admin/gallery', icon: PhotoIcon, color: 'text-purple-600' },
-    { name: 'View Analytics', href: '/admin/analytics', icon: ChartBarIcon, color: 'text-indigo-600' },
-    { name: 'Manage Users', href: '/admin/users', icon: UsersIcon, color: 'text-orange-600' },
     { name: 'Site Settings', href: '/admin/settings', icon: CogIcon, color: 'text-gray-600' },
   ]
 
@@ -278,7 +277,7 @@ export default function AdminDashboard() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           {statsData.map((stat) => (
             <div key={stat.name} className="bg-white rounded-xl shadow-sm p-6">
               <div className="flex items-center">
@@ -318,7 +317,111 @@ export default function AdminDashboard() {
         </div>
 
         {/* Recent Activity */}
-        
+        <div className="bg-white rounded-xl shadow-sm p-6">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-lg font-semibold text-secondary-900">Recent Activity</h2>
+            <button
+              onClick={() => fetchActivities(currentPage)}
+              className="text-sm text-primary-600 hover:text-primary-700 transition-colors"
+            >
+              Refresh
+            </button>
+          </div>
+          
+          {activitiesLoading ? (
+            <div className="space-y-4">
+              {[...Array(5)].map((_, i) => (
+                <div key={i} className="animate-pulse">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-2 h-2 bg-gray-200 rounded-full"></div>
+                    <div className="flex-1 space-y-1">
+                      <div className="h-3 bg-gray-200 rounded w-3/4"></div>
+                      <div className="h-2 bg-gray-200 rounded w-1/2"></div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : activities.length > 0 ? (
+            <div className="space-y-4">
+              {activities.map((activity) => (
+                <div key={activity.id} className="flex items-start space-x-3">
+                  <div className="flex-shrink-0 mt-1">
+                    {getActivityIcon(activity.type)}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm text-secondary-900">
+                      <span className="font-medium">{activity.user}</span> {activity.action.toLowerCase()}{' '}
+                      <span className="font-medium">{activity.item}</span>
+                      {activity.section && (
+                        <span className="text-secondary-500"> in {activity.section}</span>
+                      )}
+                    </p>
+                    <p className="text-xs text-secondary-500 mt-1">
+                      {getTimeAgo(activity.timestamp)}
+                    </p>
+                    {activity.details && (
+                      <p className="text-xs text-secondary-400 mt-1 truncate">
+                        {activity.details}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              ))}
+              
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <div className="flex items-center justify-between pt-4 border-t border-gray-200">
+                  <div className="flex items-center space-x-2">
+                    <button
+                      onClick={handlePreviousPage}
+                      disabled={currentPage === 1}
+                      className="px-3 py-1 text-sm text-gray-500 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      Previous
+                    </button>
+                    <span className="text-sm text-gray-500">
+                      Page {currentPage} of {totalPages}
+                    </span>
+                    <button
+                      onClick={handleNextPage}
+                      disabled={currentPage === totalPages}
+                      className="px-3 py-1 text-sm text-gray-500 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      Next
+                    </button>
+                  </div>
+                  <div className="flex space-x-1">
+                    {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                      const page = i + 1
+                      return (
+                        <button
+                          key={page}
+                          onClick={() => handlePageChange(page)}
+                          className={`px-2 py-1 text-xs rounded ${
+                            currentPage === page
+                              ? 'bg-primary-600 text-white'
+                              : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
+                          }`}
+                        >
+                          {page}
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="text-center py-8">
+              <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <ChartBarIcon className="h-6 w-6 text-gray-400" />
+              </div>
+              <h3 className="text-sm font-medium text-gray-900 mb-1">No recent activity</h3>
+              <p className="text-sm text-gray-500">Activity will appear here as you make changes to the site.</p>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   )

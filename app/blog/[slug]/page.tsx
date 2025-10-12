@@ -23,7 +23,15 @@ export default function BlogPostPage() {
   const fetchPost = async () => {
     try {
       setLoading(true)
-      const response = await fetch(`/api/blog/${slug}`)
+      // Add timestamp to prevent caching
+      const timestamp = new Date().getTime()
+      const response = await fetch(`/api/sqlite-blog?slug=${slug}&t=${timestamp}`, {
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        }
+      })
       if (!response.ok) {
         if (response.status === 404) {
           throw new Error('Blog post not found')

@@ -29,7 +29,15 @@ export default function BlogManagementPage() {
   const fetchPosts = async () => {
     try {
       setLoading(true)
-      const response = await fetch('/api/blog')
+      // Add timestamp to prevent caching
+      const timestamp = new Date().getTime()
+      const response = await fetch(`/api/sqlite-blog?t=${timestamp}`, {
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        }
+      })
       if (!response.ok) {
         throw new Error('Failed to fetch blog posts')
       }
@@ -46,16 +54,32 @@ export default function BlogManagementPage() {
     if (!confirm('Are you sure you want to delete this blog post?')) return
     
     try {
-      const response = await fetch(`/api/blog?id=${id}`, {
+      console.log('Deleting blog post with ID:', id)
+      const response = await fetch(`/api/sqlite-blog?id=${id}`, {
         method: 'DELETE'
       })
       
+      console.log('Delete response status:', response.status)
+      
       if (!response.ok) {
-        throw new Error('Failed to delete blog post')
+        const errorData = await response.json()
+        console.error('Delete error:', errorData)
+        throw new Error(errorData.error || 'Failed to delete blog post')
       }
       
-      setPosts(posts.filter(post => post.id !== id))
+      const result = await response.json()
+      console.log('Delete result:', result)
+      
+      // Remove from local state immediately
+      const updatedPosts = posts.filter(post => post.id !== id)
+      console.log('Updated posts count:', updatedPosts.length)
+      setPosts(updatedPosts)
+      
+      // Also refresh the data to ensure consistency
+      console.log('Refreshing posts...')
+      await fetchPosts()
     } catch (err: any) {
+      console.error('Delete error:', err)
       alert('Failed to delete blog post: ' + err.message)
     }
   }
@@ -192,7 +216,7 @@ export default function BlogManagementPage() {
                             <CalendarIcon className="h-4 w-4" />
                             <span>{new Date(post.createdAt).toLocaleDateString()}</span>
                           </div>
-                          <span>by {post.authorName}</span>
+                          
                           <span>•</span>
                           <span>{post.category}</span>
                         </div>

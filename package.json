@@ -20,7 +20,12 @@
     "setup-firebase-admin": "npx tsx scripts/setup-firebase-admin.ts",
     "setup-firebase-content": "npx tsx scripts/setup-firebase-content-only.ts",
     "setup-firebase-admin-content": "npx tsx scripts/setup-firebase-admin-content.ts",
-    "check-duplicates": "npx tsx scripts/check-duplicates.ts"
+    "check-duplicates": "npx tsx scripts/check-duplicates.ts",
+    "populate-registration": "npx tsx scripts/populate-registration-content.ts",
+    "populate-registration-sections": "npx tsx scripts/populate-registration-sections.ts",
+    "populate-single-registration": "npx tsx scripts/populate-single-registration.ts",
+    "create-events-table": "npx tsx scripts/create-events-table.ts",
+    "create-blocked-dates-table": "npx tsx scripts/create-blocked-dates-table.ts"
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.868.0",

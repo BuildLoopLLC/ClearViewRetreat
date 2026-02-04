@@ -21,8 +21,8 @@ export default function About({ showCTA = true }: AboutProps) {
 
   // Temporary fallback values for testing
   const fallbackValues = {
-    title: 'About ClearView Retreat',
-    description: 'ClearView Retreat is a serene mountain retreat center dedicated to spiritual renewal and personal growth.',
+    title: 'About Clear View Retreat',
+    description: 'Clear View Retreat is a serene mountain retreat center dedicated to spiritual renewal and personal growth.',
     valuesTitle: 'Our Core Values',
     value1Title: 'Faith-Centered',
     value1Desc: 'Everything we do is rooted in Christian principles and designed to strengthen your faith',
@@ -211,7 +211,7 @@ export default function About({ showCTA = true }: AboutProps) {
                 A Place of Transformation
               </h3>
               <p className="text-secondary-700 leading-relaxed">
-                Every year, hundreds of guests leave ClearView Retreat with renewed faith, 
+                Every year, hundreds of guests leave Clear View Retreat with renewed faith, 
                 deeper relationships, and a clearer vision for their spiritual journey. 
                 Join the countless lives that have been changed through our ministry.
               </p>

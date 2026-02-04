@@ -63,12 +63,12 @@ export default function Header() {
         {/* Logo */}
         <div className="flex lg:flex-1">
           <Link href="/" className="-m-1.5 p-1.5">
-            <span className="sr-only">ClearView Retreat</span>
+            <span className="sr-only">Clear View Retreat</span>
             <div className="flex items-center space-x-2">
               <div className="w-10 h-10 bg-primary-600 rounded-lg flex items-center justify-center">
                 <AFrameIcon className="text-white" size="sm" />
               </div>
-              <span className="text-2xl font-display font-bold text-secondary-900">ClearView</span>
+              <span className="text-2xl font-display font-bold text-secondary-900">Clear View</span>
             </div>
           </Link>
         </div>
@@ -140,12 +140,12 @@ export default function Header() {
               {/* Header */}
               <div className="flex items-center justify-between p-6 border-b border-gray-100 bg-white">
                 <Link href="/" className="-m-1.5 p-1.5">
-                  <span className="sr-only">ClearView Retreat</span>
+                  <span className="sr-only">Clear View Retreat</span>
                   <div className="flex items-center space-x-2">
                     <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center">
                       <AFrameIcon className="text-white" size="sm" />
                     </div>
-                    <span className="text-xl font-display font-bold text-secondary-900">ClearView</span>
+                    <span className="text-xl font-display font-bold text-secondary-900">Clear View</span>
                   </div>
                 </Link>
                 <button

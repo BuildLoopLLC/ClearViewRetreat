@@ -10,11 +10,11 @@ import CacheWarmer from '@/components/providers/CacheWarmer'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'ClearView Retreat - A Place of Peace & Renewal',
-  description: 'Discover ClearView Retreat, a Christian retreat center offering spiritual renewal, outdoor activities, and peaceful accommodations in the heart of nature.',
-  authors: [{ name: 'ClearView Retreat' }],
+  title: 'Clear View Retreat - A Place of Peace & Renewal',
+  description: 'Discover Clear View Retreat, a Christian retreat center offering spiritual renewal, outdoor activities, and peaceful accommodations in the heart of nature.',
+  authors: [{ name: 'Clear View Retreat' }],
   keywords: 'Christian retreat, spiritual renewal, outdoor activities, nature retreat, church camp, spiritual growth',
-  creator: 'ClearView Retreat',
+  creator: 'Clear View Retreat',
   robots: 'index, follow',
   icons: {
     icon: '/favicon.svg',
@@ -22,25 +22,25 @@ export const metadata: Metadata = {
     apple: '/favicon.svg',
   },
   openGraph: {
-    title: 'ClearView Retreat - A Place of Peace & Renewal',
-    description: 'Discover ClearView Retreat, a Christian retreat center offering spiritual renewal, outdoor activities, and peaceful accommodations in the heart of nature.',
+    title: 'Clear View Retreat - A Place of Peace & Renewal',
+    description: 'Discover Clear View Retreat, a Christian retreat center offering spiritual renewal, outdoor activities, and peaceful accommodations in the heart of nature.',
     url: 'https://clearviewretreat.org',
-    siteName: 'ClearView Retreat',
+    siteName: 'Clear View Retreat',
     locale: 'en_US',
     images: [
       {
         url: 'http://localhost:3000/images/og-image.jpg',
         width: 1200,
         height: 630,
-        alt: 'ClearView Retreat',
+        alt: 'Clear View Retreat',
       },
     ],
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'ClearView Retreat - A Place of Peace & Renewal',
-    description: 'Discover ClearView Retreat, a Christian retreat center offering spiritual renewal, outdoor activities, and peaceful accommodations in the heart of nature.',
+    title: 'Clear View Retreat - A Place of Peace & Renewal',
+    description: 'Discover Clear View Retreat, a Christian retreat center offering spiritual renewal, outdoor activities, and peaceful accommodations in the heart of nature.',
     images: ['http://localhost:3000/images/og-image.jpg'],
   },
 }

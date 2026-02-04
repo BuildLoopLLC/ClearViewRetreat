@@ -180,7 +180,7 @@ export default function Testimonials() {
               Ready to Create Your Own Story?
             </h3>
             <p className="text-lg text-secondary-600 mb-8 leading-relaxed">
-              Join the hundreds of guests who have experienced transformation at ClearView Retreat. 
+              Join the hundreds of guests who have experienced transformation at Clear View Retreat. 
               Your journey to spiritual renewal and community building starts here.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">

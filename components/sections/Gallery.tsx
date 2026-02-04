@@ -225,7 +225,7 @@ export default function Gallery({ showViewFullGallery = true }: GalleryProps) {
               Experience the Beauty for Yourself
             </h3>
             <p className="text-lg text-secondary-200 mb-8 max-w-2xl mx-auto">
-              These photos only capture a glimpse of what ClearView Retreat has to offer. 
+              These photos only capture a glimpse of what Clear View Retreat has to offer. 
               Come visit us and create your own memories in this beautiful place.
             </p>
             <div className={`flex ${showViewFullGallery || !showViewFullGallery ? 'flex-col sm:flex-row gap-4 justify-center' : 'justify-center'}`}>

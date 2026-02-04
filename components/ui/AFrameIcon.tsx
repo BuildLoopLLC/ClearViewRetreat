@@ -16,7 +16,7 @@ export default function AFrameIcon({ className = '', size = 'md' }: AFrameIconPr
     <div className={`${sizeClasses[size]} ${className} relative`}>
       <Image
         src="/icon.png"
-        alt="ClearView Retreat A-frame cabin icon"
+        alt="Clear View Retreat A-frame cabin icon"
         fill
         className="object-contain brightness-0 invert drop-shadow-lg"
         sizes="(max-width: 768px) 24px, (max-width: 1024px) 32px, 48px"

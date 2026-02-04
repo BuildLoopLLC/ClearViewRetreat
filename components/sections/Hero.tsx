@@ -173,7 +173,7 @@ export default function Hero() {
           <div className="relative w-full max-w-4xl bg-white rounded-2xl shadow-2xl overflow-hidden">
             {/* Modal Header */}
             <div className="flex items-center justify-between p-4 bg-secondary-900 text-white">
-              <h3 className="text-lg font-semibold">ClearView Retreat Video</h3>
+              <h3 className="text-lg font-semibold">Clear View Retreat Video</h3>
               <button
                 onClick={closeVideoModal}
                 className="p-2 hover:bg-white/20 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-white/50"
@@ -187,12 +187,12 @@ export default function Hero() {
             <div className="relative aspect-video bg-black">
               <iframe
                 src={`https://www.youtube.com/embed/${getMetadata('cta-secondary')?.videoUrl?.split('/').pop()}?autoplay=1`}
-                title="ClearView Retreat Video"
+                title="Clear View Retreat Video"
                 className="w-full h-full"
                 frameBorder="0"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
-                aria-label="ClearView Retreat promotional video"
+                aria-label="Clear View Retreat promotional video"
               />
             </div>
           </div>

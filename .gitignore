@@ -10,3 +10,9 @@ yarn-debug.log*
 yarn-error.log*
 .DS_Store
 *.tsbuildinfo
+
+# SQLite database files
+data/website.db
+data/website.db-shm
+data/website.db-wal
+backup*.sql

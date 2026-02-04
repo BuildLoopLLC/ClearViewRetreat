@@ -12,7 +12,8 @@ yarn-error.log*
 *.tsbuildinfo
 
 # SQLite database files
-data/website.db
+# Temporarily commented out to restore database to Railway
+# data/website.db
 data/website.db-shm
 data/website.db-wal
 backup*.sql

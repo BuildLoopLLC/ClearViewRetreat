@@ -86,7 +86,7 @@ export default function Events({ showCTA = true }: EventsProps) {
         endDate: metadata.endDate || '',
         location: metadata.location || '',
         participants: `${metadata.currentAttendees || 0}/${metadata.maxAttendees || '∞'}`,
-        image: metadata.image || 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80',
+        image: metadata.image || 'images/TNMountains2.jpg',
         description: metadata.description || '', // Use short description, not long content
         featured: metadata.featured === true || metadata.featured === 'true',
         price: metadata.price || '',

@@ -35,7 +35,7 @@ export default function Hero() {
           <div 
             className="w-full h-full bg-cover bg-center bg-no-repeat"
             style={{
-              backgroundImage: 'url(https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80)',
+              backgroundImage: 'url(images/TNMountains2.jpg)',
             }}
             aria-hidden="true"
           />

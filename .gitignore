@@ -16,4 +16,6 @@ yarn-error.log*
 # data/website.db
 data/website.db-shm
 data/website.db-wal
+.seed/website.db-shm
+.seed/website.db-wal
 backup*.sql

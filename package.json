@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start -p ${PORT:-3000}",
+    "start": "node scripts/init-db-volume.js && next start -p ${PORT:-3000}",
     "lint": "next lint",
     "setup-db": "npx tsx scripts/setup-dynamodb.ts",
     "setup-db:ts-node": "npx ts-node --no-tty scripts/setup-dynamodb.ts",

@@ -146,7 +146,7 @@ export default function Features() {
               Ready to Experience the Difference?
             </h3>
             <p className="text-secondary-700 mb-6">
-              Join us for your next retreat and discover the transformative power of ClearView.
+              Join us for your next retreat and discover the transformative power of Clear View.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <a

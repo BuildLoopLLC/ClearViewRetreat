@@ -133,7 +133,7 @@ export default function Footer() {
               <div className="w-12 h-12 bg-primary-600 rounded-lg flex items-center justify-center">
                 <AFrameIcon className="text-white" size="md" />
               </div>
-              <span className="text-3xl font-display font-bold text-white">ClearView</span>
+              <span className="text-3xl font-display font-bold text-white">Clear View</span>
             </div>
             <p className="text-secondary-300 text-lg leading-relaxed">
               {getContentValue('description')}

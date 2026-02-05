@@ -93,6 +93,51 @@ function initializeDatabase() {
     )
   `)
 
+  // Create events table
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS events (
+      id TEXT PRIMARY KEY,
+      title TEXT NOT NULL,
+      type TEXT NOT NULL CHECK (type IN ('family-camp', 'marriage-retreat', 'ministry-event', 'grieving-retreat', 'family-mission-trip', 'special-event')),
+      start_date TEXT NOT NULL,
+      end_date TEXT NOT NULL,
+      description TEXT,
+      max_attendees INTEGER,
+      is_active INTEGER DEFAULT 1,
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+      updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+    )
+  `)
+
+  // Create blocked_dates table
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS blocked_dates (
+      id TEXT PRIMARY KEY,
+      start_date TEXT NOT NULL,
+      end_date TEXT NOT NULL,
+      reason TEXT,
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+      updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+    )
+  `)
+
+  // Create registrations table
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS registrations (
+      id TEXT PRIMARY KEY,
+      event_id TEXT NOT NULL,
+      user_name TEXT NOT NULL,
+      user_email TEXT NOT NULL,
+      phone TEXT,
+      num_attendees INTEGER DEFAULT 1,
+      special_requests TEXT,
+      status TEXT DEFAULT 'pending',
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+      updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (event_id) REFERENCES events(id)
+    )
+  `)
+
   // Create indexes for better performance
   db.exec(`
     CREATE INDEX IF NOT EXISTS idx_section ON website_content(section);
@@ -107,6 +152,12 @@ function initializeDatabase() {
     CREATE INDEX IF NOT EXISTS idx_blog_category ON blog_posts(category);
     CREATE INDEX IF NOT EXISTS idx_blog_published_at ON blog_posts(published_at);
     CREATE INDEX IF NOT EXISTS idx_categories_slug ON categories(slug);
+    CREATE INDEX IF NOT EXISTS idx_events_start_date ON events(start_date);
+    CREATE INDEX IF NOT EXISTS idx_events_type ON events(type);
+    CREATE INDEX IF NOT EXISTS idx_events_active ON events(is_active);
+    CREATE INDEX IF NOT EXISTS idx_blocked_dates_start ON blocked_dates(start_date);
+    CREATE INDEX IF NOT EXISTS idx_registrations_event ON registrations(event_id);
+    CREATE INDEX IF NOT EXISTS idx_registrations_email ON registrations(user_email);
   `)
 
   console.log('✅ SQLite database initialized')

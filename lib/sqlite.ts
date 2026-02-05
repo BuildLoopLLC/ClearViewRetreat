@@ -2,6 +2,7 @@ import Database from 'better-sqlite3'
 import path from 'path'
 import fs from 'fs'
 
+// SQLite database configuration and initialization
 // Database file path
 const DB_PATH = path.join(process.cwd(), 'data', 'website.db')
 
@@ -10,13 +11,6 @@ const dataDir = path.dirname(DB_PATH)
 if (!fs.existsSync(dataDir)) {
   fs.mkdirSync(dataDir, { recursive: true })
 }
-
-// Check if database exists and has data
-const needsInitialData = !fs.existsSync(DB_PATH) || fs.statSync(DB_PATH).size === 0
-
-// If in Railway and database is empty, log it
-if (process.env.RAILWAY_ENVIRONMENT && needsInitialData) {
-  console.log('⚠️  Database file is missing or empty in volume!')
 
 // Create database connection
 let db: Database.Database | null = null

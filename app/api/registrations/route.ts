@@ -15,44 +15,24 @@ export async function POST(request: NextRequest) {
 
     const db = getDatabase()
     
-    // Create registrations table if it doesn't exist
-    db.exec(`
-      CREATE TABLE IF NOT EXISTS registrations (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        eventId TEXT NOT NULL,
-        firstName TEXT NOT NULL,
-        lastName TEXT NOT NULL,
-        email TEXT NOT NULL,
-        phone TEXT NOT NULL,
-        emergencyContact TEXT NOT NULL,
-        emergencyPhone TEXT NOT NULL,
-        dietaryRestrictions TEXT,
-        specialRequests TEXT,
-        agreeToTerms BOOLEAN NOT NULL,
-        createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
-        updatedAt DATETIME DEFAULT CURRENT_TIMESTAMP
-      )
-    `)
+    // Table is created by lib/sqlite.ts initialization
 
     // Insert registration
     const insertStmt = db.prepare(`
       INSERT INTO registrations (
-        eventId, firstName, lastName, email, phone, 
-        emergencyContact, emergencyPhone, dietaryRestrictions, 
-        specialRequests, agreeToTerms
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        event_id, user_name, user_email, phone, 
+        num_attendees, special_requests, status
+      ) VALUES (?, ?, ?, ?, ?, ?, ?)
     `)
+    const fullName = `${registrationData.firstName} ${registrationData.lastName}`
     const result = insertStmt.run(
       registrationData.eventId,
-      registrationData.firstName,
-      registrationData.lastName,
+      fullName,
       registrationData.email,
       registrationData.phone,
-      registrationData.emergencyContact,
-      registrationData.emergencyPhone,
-      registrationData.dietaryRestrictions || '',
+      1,
       registrationData.specialRequests || '',
-      registrationData.agreeToTerms ? 1 : 0
+      'confirmed'
     )
 
     // Update event attendee count
@@ -90,7 +70,7 @@ export async function GET(request: NextRequest) {
       params.push(eventId)
     }
     
-    query += ' ORDER BY createdAt DESC'
+    query += ' ORDER BY created_at DESC'
     
     const stmt = db.prepare(query)
     const registrations = eventId ? stmt.all(eventId) : stmt.all()
@@ -170,24 +150,19 @@ export async function PUT(request: NextRequest) {
     const db = getDatabase()
     
     // Update the registration
+    const fullName = `${updateData.firstName} ${updateData.lastName}`
     const updateStmt = db.prepare(`
       UPDATE registrations 
-      SET firstName = ?, lastName = ?, email = ?, phone = ?, 
-          emergencyContact = ?, emergencyPhone = ?, dietaryRestrictions = ?, 
-          specialRequests = ?, agreeToTerms = ?, updatedAt = CURRENT_TIMESTAMP
+      SET user_name = ?, user_email = ?, phone = ?, 
+          special_requests = ?, updated_at = CURRENT_TIMESTAMP
       WHERE id = ?
     `)
     
     const result = updateStmt.run(
-      updateData.firstName,
-      updateData.lastName,
+      fullName,
       updateData.email,
       updateData.phone,
-      updateData.emergencyContact,
-      updateData.emergencyPhone,
-      updateData.dietaryRestrictions || '',
       updateData.specialRequests || '',
-      updateData.agreeToTerms ? 1 : 0,
       parseInt(registrationId)
     )
 

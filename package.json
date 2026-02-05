@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "rm -rf .next && next build",
     "start": "next start -p ${PORT:-3000}",
     "lint": "next lint",
     "setup-db": "npx tsx scripts/setup-dynamodb.ts",

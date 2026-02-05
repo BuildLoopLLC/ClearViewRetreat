@@ -6,7 +6,7 @@ export async function POST(request: NextRequest) {
     const registrationData = await request.json()
     
     // Validate required fields
-    const requiredFields = ['eventId', 'firstName', 'lastName', 'email', 'phone', 'emergencyContact', 'emergencyPhone', 'agreeToTerms']
+    const requiredFields = ['eventId', 'firstName', 'lastName', 'email', 'phone']
     for (const field of requiredFields) {
       if (!registrationData[field]) {
         return NextResponse.json({ error: `Missing required field: ${field}` }, { status: 400 })
@@ -66,7 +66,7 @@ export async function GET(request: NextRequest) {
     let params: any[] = []
     
     if (eventId) {
-      query += ' WHERE eventId = ?'
+      query += ' WHERE event_id = ?'
       params.push(eventId)
     }
     
@@ -140,7 +140,7 @@ export async function PUT(request: NextRequest) {
     }
 
     // Validate required fields
-    const requiredFields = ['firstName', 'lastName', 'email', 'phone', 'emergencyContact', 'emergencyPhone', 'agreeToTerms']
+    const requiredFields = ['firstName', 'lastName', 'email', 'phone']
     for (const field of requiredFields) {
       if (!updateData[field]) {
         return NextResponse.json({ error: `Missing required field: ${field}` }, { status: 400 })

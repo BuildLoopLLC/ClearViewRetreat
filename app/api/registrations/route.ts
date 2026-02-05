@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getDatabase } from '@/lib/sqlite'
 
+// Registration API endpoint for events
 export async function POST(request: NextRequest) {
   try {
     const registrationData = await request.json()

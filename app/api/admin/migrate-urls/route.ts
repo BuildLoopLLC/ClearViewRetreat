@@ -130,8 +130,61 @@ export async function POST(request: NextRequest) {
 }
 
 export async function GET(request: NextRequest) {
+  const { searchParams } = new URL(request.url)
+  const action = searchParams.get('action')
+  
+  if (action === 'check-categories') {
+    try {
+      const db = getDatabase()
+      const categories = db.prepare('SELECT * FROM categories').all()
+      const blogPosts = db.prepare('SELECT id, title, slug, category, published, main_image, created_at FROM blog_posts ORDER BY created_at DESC').all()
+      return NextResponse.json({ categories, blogPosts, count: blogPosts.length })
+    } catch (error) {
+      return NextResponse.json({ error: String(error) }, { status: 500 })
+    }
+  }
+  
+  if (action === 'check-latest-post') {
+    try {
+      const db = getDatabase()
+      const latestPost = db.prepare('SELECT * FROM blog_posts ORDER BY created_at DESC LIMIT 1').get()
+      return NextResponse.json({ latestPost })
+    } catch (error) {
+      return NextResponse.json({ error: String(error) }, { status: 500 })
+    }
+  }
+  
+  if (action === 'add-default-category') {
+    try {
+      const db = getDatabase()
+      const existing = db.prepare('SELECT * FROM categories WHERE slug = ?').get('general')
+      if (!existing) {
+        db.prepare(`
+          INSERT INTO categories (id, name, slug, description, created_at, updated_at)
+          VALUES (?, ?, ?, ?, ?, ?)
+        `).run(
+          'cat-default-general',
+          'General',
+          'general',
+          'General blog posts',
+          new Date().toISOString(),
+          new Date().toISOString()
+        )
+      }
+      const categories = db.prepare('SELECT * FROM categories').all()
+      return NextResponse.json({ success: true, categories })
+    } catch (error) {
+      return NextResponse.json({ error: String(error) }, { status: 500 })
+    }
+  }
+  
   return NextResponse.json({
     message: 'POST to this endpoint with ?secret=migrate-to-railway-2024 to run the migration',
+    actions: [
+      'GET ?action=check-categories - Check categories and blog posts',
+      'GET ?action=check-latest-post - Check the latest blog post details',
+      'GET ?action=add-default-category - Add default General category'
+    ],
     warning: 'DELETE THIS FILE AFTER MIGRATION'
   })
 }

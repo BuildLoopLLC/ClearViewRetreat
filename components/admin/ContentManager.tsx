@@ -205,14 +205,15 @@ export default function ContentManager({ section, title }: ContentManagerProps) 
     setEditForms(prev => ({
       ...prev,
       [item.id]: {
-        content: item.content  // Always load from database, not from editForms
+        content: item.content,  // Always load from database, not from editForms
+        metadata: item.metadata  // Also store metadata for editing
       }
     }))
     setHasChanges(true)
   }
 
   const handleFieldChange = (id: string, field: string, value: any) => {
-    console.log('handleFieldChange called:', { id, field, value: value?.substring(0, 100) + '...' })
+    console.log('handleFieldChange called:', { id, field, value: value?.substring?.(0, 100) + '...' })
     setEditForms(prev => ({
       ...prev,
       [id]: {
@@ -222,6 +223,21 @@ export default function ContentManager({ section, title }: ContentManagerProps) 
     }))
     setHasChanges(true)
     console.log('Edit form updated for:', id)
+  }
+
+  const handleMetadataChange = (id: string, metadataField: string, value: any) => {
+    console.log('handleMetadataChange called:', { id, metadataField, value })
+    setEditForms(prev => ({
+      ...prev,
+      [id]: {
+        ...prev[id],
+        metadata: {
+          ...(prev[id]?.metadata || {}),
+          [metadataField]: value
+        }
+      }
+    }))
+    setHasChanges(true)
   }
 
   const handleSaveAll = async () => {
@@ -2534,6 +2550,25 @@ export default function ContentManager({ section, title }: ContentManagerProps) 
                             rows={3}
                           />
                         )}
+                        
+                        {/* Video URL field for hero section secondary CTA */}
+                        {section === 'hero' && item.subsection === 'secondary_cta' && (
+                          <div className="mt-3">
+                            <label className="block text-sm font-medium text-secondary-700 mb-1">
+                              YouTube Video URL
+                            </label>
+                            <input
+                              type="url"
+                              value={editForms[item.id]?.metadata?.videoUrl || ''}
+                              onChange={(e) => handleMetadataChange(item.id, 'videoUrl', e.target.value)}
+                              placeholder="https://youtu.be/VIDEO_ID or https://www.youtube.com/watch?v=VIDEO_ID"
+                              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm"
+                            />
+                            <p className="mt-1 text-xs text-secondary-500">
+                              Enter a YouTube video URL. The video will play in a modal when users click "Watch Video".
+                            </p>
+                          </div>
+                        )}
                       </div>
                     ) : (
                       <div className="text-secondary-900">
@@ -2541,6 +2576,16 @@ export default function ContentManager({ section, title }: ContentManagerProps) 
                           <div dangerouslySetInnerHTML={{ __html: item.content }} />
                         ) : (
                           item.content
+                        )}
+                        
+                        {/* Show current video URL for hero section secondary CTA */}
+                        {section === 'hero' && item.subsection === 'secondary_cta' && item.metadata?.videoUrl && (
+                          <div className="mt-2 text-sm text-secondary-600">
+                            <span className="font-medium">Video URL:</span>{' '}
+                            <a href={item.metadata.videoUrl} target="_blank" rel="noopener noreferrer" className="text-primary-600 hover:underline">
+                              {item.metadata.videoUrl}
+                            </a>
+                          </div>
                         )}
                       </div>
                     )}

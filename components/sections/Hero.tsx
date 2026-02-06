@@ -186,7 +186,7 @@ export default function Hero() {
             {/* Video Content */}
             <div className="relative aspect-video bg-black">
               <iframe
-                src={`https://www.youtube.com/embed/${getMetadata('cta-secondary')?.videoUrl?.split('/').pop()}?autoplay=1`}
+                src={`https://www.youtube.com/embed/${getMetadata('secondary_cta')?.videoUrl?.split('/').pop()}?autoplay=1`}
                 title="Clear View Retreat Video"
                 className="w-full h-full"
                 frameBorder="0"

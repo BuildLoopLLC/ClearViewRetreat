@@ -57,14 +57,15 @@ export const S3_CONFIG = {
 } as const
 
 // Generate public URL for Railway bucket
+// Uses image proxy since Railway buckets are private
 export function generatePublicUrl(key: string): string {
-  // Railway bucket URL format: https://BUCKET_NAME.ENDPOINT_HOST/key
-  if (!BUCKET_ENDPOINT) {
-    // Fallback for local development without endpoint
-    return `https://${BUCKET_NAME}.s3.${BUCKET_REGION}.amazonaws.com/${key}`
-  }
-  const endpointUrl = new URL(BUCKET_ENDPOINT)
-  return `${endpointUrl.protocol}//${BUCKET_NAME}.${endpointUrl.host}/${key}`
+  // Use the image proxy API to serve images from private Railway bucket
+  // The proxy endpoint handles authentication with Railway
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.VERCEL_URL || ''
+  
+  // For server-side rendering, use relative URL
+  // The image proxy will fetch from Railway bucket
+  return `/api/images/${key}`
 }
 
 // Generate presigned URL for uploads

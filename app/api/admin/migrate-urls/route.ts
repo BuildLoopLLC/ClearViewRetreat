@@ -1,19 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getDatabase } from '@/lib/sqlite'
 
-// One-time migration endpoint to update AWS S3 URLs to Railway bucket URLs
+// One-time migration endpoint to update AWS S3 URLs to image proxy URLs
 // DELETE THIS FILE AFTER RUNNING THE MIGRATION
 
-const RAILWAY_ENDPOINT = process.env.AWS_ENDPOINT_URL || ''
-const RAILWAY_BUCKET_NAME = process.env.AWS_S3_BUCKET_NAME || 'cvr-bucket'
-
 function generateRailwayUrl(key: string): string {
-  try {
-    const endpointUrl = new URL(RAILWAY_ENDPOINT)
-    return `${endpointUrl.protocol}//${RAILWAY_BUCKET_NAME}.${endpointUrl.host}/${key}`
-  } catch {
-    return `${RAILWAY_ENDPOINT}/${RAILWAY_BUCKET_NAME}/${key}`
-  }
+  // Use the image proxy API since Railway buckets are private
+  return `/api/images/${key}`
 }
 
 function replaceAwsUrl(content: string): { updated: string; count: number } {
@@ -33,6 +26,16 @@ function replaceAwsUrl(content: string): { updated: string; count: number } {
   updated = updated.replace(
     /https:\/\/s3\.([a-z0-9-]+)\.amazonaws\.com\/([a-z0-9-]+)\/([^\s"'<>]+)/gi,
     (match, region, bucket, key) => {
+      count++
+      return generateRailwayUrl(key)
+    }
+  )
+
+  // Pattern 3: Railway bucket direct URLs (convert to proxy)
+  // https://bucket-name.t3.storageapi.dev/key
+  updated = updated.replace(
+    /https:\/\/([a-z0-9-]+)\.t3\.storageapi\.dev\/([^\s"'<>]+)/gi,
+    (match, bucket, key) => {
       count++
       return generateRailwayUrl(key)
     }
@@ -114,7 +117,7 @@ export async function POST(request: NextRequest) {
       success: true,
       totalUpdated,
       details: results,
-      railwayBucket: `${RAILWAY_BUCKET_NAME}.${new URL(RAILWAY_ENDPOINT).host}`
+      note: 'URLs now use /api/images/ proxy'
     })
 
   } catch (error) {

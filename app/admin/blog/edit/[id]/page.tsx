@@ -98,7 +98,7 @@ export default function EditBlogPostPage() {
       setInitialLoading(true)
       setError('')
       
-      const response = await fetch(`/api/blog?id=${postId}`)
+      const response = await fetch(`/api/sqlite-blog?id=${postId}`)
       if (!response.ok) {
         if (response.status === 404) {
           throw new Error('Blog post not found')
@@ -197,7 +197,7 @@ export default function EditBlogPostPage() {
     setError('')
 
     try {
-      const response = await fetch(`/api/blog?id=${postId}`, {
+      const response = await fetch(`/api/sqlite-blog?id=${postId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

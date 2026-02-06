@@ -152,7 +152,7 @@ export default function NewBlogPostPage() {
     setError('')
 
     try {
-      const response = await fetch('/api/blog', {
+      const response = await fetch('/api/sqlite-blog', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

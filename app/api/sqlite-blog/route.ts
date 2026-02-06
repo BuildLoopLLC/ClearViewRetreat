@@ -90,7 +90,7 @@ export async function GET(request: NextRequest) {
       params.push(category)
     }
     
-    query += ' ORDER BY published_at DESC, created_at DESC LIMIT ?'
+    query += ' ORDER BY COALESCE(published_at, created_at) DESC, created_at DESC LIMIT ?'
     params.push(limit)
     
     const posts = db.prepare(query).all(...params)

@@ -87,10 +87,9 @@ const pageSections: PageSection[] = [
     description: 'Contact information and forms',
     sections: [
       { id: 'contact', title: 'Main Contact Content', description: 'Primary contact information and forms' },
-      { id: 'contact-contact-us', title: 'Get in Touch', description: 'Contact form and messaging options' },
-      { id: 'contact-location', title: 'Location & Directions', description: 'Address, directions, and location details' },
+      { id: 'contact-location', title: 'Location & Directions', description: 'Rich text content for location and directions page' },
       { id: 'contact-staff', title: 'Staff Directory', description: 'Team members and contact information' },
-      { id: 'contact-volunteer', title: 'Volunteer Opportunities', description: 'How to get involved and serve' },
+      { id: 'contact-volunteer', title: 'Volunteer Opportunities', description: 'Rich text content for volunteer opportunities page' },
       { id: 'contact-prayer', title: 'Prayer Requests', description: 'Submit prayer requests and support' }
     ]
   },

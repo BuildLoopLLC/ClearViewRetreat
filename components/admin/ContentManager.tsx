@@ -2523,7 +2523,7 @@ export default function ContentManager({ section, title }: ContentManagerProps) 
                     
                     {editingItems.has(item.id) ? (
                       <div className="space-y-3">
-                        {section === 'payment' || section === 'donation' || isEventsRegistration || isEventTypeSection ? (
+                        {section === 'payment' || section === 'donation' || isEventsRegistration || isEventTypeSection || section === 'contact-location' || section === 'contact-volunteer' ? (
                           <RichTextEditor
                             value={editForms[item.id]?.content || ''}
                             onChange={(value) => handleFieldChange(item.id, 'content', value)}
@@ -2533,6 +2533,10 @@ export default function ContentManager({ section, title }: ContentManagerProps) 
                               ? "Enter donation information here. Use the rich text editor to format text, add links, and create engaging content..."
                               : isEventTypeSection
                               ? "Enter detailed information about this retreat type. Use the rich text editor to format text, add images, and create engaging modal content..."
+                              : section === 'contact-location'
+                              ? "Enter location and directions information here. Use the rich text editor to format text, add maps, and provide detailed directions..."
+                              : section === 'contact-volunteer'
+                              ? "Enter volunteer opportunities information here. Use the rich text editor to describe how visitors can get involved and serve..."
                               : item.subsection === 'events-registration-links'
                               ? "Enter registration links and forms here. Use the rich text editor to format text, add links, and create engaging content..."
                               : item.subsection === 'events-registration-calendar'

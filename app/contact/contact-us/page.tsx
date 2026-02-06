@@ -12,14 +12,6 @@ export default function ContactUsPage() {
       ]}
     >
       <div className="max-w-4xl mx-auto">
-        {/* Introduction */}
-        <div className="prose prose-lg max-w-none mb-16">
-          <SubpageContent 
-            section="contact" 
-            subsection="contact-us"
-            className="text-xl text-secondary-600 leading-relaxed mb-8"
-          />
-        </div>
 
         {/* Contact Form */}
         <div className="bg-white rounded-2xl p-8 shadow-lg border border-secondary-200 mb-16">

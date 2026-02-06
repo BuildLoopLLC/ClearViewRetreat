@@ -22,7 +22,7 @@ export default function ContentManager({ section, title }: ContentManagerProps) 
   const isAboutMain = section === 'about-main'
   const isAboutSubpage = section.startsWith('about-') && !isAboutMain
   const isContactSubpage = section.startsWith('contact-')
-  const isSupportOptionSection = section.startsWith('contact-support-')
+  const isSupportOptionSection = section.startsWith('support-')
   const isCustomSections = section === 'custom-sections'
   const isEventsSection = section === 'events'
   const isEventsRegistration = section === 'events-registration'
@@ -31,7 +31,7 @@ export default function ContentManager({ section, title }: ContentManagerProps) 
   const actualSection = isStatisticsSubsection ? 'statistics' : 
                        isFooterSocial ? 'footer' : 
                        isAboutSubpage ? 'about' : 
-                       isSupportOptionSection ? 'contact' :
+                       isSupportOptionSection ? 'support' :
                        isContactSubpage ? 'contact' : 
                        isAboutMain ? 'about' :
                        isCustomSections ? 'custom' :
@@ -191,7 +191,7 @@ export default function ContentManager({ section, title }: ContentManagerProps) 
     item.subsection === section
   ) : isSupportOptionSection ? allContent.filter(item => 
     // Show only content for this specific support option
-    item.subsection === section.replace('contact-', '')
+    item.subsection === section
   ) : allContent
 
 
@@ -476,22 +476,22 @@ export default function ContentManager({ section, title }: ContentManagerProps) 
         description: 'Content for the Contact > Volunteer Opportunities page (/contact/volunteer).',
         example: 'Volunteer opportunities, how to get involved, and service information'
       }
-    } else if (section === 'contact-support-donate') {
+    } else if (section === 'support-donate') {
       return {
         description: 'Rich text modal content for the Donate support option on the Support Us page.',
         example: 'Donation information, giving options, how donations are used, and links to donate'
       }
-    } else if (section === 'contact-support-shop') {
+    } else if (section === 'support-shop') {
       return {
         description: 'Rich text modal content for the Shop to Support option on the Support Us page.',
         example: 'Merchandise information, shop links, and how purchases support the ministry'
       }
-    } else if (section === 'contact-support-adopt-cabin') {
+    } else if (section === 'support-adopt-cabin') {
       return {
         description: 'Rich text modal content for the Adopt-a-Cabin option on the Support Us page.',
         example: 'Cabin sponsorship information, naming opportunities, and adoption benefits'
       }
-    } else if (section === 'contact-support-items-needed') {
+    } else if (section === 'support-items-needed') {
       return {
         description: 'Rich text modal content for the Items Needed option on the Support Us page.',
         example: 'Wish list items, supplies needed, and how to donate items'
@@ -572,17 +572,16 @@ export default function ContentManager({ section, title }: ContentManagerProps) 
                 <button 
                   onClick={async () => {
                     try {
-                      const subsectionId = section.replace('contact-', '')
                       const response = await fetch('/api/sqlite-content', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
-                          section: 'contact',
-                          subsection: subsectionId,
+                          section: 'support',
+                          subsection: section,
                           contentType: 'html',
                           content: '<p>Enter your support option content here...</p>',
                           metadata: { 
-                            name: `${title.replace('Contact Page - ', '')} Modal Content`,
+                            name: `${title.replace('Support Us Page - ', '')} Modal Content`,
                             isRichText: true 
                           },
                           order: 1,

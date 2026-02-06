@@ -77,11 +77,10 @@ export default function SupportUsPage() {
   const [selectedOption, setSelectedOption] = useState<typeof defaultSupportOptions[0] | null>(null)
   
   // Fetch support option content from database
-  const { content: donateContent } = useWebsiteContent('contact', 'support-donate')
-  const { content: shopContent } = useWebsiteContent('contact', 'support-shop')
-  const { content: adoptCabinContent } = useWebsiteContent('contact', 'support-adopt-cabin')
-  const { content: itemsNeededContent } = useWebsiteContent('contact', 'support-items-needed')
-  const { content: allSupportContent } = useWebsiteContent('contact', 'support-us')
+  const { content: donateContent } = useWebsiteContent('support', 'support-donate')
+  const { content: shopContent } = useWebsiteContent('support', 'support-shop')
+  const { content: adoptCabinContent } = useWebsiteContent('support', 'support-adopt-cabin')
+  const { content: itemsNeededContent } = useWebsiteContent('support', 'support-items-needed')
 
   // Build support options from database content or use defaults
   const getSupportOptions = () => {

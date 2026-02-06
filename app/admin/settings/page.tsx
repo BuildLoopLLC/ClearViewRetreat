@@ -14,7 +14,8 @@ import {
   ArrowLeftIcon,
   ChevronDownIcon,
   ChevronRightIcon,
-  ChartBarIcon
+  ChartBarIcon,
+  HeartIcon
 } from '@heroicons/react/24/outline'
 import ContentManager from '@/components/admin/ContentManager'
 
@@ -89,11 +90,18 @@ const pageSections: PageSection[] = [
       { id: 'contact', title: 'Main Contact Content', description: 'Primary contact information and forms' },
       { id: 'contact-location', title: 'Location & Directions', description: 'Rich text content for location and directions page' },
       { id: 'contact-staff', title: 'Staff Directory', description: 'Team members and contact information' },
-      { id: 'contact-volunteer', title: 'Volunteer Opportunities', description: 'Rich text content for volunteer opportunities page' },
-      { id: 'contact-support-donate', title: 'Support: Donate', description: 'Rich text modal content for the Donate support option' },
-      { id: 'contact-support-shop', title: 'Support: Shop to Support', description: 'Rich text modal content for the Shop to Support option' },
-      { id: 'contact-support-adopt-cabin', title: 'Support: Adopt-a-Cabin', description: 'Rich text modal content for the Adopt-a-Cabin option' },
-      { id: 'contact-support-items-needed', title: 'Support: Items Needed', description: 'Rich text modal content for the Items Needed option' }
+      { id: 'contact-volunteer', title: 'Volunteer Opportunities', description: 'Rich text content for volunteer opportunities page' }
+    ]
+  },
+  {
+    id: 'support',
+    title: 'Support Us Page',
+    description: 'Support options and giving opportunities',
+    sections: [
+      { id: 'support-donate', title: 'Donate', description: 'Rich text modal content for the Donate option' },
+      { id: 'support-shop', title: 'Shop to Support', description: 'Rich text modal content for the Shop to Support option' },
+      { id: 'support-adopt-cabin', title: 'Adopt-a-Cabin', description: 'Rich text modal content for the Adopt-a-Cabin option' },
+      { id: 'support-items-needed', title: 'Items Needed', description: 'Rich text modal content for the Items Needed option' }
     ]
   },
   {
@@ -127,7 +135,7 @@ export default function SiteSettingsPage() {
   const { user, logout } = useAuthContext()
   const router = useRouter()
   const searchParams = useSearchParams()
-  const [expandedPages, setExpandedPages] = useState<Set<string>>(new Set(['home', 'about']))
+  const [expandedPages, setExpandedPages] = useState<Set<string>>(new Set(['home']))
   
   // Process URL parameter directly in render
   const sectionParam = searchParams.get('section')
@@ -183,13 +191,12 @@ export default function SiteSettingsPage() {
   }, [])
 
   const togglePage = (pageId: string) => {
-    const newExpanded = new Set(expandedPages)
-    if (newExpanded.has(pageId)) {
-      newExpanded.delete(pageId)
+    // If already expanded, collapse it. Otherwise, expand only this one (closing others)
+    if (expandedPages.has(pageId)) {
+      setExpandedPages(new Set())
     } else {
-      newExpanded.add(pageId)
+      setExpandedPages(new Set([pageId]))
     }
-    setExpandedPages(newExpanded)
   }
 
   const handleSectionClick = (pageId: string, sectionId: string) => {
@@ -212,6 +219,7 @@ export default function SiteSettingsPage() {
       case 'events': return CalendarIcon
       case 'gallery': return PhotoIcon
       case 'contact': return ChatBubbleLeftRightIcon
+      case 'support': return HeartIcon
       case 'statistics': return ChartBarIcon
       case 'blog': return CogIcon
       case 'custom': return CogIcon

@@ -54,7 +54,10 @@ export async function GET(
     // Determine content type
     const contentType = response.ContentType || 'image/jpeg'
     
-    return new NextResponse(buffer, {
+    // Convert Buffer to Uint8Array for NextResponse compatibility
+    const uint8Array = new Uint8Array(buffer)
+    
+    return new NextResponse(uint8Array, {
       headers: {
         'Content-Type': contentType,
         'Cache-Control': CACHE_CONTROL,

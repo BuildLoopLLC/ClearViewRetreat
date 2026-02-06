@@ -152,13 +152,24 @@ export async function DELETE(request: NextRequest) {
       )
     }
 
-    // Extract S3 keys from URLs (handles both Railway and legacy AWS URLs)
+    // Extract S3 keys from URLs (handles proxy URLs, Railway URLs, and legacy AWS URLs)
     const extractS3Key = (url: string) => {
+      // Handle proxy URLs: /api/images/folder/filename.jpg
+      if (url.startsWith('/api/images/')) {
+        return url.replace('/api/images/', '')
+      }
+      
       try {
         const urlObj = new URL(url)
         // Railway URL: https://bucket.endpoint/key or https://endpoint/bucket/key
         // AWS URL: https://bucket.s3.region.amazonaws.com/key
         const pathname = urlObj.pathname.startsWith('/') ? urlObj.pathname.slice(1) : urlObj.pathname
+        
+        // Handle /api/images/ in absolute URLs too
+        if (pathname.startsWith('api/images/')) {
+          return pathname.replace('api/images/', '')
+        }
+        
         return pathname
       } catch {
         // Fallback for malformed URLs

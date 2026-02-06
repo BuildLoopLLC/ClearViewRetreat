@@ -216,12 +216,14 @@ export default function Events({ showCTA = true }: EventsProps) {
                       Learn More
                       <ArrowRightIcon className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform duration-200" />
                     </Link>
-                    <Link
-                      href={`/events/${event.id}/register`}
-                      className="btn-outline text-lg px-8 py-4 inline-flex items-center justify-center"
-                    >
-                      Register Now
-                    </Link>
+                    {isUpcomingEvent(event.date, event.endDate) && (
+                      <Link
+                        href={`/events/${event.id}/register`}
+                        className="btn-outline text-lg px-8 py-4 inline-flex items-center justify-center"
+                      >
+                        Register Now
+                      </Link>
+                    )}
                   </div>
                 </div>
               </div>

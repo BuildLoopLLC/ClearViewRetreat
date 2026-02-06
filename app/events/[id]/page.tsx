@@ -36,6 +36,14 @@ export default function EventDetailPage() {
   const [event, setEvent] = useState<Event | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const isUpcomingEvent = (startDate: string, endDate: string) => {
+    if (!endDate) {
+      // If no end date, check start date
+      return new Date(startDate) > new Date()
+    }
+    // Check if end date is in the future
+    return new Date(endDate) > new Date()
+  }
 
   useEffect(() => {
     const fetchEvent = async () => {
@@ -264,6 +272,7 @@ export default function EventDetailPage() {
 
             {/* Action Buttons */}
             <div className="flex flex-col sm:flex-row gap-4">
+              {isUpcomingEvent(event.date, event.endDate) && (
               <Link
                 href={`/events/${event.id}/register`}
                 className="btn-primary text-lg px-8 py-4 inline-flex items-center justify-center group"
@@ -271,6 +280,7 @@ export default function EventDetailPage() {
                 Register Now
                 <ArrowRightIcon className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform duration-200" />
               </Link>
+              )}
               <Link
                 href="/events"
                 className="btn-outline text-lg px-8 py-4 inline-flex items-center justify-center"

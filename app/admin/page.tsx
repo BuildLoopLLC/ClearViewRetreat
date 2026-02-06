@@ -316,8 +316,8 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        {/* Recent Activity */}
-        <div className="bg-white rounded-xl shadow-sm p-6">
+        {/* Recent Activity, FUTURE FEATURE */}
+       {/*  <div className="bg-white rounded-xl shadow-sm p-6">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-lg font-semibold text-secondary-900">Recent Activity</h2>
             <button
@@ -368,8 +368,6 @@ export default function AdminDashboard() {
                   </div>
                 </div>
               ))}
-              
-              {/* Pagination */}
               {totalPages > 1 && (
                 <div className="flex items-center justify-between pt-4 border-t border-gray-200">
                   <div className="flex items-center space-x-2">
@@ -421,7 +419,8 @@ export default function AdminDashboard() {
               <p className="text-sm text-gray-500">Activity will appear here as you make changes to the site.</p>
             </div>
           )}
-        </div>
+        </div> 
+        */}
       </div>
     </div>
   )

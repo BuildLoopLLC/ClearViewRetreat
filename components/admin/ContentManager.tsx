@@ -456,11 +456,6 @@ export default function ContentManager({ section, title }: ContentManagerProps) 
         description: 'Board members for the About > Board of Trustees page (/about/board).',
         example: 'Add/remove board members, update their names, titles, bios, and photos. Each member needs: Name, Title, Bio, and Image URL.'
       }
-    } else if (section === 'contact-contact-us') {
-      return {
-        description: 'Content for the Contact > Get in Touch page (/contact/contact-us).',
-        example: 'Contact forms, messaging options, and communication channels'
-      }
     } else if (section === 'contact-location') {
       return {
         description: 'Content for the Contact > Location & Directions page (/contact/location).',

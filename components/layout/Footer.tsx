@@ -30,7 +30,7 @@ const navigation = {
     { name: 'Payment', href: '/events/payment' },
   ],
   contact: [
-    { name: 'Get in Touch', href: '/contact/contact-us' },
+    { name: 'Get in Touch', href: '/contact' },
     { name: 'Location & Directions', href: '/contact/location' },
     { name: 'Staff Directory', href: '/contact/staff' },
     { name: 'Volunteer Opportunities', href: '/contact/volunteer' },

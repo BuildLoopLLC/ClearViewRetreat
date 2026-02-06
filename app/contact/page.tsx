@@ -3,11 +3,6 @@ import SubpageNavigation from '@/components/ui/SubpageNavigation'
 
 const contactSubpages = [
   {
-    title: 'Get in Touch',
-    href: '/contact/contact-us',
-    description: 'Send us a message or reach out with your questions.'
-  },
-  {
     title: 'Location & Directions',
     href: '/contact/location',
     description: 'Find our retreat center and get directions.'

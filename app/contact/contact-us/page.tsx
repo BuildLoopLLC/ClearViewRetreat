@@ -7,8 +7,7 @@ export default function ContactUsPage() {
       title="Get in Touch"
       subtitle="Send us a message or reach out with your questions"
       breadcrumbs={[
-        { name: 'Contact', href: '/contact' },
-        { name: 'Get in Touch', href: '/contact/contact-us' }
+        { name: 'Contact', href: '/contact' }
       ]}
     >
       <div className="max-w-4xl mx-auto">

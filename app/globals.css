@@ -73,6 +73,19 @@
     outline: 2px solid #0284c7; /* primary-600 */
     outline-offset: 2px;
   }
+
+  .ql-align-center{
+    text-align: center !important;
+    margin: 0 auto !important;
+  }
+
+  .ql-align-right{
+    text-align: right !important;
+  }
+
+  .ql-align-left{
+    text-align: left !important;
+  }
   
   /* Skip link for accessibility */
   .skip-link {

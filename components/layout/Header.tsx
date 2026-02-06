@@ -48,7 +48,7 @@ const navigation = [
       { name: 'Location & Directions', href: '/contact/location' },
       { name: 'Staff Directory', href: '/contact/staff' },
       { name: 'Volunteer Opportunities', href: '/contact/volunteer' },
-      { name: 'Prayer Requests', href: '/contact/prayer' },
+      { name: 'Support Us', href: '/contact/support-us' },
     ]
   },
 ]

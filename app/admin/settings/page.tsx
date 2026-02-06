@@ -90,7 +90,10 @@ const pageSections: PageSection[] = [
       { id: 'contact-location', title: 'Location & Directions', description: 'Rich text content for location and directions page' },
       { id: 'contact-staff', title: 'Staff Directory', description: 'Team members and contact information' },
       { id: 'contact-volunteer', title: 'Volunteer Opportunities', description: 'Rich text content for volunteer opportunities page' },
-      { id: 'contact-prayer', title: 'Prayer Requests', description: 'Submit prayer requests and support' }
+      { id: 'contact-support-donate', title: 'Support: Donate', description: 'Rich text modal content for the Donate support option' },
+      { id: 'contact-support-shop', title: 'Support: Shop to Support', description: 'Rich text modal content for the Shop to Support option' },
+      { id: 'contact-support-adopt-cabin', title: 'Support: Adopt-a-Cabin', description: 'Rich text modal content for the Adopt-a-Cabin option' },
+      { id: 'contact-support-items-needed', title: 'Support: Items Needed', description: 'Rich text modal content for the Items Needed option' }
     ]
   },
   {

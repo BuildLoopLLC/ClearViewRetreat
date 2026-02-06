@@ -30,11 +30,11 @@ const navigation = {
     { name: 'Payment', href: '/events/payment' },
   ],
   contact: [
-    { name: 'Get in Touch', href: '/contact' },
+    { name: 'Contact Us', href: '/contact' },
     { name: 'Location & Directions', href: '/contact/location' },
     { name: 'Staff Directory', href: '/contact/staff' },
     { name: 'Volunteer Opportunities', href: '/contact/volunteer' },
-    { name: 'Prayer Requests', href: '/contact/prayer' },
+    { name: 'Support Us', href: '/contact/support-us' },
   ],
   gallery: [
     { name: 'Retreat Center', href: '/gallery/retreat-center' },

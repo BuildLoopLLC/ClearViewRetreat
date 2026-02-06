@@ -22,6 +22,7 @@ export default function ContentManager({ section, title }: ContentManagerProps) 
   const isAboutMain = section === 'about-main'
   const isAboutSubpage = section.startsWith('about-') && !isAboutMain
   const isContactSubpage = section.startsWith('contact-')
+  const isSupportOptionSection = section.startsWith('contact-support-')
   const isCustomSections = section === 'custom-sections'
   const isEventsSection = section === 'events'
   const isEventsRegistration = section === 'events-registration'
@@ -30,6 +31,7 @@ export default function ContentManager({ section, title }: ContentManagerProps) 
   const actualSection = isStatisticsSubsection ? 'statistics' : 
                        isFooterSocial ? 'footer' : 
                        isAboutSubpage ? 'about' : 
+                       isSupportOptionSection ? 'contact' :
                        isContactSubpage ? 'contact' : 
                        isAboutMain ? 'about' :
                        isCustomSections ? 'custom' :
@@ -187,6 +189,9 @@ export default function ContentManager({ section, title }: ContentManagerProps) 
   ) : isEventTypeSection ? allContent.filter(item => 
     // Show only content for this specific event type
     item.subsection === section
+  ) : isSupportOptionSection ? allContent.filter(item => 
+    // Show only content for this specific support option
+    item.subsection === section.replace('contact-', '')
   ) : allContent
 
 
@@ -471,10 +476,25 @@ export default function ContentManager({ section, title }: ContentManagerProps) 
         description: 'Content for the Contact > Volunteer Opportunities page (/contact/volunteer).',
         example: 'Volunteer opportunities, how to get involved, and service information'
       }
-    } else if (section === 'contact-prayer') {
+    } else if (section === 'contact-support-donate') {
       return {
-        description: 'Content for the Contact > Prayer Requests page (/contact/prayer).',
-        example: 'Prayer request forms, spiritual support information, and prayer ministry details'
+        description: 'Rich text modal content for the Donate support option on the Support Us page.',
+        example: 'Donation information, giving options, how donations are used, and links to donate'
+      }
+    } else if (section === 'contact-support-shop') {
+      return {
+        description: 'Rich text modal content for the Shop to Support option on the Support Us page.',
+        example: 'Merchandise information, shop links, and how purchases support the ministry'
+      }
+    } else if (section === 'contact-support-adopt-cabin') {
+      return {
+        description: 'Rich text modal content for the Adopt-a-Cabin option on the Support Us page.',
+        example: 'Cabin sponsorship information, naming opportunities, and adoption benefits'
+      }
+    } else if (section === 'contact-support-items-needed') {
+      return {
+        description: 'Rich text modal content for the Items Needed option on the Support Us page.',
+        example: 'Wish list items, supplies needed, and how to donate items'
       }
     } else if (section === 'testimonials') {
       return {
@@ -539,6 +559,41 @@ export default function ContentManager({ section, title }: ContentManagerProps) 
                       }
                     } catch (error) {
                       console.error('Error creating event type content:', error)
+                    }
+                  }}
+                  className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+                >
+                  Create Modal Content
+                </button>
+              </div>
+            ) : isSupportOptionSection ? (
+              <div className="mt-4">
+                <p className="text-sm mb-3">Create rich text content that will appear in the modal when users click on this support option.</p>
+                <button 
+                  onClick={async () => {
+                    try {
+                      const subsectionId = section.replace('contact-', '')
+                      const response = await fetch('/api/sqlite-content', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                          section: 'contact',
+                          subsection: subsectionId,
+                          contentType: 'html',
+                          content: '<p>Enter your support option content here...</p>',
+                          metadata: { 
+                            name: `${title.replace('Contact Page - ', '')} Modal Content`,
+                            isRichText: true 
+                          },
+                          order: 1,
+                          isActive: true
+                        })
+                      })
+                      if (response.ok) {
+                        refreshContent()
+                      }
+                    } catch (error) {
+                      console.error('Error creating support option content:', error)
                     }
                   }}
                   className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
@@ -2518,7 +2573,7 @@ export default function ContentManager({ section, title }: ContentManagerProps) 
                     
                     {editingItems.has(item.id) ? (
                       <div className="space-y-3">
-                        {section === 'payment' || section === 'donation' || isEventsRegistration || isEventTypeSection || section === 'contact-location' || section === 'contact-volunteer' ? (
+                        {section === 'payment' || section === 'donation' || isEventsRegistration || isEventTypeSection || isSupportOptionSection || section === 'contact-location' || section === 'contact-volunteer' ? (
                           <RichTextEditor
                             value={editForms[item.id]?.content || ''}
                             onChange={(value) => handleFieldChange(item.id, 'content', value)}
@@ -2528,6 +2583,8 @@ export default function ContentManager({ section, title }: ContentManagerProps) 
                               ? "Enter donation information here. Use the rich text editor to format text, add links, and create engaging content..."
                               : isEventTypeSection
                               ? "Enter detailed information about this retreat type. Use the rich text editor to format text, add images, and create engaging modal content..."
+                              : isSupportOptionSection
+                              ? "Enter detailed information for this support option. Use the rich text editor to format text, add images, links, and create engaging modal content..."
                               : section === 'contact-location'
                               ? "Enter location and directions information here. Use the rich text editor to format text, add maps, and provide detailed directions..."
                               : section === 'contact-volunteer'
@@ -2571,7 +2628,7 @@ export default function ContentManager({ section, title }: ContentManagerProps) 
                       </div>
                     ) : (
                       <div className="text-secondary-900">
-                        {isEventsRegistration || isEventTypeSection ? (
+                        {isEventsRegistration || isEventTypeSection || isSupportOptionSection ? (
                           <div dangerouslySetInnerHTML={{ __html: item.content }} />
                         ) : (
                           item.content

@@ -25,6 +25,7 @@ export default function ContentManager({ section, title }: ContentManagerProps) 
   const isCustomSections = section === 'custom-sections'
   const isEventsSection = section === 'events'
   const isEventsRegistration = section === 'events-registration'
+  const isEventTypeSection = section.startsWith('events-type-')
   const isBlockedDates = section === 'blocked-dates'
   const actualSection = isStatisticsSubsection ? 'statistics' : 
                        isFooterSocial ? 'footer' : 
@@ -33,6 +34,7 @@ export default function ContentManager({ section, title }: ContentManagerProps) 
                        isAboutMain ? 'about' :
                        isCustomSections ? 'custom' :
                        isEventsRegistration ? 'events' :
+                       isEventTypeSection ? 'events' :
                        isBlockedDates ? 'blocked-dates' :
                        section
   
@@ -182,6 +184,9 @@ export default function ContentManager({ section, title }: ContentManagerProps) 
   ) : isEventsRegistration ? allContent.filter(item => 
     // Show only registration page content
     item.subsection === 'registration'
+  ) : isEventTypeSection ? allContent.filter(item => 
+    // Show only content for this specific event type
+    item.subsection === section
   ) : allContent
 
 
@@ -496,12 +501,48 @@ export default function ContentManager({ section, title }: ContentManagerProps) 
         {content.length === 0 && !loading && (
           <div className="text-center py-8 text-gray-500">
             <p>No content found for this section.</p>
-            <button 
-              onClick={refreshContent}
-              className="mt-2 text-primary-600 hover:text-primary-700 underline"
-            >
-              Refresh
-            </button>
+            {isEventTypeSection ? (
+              <div className="mt-4">
+                <p className="text-sm mb-3">Create rich text content that will appear in the modal when users click on this retreat type.</p>
+                <button 
+                  onClick={async () => {
+                    try {
+                      const response = await fetch('/api/sqlite-content', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                          section: 'events',
+                          subsection: section,
+                          contentType: 'html',
+                          content: '<p>Enter your retreat type description here...</p>',
+                          metadata: { 
+                            name: `${title.replace('Events Page - ', '')} Modal Content`,
+                            isRichText: true 
+                          },
+                          order: 1,
+                          isActive: true
+                        })
+                      })
+                      if (response.ok) {
+                        refreshContent()
+                      }
+                    } catch (error) {
+                      console.error('Error creating event type content:', error)
+                    }
+                  }}
+                  className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+                >
+                  Create Modal Content
+                </button>
+              </div>
+            ) : (
+              <button 
+                onClick={refreshContent}
+                className="mt-2 text-primary-600 hover:text-primary-700 underline"
+              >
+                Refresh
+              </button>
+            )}
           </div>
         )}
         {isStatisticsSubsection ? (
@@ -2466,7 +2507,7 @@ export default function ContentManager({ section, title }: ContentManagerProps) 
                     
                     {editingItems.has(item.id) ? (
                       <div className="space-y-3">
-                        {section === 'payment' || section === 'donation' || isEventsRegistration ? (
+                        {section === 'payment' || section === 'donation' || isEventsRegistration || isEventTypeSection ? (
                           <RichTextEditor
                             value={editForms[item.id]?.content || ''}
                             onChange={(value) => handleFieldChange(item.id, 'content', value)}
@@ -2474,6 +2515,8 @@ export default function ContentManager({ section, title }: ContentManagerProps) 
                               ? "Enter payment information here. Use the rich text editor to format text, add links, and create engaging content..."
                               : section === 'donation'
                               ? "Enter donation information here. Use the rich text editor to format text, add links, and create engaging content..."
+                              : isEventTypeSection
+                              ? "Enter detailed information about this retreat type. Use the rich text editor to format text, add images, and create engaging modal content..."
                               : item.subsection === 'events-registration-links'
                               ? "Enter registration links and forms here. Use the rich text editor to format text, add links, and create engaging content..."
                               : item.subsection === 'events-registration-calendar'
@@ -2494,7 +2537,7 @@ export default function ContentManager({ section, title }: ContentManagerProps) 
                       </div>
                     ) : (
                       <div className="text-secondary-900">
-                        {isEventsRegistration ? (
+                        {isEventsRegistration || isEventTypeSection ? (
                           <div dangerouslySetInnerHTML={{ __html: item.content }} />
                         ) : (
                           item.content

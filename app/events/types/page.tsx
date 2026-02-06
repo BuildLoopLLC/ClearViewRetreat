@@ -1,3 +1,6 @@
+'use client'
+
+import { useState } from 'react'
 import SubpageLayout from '@/components/ui/SubpageLayout'
 import Link from 'next/link'
 import { 
@@ -9,11 +12,14 @@ import {
   GlobeAltIcon,
   SparklesIcon
 } from '@heroicons/react/24/outline'
+import { useWebsiteContent } from '@/hooks/useWebsiteContentSQLite'
+import EventTypeModal from '@/components/ui/EventTypeModal'
 
+// Map section IDs to retreat types
 const retreatTypes = [
   {
+    id: 'events-type-family-camps',
     title: 'Family Camps',
-    href: '/retreats/family-camps',
     icon: UserGroupIcon,
     color: 'text-blue-600',
     bgColor: 'bg-blue-50',
@@ -23,8 +29,8 @@ const retreatTypes = [
     features: ['All ages welcome', 'Family activities', 'Spiritual growth', 'Recreation & fun']
   },
   {
+    id: 'events-type-marriage-retreats',
     title: 'Marriage Retreats',
-    href: '/retreats/marriage',
     icon: HeartIcon,
     color: 'text-pink-600',
     bgColor: 'bg-pink-50',
@@ -34,8 +40,8 @@ const retreatTypes = [
     features: ['Couples only', 'Relationship building', 'Biblical principles', 'Private time together']
   },
   {
+    id: 'events-type-pastors-missionaries',
     title: 'Pastors & Missionaries',
-    href: '/retreats/ministry',
     icon: AcademicCapIcon,
     color: 'text-purple-600',
     bgColor: 'bg-purple-50',
@@ -45,8 +51,8 @@ const retreatTypes = [
     features: ['Ministry leaders', 'Rest & renewal', 'Peer fellowship', 'Spiritual refreshment']
   },
   {
+    id: 'events-type-grieving-families',
     title: 'Grieving Families',
-    href: '/retreats/grieving',
     icon: HandRaisedIcon,
     color: 'text-gray-600',
     bgColor: 'bg-gray-50',
@@ -56,8 +62,8 @@ const retreatTypes = [
     features: ['Compassionate care', 'Grief support', 'Family healing', 'Safe environment']
   },
   {
+    id: 'events-type-facility-rental',
     title: 'Cabins & Facility Rental',
-    href: '/retreats/facility-rental',
     icon: HomeIcon,
     color: 'text-amber-600',
     bgColor: 'bg-amber-50',
@@ -67,8 +73,8 @@ const retreatTypes = [
     features: ['Group rentals', 'Beautiful facilities', 'Flexible scheduling', 'Full amenities']
   },
   {
+    id: 'events-type-mission-trips',
     title: 'Family Mission Trips',
-    href: '/retreats/mission-trips',
     icon: GlobeAltIcon,
     color: 'text-green-600',
     bgColor: 'bg-green-50',
@@ -78,8 +84,8 @@ const retreatTypes = [
     features: ['Family service', 'Hands-on ministry', 'Mission experience', 'Lasting impact']
   },
   {
+    id: 'events-type-other-options',
     title: 'Other Options',
-    href: '/retreats/other-options',
     icon: SparklesIcon,
     color: 'text-indigo-600',
     bgColor: 'bg-indigo-50',
@@ -91,6 +97,40 @@ const retreatTypes = [
 ]
 
 export default function EventTypesPage() {
+  const [selectedRetreat, setSelectedRetreat] = useState<typeof retreatTypes[0] | null>(null)
+  
+  // Fetch all event type content
+  const { content: familyCampsContent } = useWebsiteContent('events', 'events-type-family-camps')
+  const { content: marriageRetreatsContent } = useWebsiteContent('events', 'events-type-marriage-retreats')
+  const { content: pastorsMissionariesContent } = useWebsiteContent('events', 'events-type-pastors-missionaries')
+  const { content: grievingFamiliesContent } = useWebsiteContent('events', 'events-type-grieving-families')
+  const { content: facilityRentalContent } = useWebsiteContent('events', 'events-type-facility-rental')
+  const { content: missionTripsContent } = useWebsiteContent('events', 'events-type-mission-trips')
+  const { content: otherOptionsContent } = useWebsiteContent('events', 'events-type-other-options')
+
+  // Map content to retreat types
+  const getModalContent = (retreatId: string): string => {
+    const contentMap: Record<string, any[]> = {
+      'events-type-family-camps': familyCampsContent,
+      'events-type-marriage-retreats': marriageRetreatsContent,
+      'events-type-pastors-missionaries': pastorsMissionariesContent,
+      'events-type-grieving-families': grievingFamiliesContent,
+      'events-type-facility-rental': facilityRentalContent,
+      'events-type-mission-trips': missionTripsContent,
+      'events-type-other-options': otherOptionsContent,
+    }
+    
+    const content = contentMap[retreatId]
+    if (content && content.length > 0) {
+      return content[0]?.content || ''
+    }
+    return ''
+  }
+
+  const handleRetreatClick = (retreat: typeof retreatTypes[0]) => {
+    setSelectedRetreat(retreat)
+  }
+
   return (
     <SubpageLayout
       title="Retreat Types"
@@ -115,10 +155,10 @@ export default function EventTypesPage() {
           {retreatTypes.map((retreat) => {
             const Icon = retreat.icon
             return (
-              <Link
-                key={retreat.href}
-                href={retreat.href}
-                className={`group relative bg-white rounded-xl border-2 ${retreat.borderColor} overflow-hidden transition-all duration-300 hover:shadow-lg hover:scale-[1.02]`}
+              <button
+                key={retreat.id}
+                onClick={() => handleRetreatClick(retreat)}
+                className={`group relative bg-white rounded-xl border-2 ${retreat.borderColor} overflow-hidden transition-all duration-300 hover:shadow-lg hover:scale-[1.02] text-left w-full`}
               >
                 {/* Card Content */}
                 <div className="p-6">
@@ -154,7 +194,7 @@ export default function EventTypesPage() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                   </svg>
                 </div>
-              </Link>
+              </button>
             )
           })}
         </div>
@@ -200,7 +240,19 @@ export default function EventTypesPage() {
           </div>
         </div>
       </div>
+
+      {/* Modal */}
+      {selectedRetreat && (
+        <EventTypeModal
+          isOpen={!!selectedRetreat}
+          onClose={() => setSelectedRetreat(null)}
+          title={selectedRetreat.title}
+          content={getModalContent(selectedRetreat.id)}
+          icon={selectedRetreat.icon}
+          color={selectedRetreat.color}
+          bgColor={selectedRetreat.bgColor}
+        />
+      )}
     </SubpageLayout>
   )
 }
-

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { generatePresignedUploadUrl, generateS3Key, S3_CONFIG } from '../lib/s3'
+import { generatePresignedUploadUrl, generateS3Key, generatePublicUrl, S3_CONFIG } from '../lib/s3'
 
 interface UploadState {
   uploading: boolean
@@ -48,8 +48,8 @@ export function useMediaUpload() {
         throw new Error(`Upload failed: ${response.statusText}`)
       }
 
-      // Generate public URL
-      const publicUrl = `https://${S3_CONFIG.BUCKET_NAME}.s3.${S3_CONFIG.REGION}.amazonaws.com/${s3Key}`
+      // Generate public URL using Railway bucket
+      const publicUrl = generatePublicUrl(s3Key)
 
       setUploadState({
         uploading: false,

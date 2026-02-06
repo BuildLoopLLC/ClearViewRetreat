@@ -23,8 +23,13 @@ export default function SecureImage({
   const [hasError, setHasError] = useState(false)
 
   useEffect(() => {
-    // If the image is already a presigned URL or external URL, use it directly
-    if (src.startsWith('http') && (src.includes('X-Amz-') || src.includes('amazonaws.com'))) {
+    // If the image is already a presigned URL, Railway bucket URL, or external URL, use it directly
+    if (src.startsWith('http') && (
+      src.includes('X-Amz-') || 
+      src.includes('amazonaws.com') || 
+      src.includes('railway.app') ||
+      src.includes('.r2.') // Cloudflare R2 (Railway may use this)
+    )) {
       setImageSrc(src)
       setIsLoading(false)
       return

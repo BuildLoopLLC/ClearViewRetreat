@@ -26,7 +26,9 @@
     "populate-registration-sections": "npx tsx scripts/populate-registration-sections.ts",
     "populate-single-registration": "npx tsx scripts/populate-single-registration.ts",
     "create-events-table": "npx tsx scripts/create-events-table.ts",
-    "create-blocked-dates-table": "npx tsx scripts/create-blocked-dates-table.ts"
+    "create-blocked-dates-table": "npx tsx scripts/create-blocked-dates-table.ts",
+    "migrate-s3-to-railway": "npx tsx scripts/migrate-s3-to-railway.ts",
+    "update-database-urls": "npx tsx scripts/update-database-urls.ts"
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.868.0",

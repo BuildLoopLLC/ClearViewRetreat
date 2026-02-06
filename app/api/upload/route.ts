@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import sharp from 'sharp'
 import { v4 as uuidv4 } from 'uuid'
-import { s3Client, S3_CONFIG, generateS3Key } from '@/lib/s3'
+import { s3Client, S3_CONFIG, generateS3Key, generatePublicUrl } from '@/lib/s3'
 import { PutObjectCommand } from '@aws-sdk/client-s3'
 
 export async function POST(request: NextRequest) {
@@ -106,9 +106,9 @@ export async function POST(request: NextRequest) {
       s3Client.send(thumbnailCommand)
     ])
 
-    // Generate permanent URLs using direct S3 URLs
-    const imageUrl = `https://${S3_CONFIG.BUCKET_NAME}.s3.${S3_CONFIG.REGION}.amazonaws.com/${mainImageKey}`
-    const thumbnailUrl = `https://${S3_CONFIG.BUCKET_NAME}.s3.${S3_CONFIG.REGION}.amazonaws.com/${thumbnailKey}`
+    // Generate permanent URLs using Railway bucket URLs
+    const imageUrl = generatePublicUrl(mainImageKey)
+    const thumbnailUrl = generatePublicUrl(thumbnailKey)
 
 
     return NextResponse.json({
@@ -152,10 +152,19 @@ export async function DELETE(request: NextRequest) {
       )
     }
 
-    // Extract S3 keys from URLs
+    // Extract S3 keys from URLs (handles both Railway and legacy AWS URLs)
     const extractS3Key = (url: string) => {
-      const urlParts = url.split('/')
-      return urlParts.slice(3).join('/') // Remove https://bucket.s3.region.amazonaws.com/
+      try {
+        const urlObj = new URL(url)
+        // Railway URL: https://bucket.endpoint/key or https://endpoint/bucket/key
+        // AWS URL: https://bucket.s3.region.amazonaws.com/key
+        const pathname = urlObj.pathname.startsWith('/') ? urlObj.pathname.slice(1) : urlObj.pathname
+        return pathname
+      } catch {
+        // Fallback for malformed URLs
+        const urlParts = url.split('/')
+        return urlParts.slice(3).join('/')
+      }
     }
 
     const mainImageKey = extractS3Key(imageUrl)

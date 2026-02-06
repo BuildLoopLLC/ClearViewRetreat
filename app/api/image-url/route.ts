@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { S3_CONFIG } from '@/lib/s3'
+import { generatePublicUrl } from '@/lib/s3'
 
 export async function GET(request: NextRequest) {
   try {
@@ -13,8 +13,8 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // Generate permanent URL using direct S3 URL
-    const imageUrl = `https://${S3_CONFIG.BUCKET_NAME}.s3.${S3_CONFIG.REGION}.amazonaws.com/${imageKey}`
+    // Generate permanent URL using Railway bucket
+    const imageUrl = generatePublicUrl(imageKey)
     
     return NextResponse.json({
       success: true,

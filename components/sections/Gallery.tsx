@@ -1,80 +1,152 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { XMarkIcon } from '@heroicons/react/24/outline'
-import { useWebsiteContent } from '@/hooks/useWebsiteContentSQLite'
 
-// Mock gallery data - in real app this would come from the database
-const galleryImages = [
+// Gallery types
+const GALLERY_TYPES = ['retreat-center', 'events', 'nature', 'community', 'cabins'] as const
+type GalleryType = typeof GALLERY_TYPES[number]
+
+interface GalleryImage {
+  id: string
+  galleryType: GalleryType
+  title: string
+  description: string | null
+  url: string
+  thumbnailUrl: string | null
+  category: string | null
+  order: number
+  isActive: boolean
+}
+
+// Gallery type display names and descriptions
+const GALLERY_INFO: Record<GalleryType, { name: string; description: string }> = {
+  'retreat-center': {
+    name: 'Retreat Center',
+    description: 'Explore our beautiful retreat center and facilities.'
+  },
+  'events': {
+    name: 'Event Photos',
+    description: 'Memories from our seminars, workshops, and retreats.'
+  },
+  'nature': {
+    name: 'Nature & Grounds',
+    description: 'Experience the natural beauty of our surroundings.'
+  },
+  'community': {
+    name: 'Community Life',
+    description: 'See the life and fellowship that happens here.'
+  },
+  'cabins': {
+    name: 'Cabins',
+    description: 'Our cozy cabin accommodations.'
+  }
+}
+
+// Fallback images for when database is empty
+const FALLBACK_IMAGES: GalleryImage[] = [
   {
-    id: 1,
+    id: 'fallback-1',
+    galleryType: 'retreat-center',
     title: 'Sunrise Over the Mountains',
     description: 'The breathtaking view from our main lodge at dawn.',
-    url: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80',
+    url: '/images/TNMountains2.jpg',
+    thumbnailUrl: null,
     category: 'Nature',
+    order: 0,
+    isActive: true
   },
   {
-    id: 2,
+    id: 'fallback-2',
+    galleryType: 'retreat-center',
     title: 'Prayer Garden',
     description: 'A peaceful space for reflection and meditation.',
-    url: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?ixlib=rb-4.0.3&auto=format&fit=crop&w=2071&q=80',
+    url: '/images/TNRoad.jpg',
+    thumbnailUrl: null,
     category: 'Facilities',
+    order: 1,
+    isActive: true
   },
   {
-    id: 3,
+    id: 'fallback-3',
+    galleryType: 'retreat-center',
     title: 'Community Worship',
     description: 'Gathering together in praise and worship.',
     url: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80',
+    thumbnailUrl: null,
     category: 'Community',
+    order: 2,
+    isActive: true
   },
   {
-    id: 4,
+    id: 'fallback-4',
+    galleryType: 'retreat-center',
     title: 'Hiking Trails',
-    description: 'Explore God\'s creation on our scenic trails.',
+    description: "Explore God's creation on our scenic trails.",
     url: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?ixlib=rb-4.0.3&auto=format&fit=crop&w=2071&q=80',
+    thumbnailUrl: null,
     category: 'Nature',
-  },
-  {
-    id: 5,
-    title: 'Dining Hall',
-    description: 'Sharing meals and building relationships.',
-    url: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80',
-    category: 'Facilities',
-  },
-  {
-    id: 6,
-    title: 'Sunset Reflections',
-    description: 'Evening peace and tranquility.',
-    url: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?ixlib=rb-4.0.3&auto=format&fit=crop&w=2071&q=80',
-    category: 'Nature',
-  },
-  {
-    id: 7,
-    title: 'Bible Study',
-    description: 'Deepening faith through study and discussion.',
-    url: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80',
-    category: 'Community',
-  },
-  {
-    id: 8,
-    title: 'Wildlife',
-    description: 'God\'s creatures in their natural habitat.',
-    url: 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?ixlib=rb-4.0.3&auto=format&fit=crop&w=2071&q=80',
-    category: 'Nature',
-  },
+    order: 3,
+    isActive: true
+  }
 ]
 
-const categories = ['All', 'Nature', 'Facilities', 'Community']
-
 interface GalleryProps {
+  galleryType?: GalleryType
+  title?: string
+  subtitle?: string
+  showCategoryFilter?: boolean
   showViewFullGallery?: boolean
+  maxImages?: number
+  columns?: 3 | 4
 }
 
-export default function Gallery({ showViewFullGallery = true }: GalleryProps) {
-  const { getContentValue, loading } = useWebsiteContent('gallery')
+export default function Gallery({ 
+  galleryType,
+  title,
+  subtitle,
+  showCategoryFilter = true,
+  showViewFullGallery = true,
+  maxImages,
+  columns = 4
+}: GalleryProps) {
+  const [images, setImages] = useState<GalleryImage[]>([])
+  const [loading, setLoading] = useState(true)
   const [selectedCategory, setSelectedCategory] = useState('All')
-  const [selectedImage, setSelectedImage] = useState<typeof galleryImages[0] | null>(null)
+  const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null)
+
+  // Fetch images from database
+  useEffect(() => {
+    const fetchImages = async () => {
+      try {
+        setLoading(true)
+        const url = galleryType 
+          ? `/api/gallery?type=${galleryType}`
+          : '/api/gallery'
+        const response = await fetch(url)
+        if (!response.ok) throw new Error('Failed to fetch images')
+        const data = await response.json()
+        
+        // Use fallback images if no images found
+        if (data.length === 0 && !galleryType) {
+          setImages(FALLBACK_IMAGES)
+        } else {
+          setImages(data)
+        }
+      } catch (error) {
+        console.error('Error fetching gallery images:', error)
+        // Use fallback on error
+        if (!galleryType) {
+          setImages(FALLBACK_IMAGES)
+        }
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchImages()
+  }, [galleryType])
 
   // Handle escape key to close modal and prevent body scroll
   useEffect(() => {
@@ -85,11 +157,9 @@ export default function Gallery({ showViewFullGallery = true }: GalleryProps) {
     }
 
     if (selectedImage) {
-      // Prevent body scroll when modal is open
       document.body.style.overflow = 'hidden'
       document.addEventListener('keydown', handleEscape)
     } else {
-      // Restore body scroll when modal is closed
       document.body.style.overflow = 'unset'
     }
 
@@ -99,11 +169,34 @@ export default function Gallery({ showViewFullGallery = true }: GalleryProps) {
     }
   }, [selectedImage])
 
-  const filteredImages = selectedCategory === 'All' 
-    ? galleryImages 
-    : galleryImages.filter(image => image.category === selectedCategory)
+  // Get unique categories from images
+  const categories = useMemo(() => {
+    const cats = new Set(images.map(img => img.category).filter(Boolean))
+    return ['All', ...Array.from(cats)] as string[]
+  }, [images])
 
+  // Filter images by category and apply max limit
+  const filteredImages = useMemo(() => {
+    let filtered = selectedCategory === 'All' 
+      ? images 
+      : images.filter(image => image.category === selectedCategory)
+    
+    if (maxImages) {
+      filtered = filtered.slice(0, maxImages)
+    }
+    
+    return filtered
+  }, [images, selectedCategory, maxImages])
 
+  // Get gallery info for display
+  const galleryInfo = galleryType ? GALLERY_INFO[galleryType] : null
+  const displayTitle = title || galleryInfo?.name || 'Photo Gallery'
+  const displaySubtitle = subtitle || galleryInfo?.description || 'Explore our beautiful spaces and community.'
+
+  // Grid column classes
+  const gridCols = columns === 3 
+    ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3' 
+    : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-4'
 
   if (loading) {
     return (
@@ -126,91 +219,112 @@ export default function Gallery({ showViewFullGallery = true }: GalleryProps) {
             transition={{ duration: 0.6 }}
           >
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-display font-bold text-secondary-900 mb-6">
-              {getContentValue('title')}
+              {displayTitle}
             </h2>
             <p className="text-xl text-secondary-600 max-w-3xl mx-auto leading-relaxed">
-              {getContentValue('subtitle')}
+              {displaySubtitle}
             </p>
           </motion.div>
         </div>
 
         {/* Category Filter */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-          className="flex flex-col items-center gap-4 mb-16 relative z-10"
-        >
-          <div className="flex flex-wrap justify-center gap-4">
-            {categories.map((category) => (
-              <button
-                key={category}
-                onClick={() => setSelectedCategory(category)}
-                className={`px-6 py-3 rounded-full font-medium transition-all duration-200 cursor-pointer select-none ${
-                  selectedCategory === category
-                    ? 'bg-primary-600 text-white shadow-lg'
-                    : 'bg-secondary-100 text-secondary-700 hover:bg-secondary-200'
-                }`}
-              >
-                {category}
-              </button>
-            ))}
-          </div>
-          
-          {/* Filter status indicator */}
-          {selectedCategory !== 'All' && (
+        {showCategoryFilter && categories.length > 1 && (
+          <>
             <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="text-sm text-secondary-600 bg-secondary-100 px-4 py-2 rounded-full"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="flex flex-col items-center gap-4 mb-16 relative z-10"
             >
-              Showing {filteredImages.length} {filteredImages.length === 1 ? 'image' : 'images'} in {selectedCategory}
+              <div className="flex flex-wrap justify-center gap-4">
+                {categories.map((category) => (
+                  <button
+                    key={category}
+                    onClick={() => setSelectedCategory(category)}
+                    className={`px-6 py-3 rounded-full font-medium transition-all duration-200 cursor-pointer select-none ${
+                      selectedCategory === category
+                        ? 'bg-primary-600 text-white shadow-lg'
+                        : 'bg-secondary-100 text-secondary-700 hover:bg-secondary-200'
+                    }`}
+                  >
+                    {category}
+                  </button>
+                ))}
+              </div>
+              
+              {/* Filter status indicator */}
+              {selectedCategory !== 'All' && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="text-sm text-secondary-600 bg-secondary-100 px-4 py-2 rounded-full"
+                >
+                  Showing {filteredImages.length} {filteredImages.length === 1 ? 'image' : 'images'} in {selectedCategory}
+                </motion.div>
+              )}
             </motion.div>
-          )}
-        </motion.div>
 
-        {/* Visual separator */}
-        <div className="w-full h-px bg-gradient-to-r from-transparent via-secondary-200 to-transparent mb-16"></div>
+            {/* Visual separator */}
+            <div className="w-full h-px bg-gradient-to-r from-transparent via-secondary-200 to-transparent mb-16"></div>
+          </>
+        )}
+
+        {/* Empty State */}
+        {filteredImages.length === 0 && (
+          <div className="text-center py-12">
+            <div className="text-gray-400 mb-4">
+              <svg className="h-16 w-16 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+            </div>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">No images available</h3>
+            <p className="text-gray-500">Check back soon for new photos!</p>
+          </div>
+        )}
 
         {/* Gallery Grid */}
-        <div className="relative">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {filteredImages.map((image, index) => (
-              <motion.div
-                key={image.id}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
-                className="group cursor-pointer focus-within:ring-4 focus-within:ring-primary-600 focus-within:ring-offset-4 focus-within:outline-none rounded-xl"
-                onClick={() => setSelectedImage(image)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault()
-                    setSelectedImage(image)
-                  }
-                }}
-                tabIndex={0}
-                role="button"
-                aria-label={`View ${image.title} in full size`}
-              >
-                <div className="relative aspect-square rounded-xl overflow-hidden shadow-lg group-hover:shadow-2xl transition-all duration-300 group-hover:-translate-y-2">
-                  <div 
-                    className="w-full h-full bg-cover bg-center bg-no-repeat group-hover:scale-110 transition-transform duration-500"
-                    style={{ backgroundImage: `url('${image.url}')` }}
-                  />
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all duration-300 flex items-end pointer-events-none">
-                    <div className="p-4 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                      <h3 className="font-semibold text-sm mb-1 text-white/80">{image.title}</h3>
-                      <p className="text-xs text-white/80">{image.description}</p>
+        {filteredImages.length > 0 && (
+          <div className="relative">
+            <div className={`grid ${gridCols} gap-6`}>
+              {filteredImages.map((image, index) => (
+                <motion.div
+                  key={image.id}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.6, delay: index * 0.1 }}
+                  className="group cursor-pointer focus-within:ring-4 focus-within:ring-primary-600 focus-within:ring-offset-4 focus-within:outline-none rounded-xl"
+                  onClick={() => setSelectedImage(image)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault()
+                      setSelectedImage(image)
+                    }
+                  }}
+                  tabIndex={0}
+                  role="button"
+                  aria-label={`View ${image.title} in full size`}
+                >
+                  <div className="relative aspect-square rounded-xl overflow-hidden shadow-lg group-hover:shadow-2xl transition-all duration-300 group-hover:-translate-y-2">
+                    <div 
+                      className="w-full h-full bg-cover bg-center bg-no-repeat group-hover:scale-110 transition-transform duration-500"
+                      style={{ backgroundImage: `url('${image.thumbnailUrl || image.url}')` }}
+                    />
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all duration-300 flex items-end pointer-events-none">
+                      <div className="p-4 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <h3 className="font-semibold text-sm mb-1 text-white/80">{image.title}</h3>
+                        {image.description && (
+                          <p className="text-xs text-white/80">{image.description}</p>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
-              </motion.div>
-            ))}
+                </motion.div>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* CTA */}
         <motion.div
@@ -290,10 +404,14 @@ export default function Gallery({ showViewFullGallery = true }: GalleryProps) {
               {/* Image info overlay */}
               <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent p-6">
                 <h3 className="text-2xl font-bold text-white mb-2">{selectedImage.title}</h3>
-                <p className="text-white/90 mb-3">{selectedImage.description}</p>
-                <span className="inline-block px-3 py-1 bg-primary-600 text-white text-sm rounded-full font-medium">
-                  {selectedImage.category}
-                </span>
+                {selectedImage.description && (
+                  <p className="text-white/90 mb-3">{selectedImage.description}</p>
+                )}
+                {selectedImage.category && (
+                  <span className="inline-block px-3 py-1 bg-primary-600 text-white text-sm rounded-full font-medium">
+                    {selectedImage.category}
+                  </span>
+                )}
               </div>
             </div>
           </div>

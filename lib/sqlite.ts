@@ -139,6 +139,23 @@ function initializeDatabase() {
     )
   `)
 
+  // Create gallery_images table
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS gallery_images (
+      id TEXT PRIMARY KEY,
+      gallery_type TEXT NOT NULL CHECK (gallery_type IN ('retreat-center', 'events', 'nature', 'community', 'cabins')),
+      title TEXT NOT NULL,
+      description TEXT,
+      url TEXT NOT NULL,
+      thumbnail_url TEXT,
+      category TEXT,
+      order_index INTEGER DEFAULT 0,
+      is_active INTEGER DEFAULT 1,
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+      updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+    )
+  `)
+
   // Create indexes for better performance
   db.exec(`
     CREATE INDEX IF NOT EXISTS idx_section ON website_content(section);
@@ -159,6 +176,10 @@ function initializeDatabase() {
     CREATE INDEX IF NOT EXISTS idx_blocked_dates_start ON blocked_dates(start_date);
     CREATE INDEX IF NOT EXISTS idx_registrations_event ON registrations(event_id);
     CREATE INDEX IF NOT EXISTS idx_registrations_email ON registrations(user_email);
+    CREATE INDEX IF NOT EXISTS idx_gallery_type ON gallery_images(gallery_type);
+    CREATE INDEX IF NOT EXISTS idx_gallery_category ON gallery_images(category);
+    CREATE INDEX IF NOT EXISTS idx_gallery_order ON gallery_images(order_index);
+    CREATE INDEX IF NOT EXISTS idx_gallery_active ON gallery_images(is_active);
   `)
 
   console.log('✅ SQLite database initialized')

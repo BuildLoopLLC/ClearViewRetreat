@@ -11,7 +11,11 @@ import {
   ChartBarIcon,
   CogIcon,
   EnvelopeIcon,
-  UserGroupIcon
+  UserGroupIcon,
+  XMarkIcon,
+  CodeBracketIcon,
+  ServerIcon,
+  BookOpenIcon
 } from '@heroicons/react/24/outline'
 import Link from 'next/link'
 
@@ -50,6 +54,9 @@ export default function AdminDashboard() {
   const [currentPage, setCurrentPage] = useState(1)
   const [totalActivities, setTotalActivities] = useState(0)
   const hasFetchedData = useRef(false)
+  const [readmeModalOpen, setReadmeModalOpen] = useState(false)
+  const [readmeContent, setReadmeContent] = useState('')
+  const [readmeLoading, setReadmeLoading] = useState(false)
   
   const ITEMS_PER_PAGE = 5
   const totalPages = Math.ceil(totalActivities / ITEMS_PER_PAGE)
@@ -174,6 +181,32 @@ export default function AdminDashboard() {
   const handleLogout = async () => {
     await logout()
     router.push('/admin/login')
+  }
+
+  // Fetch README from local project
+  const fetchReadme = async () => {
+    setReadmeLoading(true)
+    try {
+      const response = await fetch('/api/readme')
+      if (response.ok) {
+        const data = await response.json()
+        setReadmeContent(data.content)
+      } else {
+        setReadmeContent('# Unable to load README\n\nCould not read the README file.')
+      }
+    } catch (error) {
+      console.error('Error fetching README:', error)
+      setReadmeContent('# Unable to load README\n\nCould not read the README file.')
+    } finally {
+      setReadmeLoading(false)
+    }
+  }
+
+  const handleOpenReadme = () => {
+    setReadmeModalOpen(true)
+    if (!readmeContent) {
+      fetchReadme()
+    }
   }
 
   // Show loading while checking authentication
@@ -421,7 +454,99 @@ export default function AdminDashboard() {
           )}
         </div> 
         */}
+
+        {/* Developer Resources */}
+        <div className="mt-8 pt-8 border-t border-gray-200">
+          <h3 className="text-sm font-medium text-secondary-500 mb-4 text-center">Developer Resources</h3>
+          <div className="flex flex-wrap gap-4 justify-center">
+            <a
+              href="https://github.com/BuildLoopLLC/ClearViewRetreat"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center space-x-2 px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors text-sm"
+            >
+              <CodeBracketIcon className="h-4 w-4" />
+              <span>GitHub Repository</span>
+            </a>
+            <a
+              href="https://railway.app/dashboard"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center space-x-2 px-4 py-2 bg-violet-600 text-white rounded-lg hover:bg-violet-700 transition-colors text-sm"
+            >
+              <ServerIcon className="h-4 w-4" />
+              <span>Railway Dashboard</span>
+            </a>
+            <button
+              onClick={handleOpenReadme}
+              className="inline-flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
+            >
+              <BookOpenIcon className="h-4 w-4" />
+              <span>View README</span>
+            </button>
+          </div>
+        </div>
       </div>
+
+      {/* README Modal */}
+      {readmeModalOpen && (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+          onClick={() => setReadmeModalOpen(false)}
+        >
+          <div 
+            className="relative w-full max-w-4xl max-h-[85vh] bg-white rounded-2xl shadow-2xl overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between bg-gray-50">
+              <div className="flex items-center space-x-3">
+                <BookOpenIcon className="h-6 w-6 text-blue-600" />
+                <h2 className="text-xl font-bold text-gray-900">README.md</h2>
+              </div>
+              <button
+                onClick={() => setReadmeModalOpen(false)}
+                className="p-2 rounded-full hover:bg-gray-200 text-gray-500 hover:text-gray-700 transition-colors"
+              >
+                <XMarkIcon className="h-5 w-5" />
+              </button>
+            </div>
+
+            {/* Content */}
+            <div className="px-6 py-6 overflow-y-auto max-h-[calc(85vh-120px)]">
+              {readmeLoading ? (
+                <div className="flex items-center justify-center py-12">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                </div>
+              ) : (
+                <div className="prose prose-sm max-w-none prose-headings:text-gray-900 prose-p:text-gray-600 prose-a:text-blue-600 prose-code:bg-gray-100 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-pre:bg-gray-900 prose-pre:text-gray-100">
+                  <pre className="whitespace-pre-wrap font-mono text-sm leading-relaxed text-gray-800 bg-gray-50 p-4 rounded-lg overflow-x-auto">
+                    {readmeContent}
+                  </pre>
+                </div>
+              )}
+            </div>
+
+            {/* Footer */}
+            <div className="px-6 py-4 border-t border-gray-200 bg-gray-50 flex justify-between items-center">
+              <a
+                href="https://github.com/BuildLoopLLC/ClearViewRetreat/blob/main/README.md"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm text-blue-600 hover:text-blue-700 hover:underline"
+              >
+                View on GitHub →
+              </a>
+              <button
+                onClick={() => setReadmeModalOpen(false)}
+                className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors text-sm"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

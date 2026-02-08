@@ -52,7 +52,6 @@
     @apply transition-colors duration-200;
     text-decoration-thickness: 2px;
     text-underline-offset: 4px;
-    text-decoration: underline;
     color: #0284c7;
   }
   

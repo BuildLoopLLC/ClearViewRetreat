@@ -18,6 +18,7 @@ import {
   HeartIcon
 } from '@heroicons/react/24/outline'
 import ContentManager from '@/components/admin/ContentManager'
+import StaffManager from '@/components/admin/StaffManager'
 
 interface PageSection {
   id: string
@@ -324,10 +325,14 @@ export default function SiteSettingsPage() {
           {/* Content Editor */}
           <div className="lg:col-span-2">
             {activeSection ? (
-              <ContentManager 
-                section={activeSection.section} 
-                title={`${pageSections.find(p => p.id === activeSection.page)?.title} - ${pageSections.find(p => p.id === activeSection.page)?.sections.find(s => s.id === activeSection.section)?.title}`}
-              />
+              activeSection.section === 'contact-staff' ? (
+                <StaffManager />
+              ) : (
+                <ContentManager 
+                  section={activeSection.section} 
+                  title={`${pageSections.find(p => p.id === activeSection.page)?.title} - ${pageSections.find(p => p.id === activeSection.page)?.sections.find(s => s.id === activeSection.section)?.title}`}
+                />
+              )
             ) : (
               <div className="bg-white rounded-xl shadow-sm p-12 text-center">
                 <CogIcon className="h-16 w-16 text-gray-400 mx-auto mb-4" />

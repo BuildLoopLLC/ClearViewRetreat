@@ -1,58 +1,75 @@
+'use client'
+
+import { useState, useEffect } from 'react'
 import SubpageLayout from '@/components/ui/SubpageLayout'
 import SubpageContent from '@/components/ui/SubpageContent'
 
-const staffMembers = [
+interface StaffMember {
+  id: string
+  name: string
+  title: string
+  email: string | null
+  phone: string | null
+  bio: string | null
+  imageUrl: string | null
+  order: number
+  isActive: boolean
+}
+
+// Fallback data in case database is empty
+const fallbackStaff: StaffMember[] = [
   {
+    id: 'fallback-1',
     name: 'Jim Nestle',
     title: 'Executive Director',
     email: 'jim@clearviewretreat.com',
     phone: '(555) 123-4567',
     bio: 'Jim leads our ministry with over 20 years of experience in family ministry and pastoral care.',
-    image: '/images/staff/jim-nestle.jpg'
+    imageUrl: null,
+    order: 0,
+    isActive: true
   },
   {
+    id: 'fallback-2',
     name: 'Kim Nestle',
     title: 'Program Director',
     email: 'kim@clearviewretreat.com',
     phone: '(555) 123-4568',
     bio: 'Kim oversees our retreat programs and brings extensive experience in family counseling.',
-    image: '/images/staff/kim-nestle.jpg'
-  },
-  {
-    name: 'Sarah Johnson',
-    title: 'Retreat Coordinator',
-    email: 'sarah@clearviewretreat.com',
-    phone: '(555) 123-4569',
-    bio: 'Sarah ensures every retreat runs smoothly and that our guests have an exceptional experience.',
-    image: '/images/staff/sarah-johnson.jpg'
-  },
-  {
-    name: 'Michael Chen',
-    title: 'Facilities Manager',
-    email: 'michael@clearviewretreat.com',
-    phone: '(555) 123-4570',
-    bio: 'Michael keeps our facilities in perfect condition and manages our beautiful natural setting.',
-    image: '/images/staff/michael-chen.jpg'
-  },
-  {
-    name: 'Lisa Rodriguez',
-    title: 'Hospitality Coordinator',
-    email: 'lisa@clearviewretreat.com',
-    phone: '(555) 123-4571',
-    bio: 'Lisa ensures our guests feel welcome and comfortable throughout their stay.',
-    image: '/images/staff/lisa-rodriguez.jpg'
-  },
-  {
-    name: 'Tom Anderson',
-    title: 'Worship Leader',
-    email: 'tom@clearviewretreat.com',
-    phone: '(555) 123-4572',
-    bio: 'Tom leads our worship times and helps create meaningful spiritual experiences.',
-    image: '/images/staff/tom-anderson.jpg'
+    imageUrl: null,
+    order: 1,
+    isActive: true
   }
 ]
 
 export default function StaffPage() {
+  const [staffMembers, setStaffMembers] = useState<StaffMember[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchStaff = async () => {
+      try {
+        const response = await fetch('/api/staff')
+        if (!response.ok) throw new Error('Failed to fetch staff')
+        const data = await response.json()
+        
+        // Use fallback if no staff members in database
+        if (data.length === 0) {
+          setStaffMembers(fallbackStaff)
+        } else {
+          setStaffMembers(data)
+        }
+      } catch (error) {
+        console.error('Error fetching staff:', error)
+        setStaffMembers(fallbackStaff)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchStaff()
+  }, [])
+
   return (
     <SubpageLayout
       title="Staff Directory"
@@ -77,42 +94,63 @@ export default function StaffPage() {
           <h3 className="text-3xl font-display font-semibold text-secondary-900 mb-12 text-center">
             Our Team
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {staffMembers.map((member, index) => (
-              <div key={index} className="bg-white rounded-2xl p-6 shadow-lg border border-secondary-200 hover:shadow-xl transition-shadow duration-300">
-                <div className="text-center mb-6">
-                  <div className="w-24 h-24 bg-gradient-to-br from-primary-100 to-accent-100 rounded-full mx-auto mb-4 flex items-center justify-center">
-                    <span className="text-2xl font-semibold text-primary-600">
-                      {member.name.split(' ').map(n => n[0]).join('')}
-                    </span>
+          
+          {loading ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {staffMembers.map((member) => (
+                <div key={member.id} className="bg-white rounded-2xl p-6 shadow-lg border border-secondary-200 hover:shadow-xl transition-shadow duration-300">
+                  <div className="text-center mb-6">
+                    <div className="w-24 h-24 bg-gradient-to-br from-primary-100 to-accent-100 rounded-full mx-auto mb-4 flex items-center justify-center overflow-hidden">
+                      {member.imageUrl ? (
+                        <img 
+                          src={member.imageUrl} 
+                          alt={member.name}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <span className="text-2xl font-semibold text-primary-600">
+                          {member.name.split(' ').map(n => n[0]).join('')}
+                        </span>
+                      )}
+                    </div>
+                    <h4 className="text-xl font-semibold text-secondary-900 mb-2">{member.name}</h4>
+                    <p className="text-primary-600 font-medium mb-4">{member.title}</p>
+                    {member.bio && (
+                      <p className="text-secondary-600 leading-relaxed text-sm mb-4">
+                        {member.bio}
+                      </p>
+                    )}
                   </div>
-                  <h4 className="text-xl font-semibold text-secondary-900 mb-2">{member.name}</h4>
-                  <p className="text-primary-600 font-medium mb-4">{member.title}</p>
-                  <p className="text-secondary-600 leading-relaxed text-sm mb-4">
-                    {member.bio}
-                  </p>
+                  <div className="space-y-2">
+                    {member.email && (
+                      <div className="flex items-center space-x-2">
+                        <svg className="w-4 h-4 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                        </svg>
+                        <a href={`mailto:${member.email}`} className="text-primary-600 hover:text-primary-700 text-sm">
+                          {member.email}
+                        </a>
+                      </div>
+                    )}
+                    {member.phone && (
+                      <div className="flex items-center space-x-2">
+                        <svg className="w-4 h-4 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                        </svg>
+                        <a href={`tel:${member.phone}`} className="text-primary-600 hover:text-primary-700 text-sm">
+                          {member.phone}
+                        </a>
+                      </div>
+                    )}
+                  </div>
                 </div>
-                <div className="space-y-2">
-                  <div className="flex items-center space-x-2">
-                    <svg className="w-4 h-4 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                    </svg>
-                    <a href={`mailto:${member.email}`} className="text-primary-600 hover:text-primary-700 text-sm">
-                      {member.email}
-                    </a>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <svg className="w-4 h-4 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                    </svg>
-                    <a href={`tel:${member.phone}`} className="text-primary-600 hover:text-primary-700 text-sm">
-                      {member.phone}
-                    </a>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Contact Information */}

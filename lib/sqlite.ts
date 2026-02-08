@@ -156,6 +156,23 @@ function initializeDatabase() {
     )
   `)
 
+  // Create staff_members table
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS staff_members (
+      id TEXT PRIMARY KEY,
+      name TEXT NOT NULL,
+      title TEXT NOT NULL,
+      email TEXT,
+      phone TEXT,
+      bio TEXT,
+      image_url TEXT,
+      order_index INTEGER DEFAULT 0,
+      is_active INTEGER DEFAULT 1,
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+      updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+    )
+  `)
+
   // Create indexes for better performance
   db.exec(`
     CREATE INDEX IF NOT EXISTS idx_section ON website_content(section);
@@ -180,6 +197,8 @@ function initializeDatabase() {
     CREATE INDEX IF NOT EXISTS idx_gallery_category ON gallery_images(category);
     CREATE INDEX IF NOT EXISTS idx_gallery_order ON gallery_images(order_index);
     CREATE INDEX IF NOT EXISTS idx_gallery_active ON gallery_images(is_active);
+    CREATE INDEX IF NOT EXISTS idx_staff_order ON staff_members(order_index);
+    CREATE INDEX IF NOT EXISTS idx_staff_active ON staff_members(is_active);
   `)
 
   console.log('✅ SQLite database initialized')

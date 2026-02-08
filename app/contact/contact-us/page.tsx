@@ -1,7 +1,75 @@
+'use client'
+
+import { useState } from 'react'
 import SubpageLayout from '@/components/ui/SubpageLayout'
 import SubpageContent from '@/components/ui/SubpageContent'
+import { CheckCircleIcon } from '@heroicons/react/24/outline'
 
 export default function ContactUsPage() {
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    subject: '',
+    message: '',
+    newsletter: false
+  })
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isSubmitted, setIsSubmitted] = useState(false)
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value, type } = e.target
+    setFormData(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value
+    }))
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsSubmitting(true)
+
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          phone: formData.phone,
+          subject: formData.subject,
+          message: formData.message,
+          newsletterOptIn: formData.newsletter
+        })
+      })
+
+      if (response.ok) {
+        setIsSubmitted(true)
+        setTimeout(() => {
+          setIsSubmitted(false)
+          setFormData({
+            firstName: '',
+            lastName: '',
+            email: '',
+            phone: '',
+            subject: '',
+            message: '',
+            newsletter: false
+          })
+        }, 5000)
+      } else {
+        throw new Error('Failed to submit')
+      }
+    } catch (error) {
+      console.error('Contact form error:', error)
+      alert('There was an error submitting your message. Please try again.')
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
   return (
     <SubpageLayout
       title="Get in Touch"
@@ -17,106 +85,136 @@ export default function ContactUsPage() {
           <h3 className="text-2xl font-display font-semibold text-secondary-900 mb-6">
             Send Us a Message
           </h3>
-          <form className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+          {isSubmitted ? (
+            <div className="bg-green-50 border border-green-200 rounded-xl p-8 text-center">
+              <CheckCircleIcon className="h-16 w-16 text-green-500 mx-auto mb-4" />
+              <h4 className="text-xl font-semibold text-green-800 mb-2">Message Sent!</h4>
+              <p className="text-green-700">
+                Thank you for reaching out. We'll get back to you within 24 hours.
+              </p>
+            </div>
+          ) : (
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label htmlFor="firstName" className="block text-sm font-medium text-secondary-700 mb-2">
+                    First Name *
+                  </label>
+                  <input
+                    type="text"
+                    id="firstName"
+                    name="firstName"
+                    required
+                    value={formData.firstName}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                    placeholder="Your first name"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="lastName" className="block text-sm font-medium text-secondary-700 mb-2">
+                    Last Name *
+                  </label>
+                  <input
+                    type="text"
+                    id="lastName"
+                    name="lastName"
+                    required
+                    value={formData.lastName}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                    placeholder="Your last name"
+                  />
+                </div>
+              </div>
               <div>
-                <label htmlFor="firstName" className="block text-sm font-medium text-secondary-700 mb-2">
-                  First Name
+                <label htmlFor="email" className="block text-sm font-medium text-secondary-700 mb-2">
+                  Email Address *
                 </label>
                 <input
-                  type="text"
-                  id="firstName"
-                  name="firstName"
+                  type="email"
+                  id="email"
+                  name="email"
+                  required
+                  value={formData.email}
+                  onChange={handleChange}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                  placeholder="Your first name"
+                  placeholder="your.email@example.com"
                 />
               </div>
               <div>
-                <label htmlFor="lastName" className="block text-sm font-medium text-secondary-700 mb-2">
-                  Last Name
+                <label htmlFor="phone" className="block text-sm font-medium text-secondary-700 mb-2">
+                  Phone Number (Optional)
                 </label>
                 <input
-                  type="text"
-                  id="lastName"
-                  name="lastName"
+                  type="tel"
+                  id="phone"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleChange}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                  placeholder="Your last name"
+                  placeholder="(555) 123-4567"
                 />
               </div>
-            </div>
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-secondary-700 mb-2">
-                Email Address
-              </label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                placeholder="your.email@example.com"
-              />
-            </div>
-            <div>
-              <label htmlFor="phone" className="block text-sm font-medium text-secondary-700 mb-2">
-                Phone Number (Optional)
-              </label>
-              <input
-                type="tel"
-                id="phone"
-                name="phone"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                placeholder="(555) 123-4567"
-              />
-            </div>
-            <div>
-              <label htmlFor="subject" className="block text-sm font-medium text-secondary-700 mb-2">
-                Subject
-              </label>
-              <select
-                id="subject"
-                name="subject"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-              >
-                <option value="">Select a topic</option>
-                <option value="retreat-booking">Retreat Booking</option>
-                <option value="general-inquiry">General Inquiry</option>
-                <option value="volunteer">Volunteer Opportunities</option>
-                <option value="prayer">Prayer Request</option>
-                <option value="other">Other</option>
-              </select>
-            </div>
-            <div>
-              <label htmlFor="message" className="block text-sm font-medium text-secondary-700 mb-2">
-                Message
-              </label>
-              <textarea
-                id="message"
-                name="message"
-                rows={6}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                placeholder="Tell us how we can help you..."
-              ></textarea>
-            </div>
-            <div className="flex items-center">
-              <input
-                id="newsletter"
-                name="newsletter"
-                type="checkbox"
-                className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
-              />
-              <label htmlFor="newsletter" className="ml-2 block text-sm text-secondary-700">
-                I would like to receive updates about retreats and ministry news
-              </label>
-            </div>
-            <div className="text-center">
-              <button
-                type="submit"
-                className="btn-primary text-lg px-8 py-4 inline-flex items-center justify-center"
-              >
-                Send Message
-              </button>
-            </div>
-          </form>
+              <div>
+                <label htmlFor="subject" className="block text-sm font-medium text-secondary-700 mb-2">
+                  Subject
+                </label>
+                <select
+                  id="subject"
+                  name="subject"
+                  value={formData.subject}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                >
+                  <option value="">Select a topic</option>
+                  <option value="retreat-booking">Retreat Booking</option>
+                  <option value="general-inquiry">General Inquiry</option>
+                  <option value="volunteer">Volunteer Opportunities</option>
+                  <option value="prayer">Prayer Request</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+              <div>
+                <label htmlFor="message" className="block text-sm font-medium text-secondary-700 mb-2">
+                  Message *
+                </label>
+                <textarea
+                  id="message"
+                  name="message"
+                  rows={6}
+                  required
+                  value={formData.message}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                  placeholder="Tell us how we can help you..."
+                ></textarea>
+              </div>
+              <div className="flex items-center">
+                <input
+                  id="newsletter"
+                  name="newsletter"
+                  type="checkbox"
+                  checked={formData.newsletter}
+                  onChange={handleChange}
+                  className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                />
+                <label htmlFor="newsletter" className="ml-2 block text-sm text-secondary-700">
+                  I would like to receive updates about retreats and ministry news
+                </label>
+              </div>
+              <div className="text-center">
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="btn-primary text-lg px-8 py-4 inline-flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isSubmitting ? 'Sending...' : 'Send Message'}
+                </button>
+              </div>
+            </form>
+          )}
         </div>
 
         {/* Contact Information */}

@@ -329,10 +329,10 @@ export default function SiteSettingsPage() {
               activeSection.section === 'contact-staff' ? (
                 <StaffManager />
               ) : (
-                <ContentManager 
-                  section={activeSection.section} 
-                  title={`${pageSections.find(p => p.id === activeSection.page)?.title} - ${pageSections.find(p => p.id === activeSection.page)?.sections.find(s => s.id === activeSection.section)?.title}`}
-                />
+              <ContentManager 
+                section={activeSection.section} 
+                title={`${pageSections.find(p => p.id === activeSection.page)?.title} - ${pageSections.find(p => p.id === activeSection.page)?.sections.find(s => s.id === activeSection.section)?.title}`}
+              />
               )
             ) : (
               <div className="bg-white rounded-xl shadow-sm p-12 text-center">

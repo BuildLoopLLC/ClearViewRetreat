@@ -173,6 +173,87 @@ function initializeDatabase() {
     )
   `)
 
+  // Create email_settings table (SMTP configuration)
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS email_settings (
+      id TEXT PRIMARY KEY DEFAULT 'main',
+      smtp_host TEXT,
+      smtp_port INTEGER DEFAULT 587,
+      smtp_secure INTEGER DEFAULT 0,
+      smtp_user TEXT,
+      smtp_password TEXT,
+      from_email TEXT,
+      from_name TEXT DEFAULT 'Clear View Retreat',
+      reply_to TEXT,
+      is_configured INTEGER DEFAULT 0,
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+      updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+    )
+  `)
+
+  // Create email_notification_settings table (what triggers notifications)
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS email_notification_settings (
+      id TEXT PRIMARY KEY,
+      notification_type TEXT NOT NULL CHECK (notification_type IN ('event_registration', 'contact_form', 'newsletter_signup', 'volunteer_form')),
+      is_enabled INTEGER DEFAULT 1,
+      send_to_admin INTEGER DEFAULT 1,
+      send_to_user INTEGER DEFAULT 0,
+      admin_subject_template TEXT,
+      user_subject_template TEXT,
+      admin_body_template TEXT,
+      user_body_template TEXT,
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+      updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+    )
+  `)
+
+  // Create email_recipients table (which admins get notifications)
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS email_recipients (
+      id TEXT PRIMARY KEY,
+      email TEXT NOT NULL,
+      name TEXT,
+      notification_types TEXT NOT NULL DEFAULT '["event_registration","contact_form","newsletter_signup","volunteer_form"]',
+      is_active INTEGER DEFAULT 1,
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+      updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+    )
+  `)
+
+  // Create contact_submissions table (store form submissions)
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS contact_submissions (
+      id TEXT PRIMARY KEY,
+      first_name TEXT NOT NULL,
+      last_name TEXT NOT NULL,
+      email TEXT NOT NULL,
+      phone TEXT,
+      subject TEXT,
+      message TEXT NOT NULL,
+      newsletter_opt_in INTEGER DEFAULT 0,
+      status TEXT DEFAULT 'new' CHECK (status IN ('new', 'read', 'responded', 'archived')),
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+      updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+    )
+  `)
+
+  // Create newsletter_subscribers table
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS newsletter_subscribers (
+      id TEXT PRIMARY KEY,
+      email TEXT UNIQUE NOT NULL,
+      first_name TEXT,
+      last_name TEXT,
+      source TEXT DEFAULT 'website',
+      is_active INTEGER DEFAULT 1,
+      subscribed_at TEXT DEFAULT CURRENT_TIMESTAMP,
+      unsubscribed_at TEXT,
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+      updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+    )
+  `)
+
   // Create indexes for better performance
   db.exec(`
     CREATE INDEX IF NOT EXISTS idx_section ON website_content(section);
@@ -199,6 +280,12 @@ function initializeDatabase() {
     CREATE INDEX IF NOT EXISTS idx_gallery_active ON gallery_images(is_active);
     CREATE INDEX IF NOT EXISTS idx_staff_order ON staff_members(order_index);
     CREATE INDEX IF NOT EXISTS idx_staff_active ON staff_members(is_active);
+    CREATE INDEX IF NOT EXISTS idx_email_notification_type ON email_notification_settings(notification_type);
+    CREATE INDEX IF NOT EXISTS idx_email_recipients_active ON email_recipients(is_active);
+    CREATE INDEX IF NOT EXISTS idx_contact_status ON contact_submissions(status);
+    CREATE INDEX IF NOT EXISTS idx_contact_email ON contact_submissions(email);
+    CREATE INDEX IF NOT EXISTS idx_newsletter_email ON newsletter_subscribers(email);
+    CREATE INDEX IF NOT EXISTS idx_newsletter_active ON newsletter_subscribers(is_active);
   `)
 
   console.log('✅ SQLite database initialized')

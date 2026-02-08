@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getDatabase } from '@/lib/sqlite'
+import { sendNotification } from '@/lib/email'
 
 // Registration API endpoint for events
 export async function POST(request: NextRequest) {
@@ -43,6 +44,44 @@ export async function POST(request: NextRequest) {
       WHERE id = ? AND json_extract(metadata, '$.name') LIKE 'Event%'
     `)
     updateStmt.run(registrationData.eventId)
+
+    // Get event details for email
+    let eventTitle = 'Event'
+    let eventDate = ''
+    try {
+      const event = db.prepare('SELECT * FROM events WHERE id = ?').get(registrationData.eventId) as any
+      if (event) {
+        eventTitle = event.title || 'Event'
+        eventDate = event.start_date || ''
+      }
+    } catch (e) {
+      // Event might be in website_content instead
+      try {
+        const eventContent = db.prepare(
+          "SELECT content, metadata FROM website_content WHERE id = ?"
+        ).get(registrationData.eventId) as any
+        if (eventContent?.metadata) {
+          const metadata = JSON.parse(eventContent.metadata)
+          eventTitle = metadata.name || 'Event'
+          eventDate = metadata.startDate || ''
+        }
+      } catch (e2) {
+        console.error('Could not get event details:', e2)
+      }
+    }
+
+    // Send email notification
+    sendNotification('event_registration', {
+      eventTitle,
+      eventDate,
+      userName: fullName,
+      userEmail: registrationData.email,
+      userPhone: registrationData.phone || 'Not provided',
+      specialRequests: registrationData.specialRequests || 'None',
+      adminUrl: `${process.env.NEXT_PUBLIC_SITE_URL || ''}/admin/registrations`
+    }, registrationData.email).catch(err => {
+      console.error('Failed to send registration notification:', err)
+    })
 
     return NextResponse.json({ 
       success: true, 

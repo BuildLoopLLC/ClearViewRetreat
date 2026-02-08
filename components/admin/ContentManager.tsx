@@ -1756,12 +1756,12 @@ export default function ContentManager({ section, title }: ContentManagerProps) 
                           placeholder="Enter your content here..."
                         />
                       ) : (
-                        <textarea
-                          value={editForms[item.id]?.content || ''}
-                          onChange={(e) => handleFieldChange(item.id, 'content', e.target.value)}
-                          rows={6}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                        />
+                      <textarea
+                        value={editForms[item.id]?.content || ''}
+                        onChange={(e) => handleFieldChange(item.id, 'content', e.target.value)}
+                        rows={6}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                      />
                       )
                     ) : (
                       <div className="prose prose-sm max-w-none">

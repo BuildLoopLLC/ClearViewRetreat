@@ -2143,6 +2143,105 @@ export default function ContentManager({ section, title }: ContentManagerProps) 
                 </div>
               )
             }
+
+            // Special layout for about-attractions - simple rich text editor
+            if (section === 'about-attractions') {
+              const attractionsContent = content.find(item => item.metadata?.name === 'Area Attractions Content')
+              
+              return (
+                <div className="space-y-6">
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+                    <h4 className="text-lg font-semibold text-green-900 mb-2">Area Attractions Content</h4>
+                    <p className="text-green-700 text-sm">
+                      Use the rich text editor below to add information about local attractions, things to do, 
+                      restaurants, hiking trails, and other activities near the retreat center.
+                    </p>
+                  </div>
+
+                  {attractionsContent ? (
+                    <div className="border border-gray-200 rounded-lg p-6 bg-white">
+                      <div className="flex items-center justify-between mb-4">
+                        <h4 className="text-lg font-semibold text-secondary-900">Page Content</h4>
+                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                          Rich Text
+                        </span>
+                      </div>
+                      
+                      {editingItems.has(attractionsContent.id) ? (
+                        <div className="space-y-4">
+                          <RichTextEditor
+                            value={editForms[attractionsContent.id]?.content || ''}
+                            onChange={(value) => handleFieldChange(attractionsContent.id, 'content', value)}
+                            placeholder="Enter information about local attractions, activities, restaurants, hiking trails, and things to do near the retreat..."
+                          />
+                          <div className="flex space-x-2">
+                            <button
+                              onClick={() => handleSave(attractionsContent.id)}
+                              className="btn-primary text-sm px-4 py-2"
+                            >
+                              Save Content
+                            </button>
+                            <button
+                              onClick={() => handleCancel(attractionsContent.id)}
+                              className="btn-outline text-sm px-4 py-2"
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div>
+                          <div 
+                            className="prose prose-sm max-w-none mb-4 p-4 bg-gray-50 rounded-lg"
+                            dangerouslySetInnerHTML={{ __html: attractionsContent.content }}
+                          />
+                          <button
+                            onClick={() => handleEdit(attractionsContent)}
+                            className="btn-primary text-sm px-4 py-2"
+                          >
+                            Edit Content
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8 text-gray-500">
+                      <p>No content found. Click the button below to create content.</p>
+                      <button 
+                        onClick={async () => {
+                          try {
+                            const response = await fetch('/api/sqlite-content', {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({
+                                section: 'about',
+                                subsection: 'attractions',
+                                contentType: 'html',
+                                content: '<h2>Local Attractions</h2><p>Discover the beauty and activities around Clear View Retreat...</p><h3>Outdoor Activities</h3><ul><li>Hiking trails</li><li>Nature walks</li><li>Scenic overlooks</li></ul><h3>Nearby Attractions</h3><p>Add information about local restaurants, shops, historical sites, and seasonal events.</p>',
+                                metadata: { 
+                                  name: 'Area Attractions Content',
+                                  isRichText: true 
+                                },
+                                order: 1,
+                                isActive: true
+                              })
+                            })
+                            if (response.ok) {
+                              refreshContent()
+                            }
+                          } catch (error) {
+                            console.error('Error creating attractions content:', error)
+                          }
+                        }}
+                        className="mt-4 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+                      >
+                        Create Attractions Content
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )
+            }
             
             // Special layout for about-main content
             if (section === 'about-main') {

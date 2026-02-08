@@ -130,7 +130,7 @@ export default function AdminDashboard() {
         const [blogRes, eventsRes, galleriesRes, usersRes] = await Promise.all([
           fetch('/api/sqlite-blog'),
           fetch('/api/events'),
-          fetch('/api/sqlite-content?section=galleries'),
+          fetch('/api/gallery'),
           fetch('/api/users?action=count')
         ])
 

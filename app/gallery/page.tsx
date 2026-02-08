@@ -11,7 +11,7 @@ const gallerySubpages = [
     title: 'Retreat Center',
     href: '/gallery/retreat-center',
     description: 'Explore our beautiful retreat center and facilities, including the main lodge, chapel, and meeting spaces.',
-    image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80',
+    image: '/images/TNMountains2.jpg',
     imageCount: null
   },
   {

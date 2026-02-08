@@ -456,6 +456,11 @@ export default function ContentManager({ section, title }: ContentManagerProps) 
         description: 'Content for the About > With Gratitude page (/about/gratitude).',
         example: 'Thank you messages, acknowledgments, and appreciation content'
       }
+    } else if (section === 'about-attractions') {
+      return {
+        description: 'Rich text content for the About > Area Attractions page (/about/attractions).',
+        example: 'Local attractions, things to do nearby, hiking trails, restaurants, tourist spots, and seasonal activities'
+      }
     } else if (section === 'about-board') {
       return {
         description: 'Board members for the About > Board of Trustees page (/about/board).',
@@ -598,6 +603,40 @@ export default function ContentManager({ section, title }: ContentManagerProps) 
                   className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
                 >
                   Create Modal Content
+                </button>
+              </div>
+            ) : section === 'about-attractions' ? (
+              <div className="mt-4">
+                <p className="text-sm mb-3">Create rich text content for the Area Attractions page with information about local attractions and things to do.</p>
+                <button 
+                  onClick={async () => {
+                    try {
+                      const response = await fetch('/api/sqlite-content', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                          section: 'about',
+                          subsection: 'attractions',
+                          contentType: 'html',
+                          content: '<h2>Local Attractions</h2><p>Discover the beauty and activities around Clear View Retreat...</p><h3>Outdoor Activities</h3><ul><li>Hiking trails</li><li>Nature walks</li><li>Scenic overlooks</li></ul><h3>Nearby Attractions</h3><p>Add information about local restaurants, shops, historical sites, and seasonal events.</p>',
+                          metadata: { 
+                            name: 'Area Attractions Content',
+                            isRichText: true 
+                          },
+                          order: 1,
+                          isActive: true
+                        })
+                      })
+                      if (response.ok) {
+                        refreshContent()
+                      }
+                    } catch (error) {
+                      console.error('Error creating attractions content:', error)
+                    }
+                  }}
+                  className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+                >
+                  Create Attractions Content
                 </button>
               </div>
             ) : (
@@ -1710,12 +1749,20 @@ export default function ContentManager({ section, title }: ContentManagerProps) 
                   <div className="mb-4">
                     <label className="text-sm font-medium text-secondary-700 mb-2 block">Content</label>
                     {editingItems.has(item.id) ? (
-                      <textarea
-                        value={editForms[item.id]?.content || ''}
-                        onChange={(e) => handleFieldChange(item.id, 'content', e.target.value)}
-                        rows={6}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-                      />
+                      item.metadata?.isRichText ? (
+                        <RichTextEditor
+                          value={editForms[item.id]?.content || ''}
+                          onChange={(value) => handleFieldChange(item.id, 'content', value)}
+                          placeholder="Enter your content here..."
+                        />
+                      ) : (
+                        <textarea
+                          value={editForms[item.id]?.content || ''}
+                          onChange={(e) => handleFieldChange(item.id, 'content', e.target.value)}
+                          rows={6}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                        />
+                      )
                     ) : (
                       <div className="prose prose-sm max-w-none">
                         {item.metadata?.isRichText ? (

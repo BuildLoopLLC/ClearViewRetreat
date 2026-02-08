@@ -91,9 +91,6 @@ export default function StaffPage() {
 
         {/* Staff Members */}
         <div className="mb-16">
-          <h3 className="text-3xl font-display font-semibold text-secondary-900 mb-12 text-center">
-            Our Team
-          </h3>
           
           {loading ? (
             <div className="flex items-center justify-center py-12">

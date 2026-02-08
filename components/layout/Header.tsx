@@ -17,6 +17,7 @@ const navigation = [
       { name: 'Board of Trustees', href: '/about/board' },
       { name: 'Founders', href: '/about/founders' },
       { name: 'With Gratitude', href: '/about/gratitude' },
+      { name: 'Area Attractions', href: '/about/attractions' },
     ]
   },
   { 
@@ -39,6 +40,7 @@ const navigation = [
       { name: 'Event Photos', href: '/gallery/events' },
       { name: 'Nature & Grounds', href: '/gallery/nature' },
       { name: 'Community Life', href: '/gallery/community' },
+      { name: 'Cabins', href: '/gallery/cabins' },
     ]
   },
   { 

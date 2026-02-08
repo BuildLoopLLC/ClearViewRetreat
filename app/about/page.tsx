@@ -26,6 +26,11 @@ const aboutSubpages = [
     title: 'With Gratitude',
     href: '/about/gratitude',
     description: 'Expressing our thanks to those who have supported our mission.'
+  },
+  {
+    title: 'Area Attractions',
+    href: '/about/attractions',
+    description: 'Explore local attractions and things to do in the surrounding area.'
   }
 ]
 

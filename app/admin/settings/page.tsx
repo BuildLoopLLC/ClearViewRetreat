@@ -56,7 +56,8 @@ const pageSections: PageSection[] = [
       { id: 'about-beliefs', title: 'Beliefs', description: 'Core beliefs and theological foundation' },
       { id: 'about-board', title: 'Board of Trustees', description: 'Board members, titles, bios, and photos - fully configurable' },
       { id: 'about-founders', title: 'Founders', description: 'Information about our founders' },
-      { id: 'about-gratitude', title: 'With Gratitude', description: 'Thanks and acknowledgments' }
+      { id: 'about-gratitude', title: 'With Gratitude', description: 'Thanks and acknowledgments' },
+      { id: 'about-attractions', title: 'Area Attractions', description: 'Rich text content for local area attractions and things to do nearby' }
     ]
   },
   {

@@ -61,6 +61,7 @@
     "react-quill": "^2.0.0",
     "react-syntax-highlighter": "^15.5.0",
     "remark-gfm": "^4.0.0",
+    "resend": "^6.9.1",
     "sharp": "^0.32.6",
     "tailwindcss": "^3.3.0",
     "uuid": "^13.0.0"

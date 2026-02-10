@@ -13,9 +13,9 @@ const eventsSubpages = [
     description: 'Explore highlights and photos from our previous events.'
   },
   {
-    title: 'Event Registration',
+    title: 'Group Event Registration',
     href: '/events/registration',
-    description: 'Register for upcoming events and secure your spot.'
+    description: 'Register for upcoming group events and retreats.'
   },
   {
     title: 'Event Types',
@@ -34,7 +34,7 @@ export default function EventsPage() {
     <div className="min-h-screen">
       <Events showCTA={false} />
       <SubpageNavigation
-        title="Explore Our Events"
+        title="Explore Events & Retreats"
         subtitle="Discover the various ways to engage with our ministry"
         subpages={eventsSubpages}
       />

@@ -235,7 +235,7 @@ export default function EventsManagementPage() {
 
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-secondary-900">Events Management</h1>
+          <h1 className="text-3xl font-bold text-secondary-900">Group Events Management</h1>
           <p className="mt-2 text-secondary-600">Manage calendar events and retreats</p>
         </div>
 

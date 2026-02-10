@@ -98,7 +98,7 @@ export default function EventRegistrationPage() {
     return (
       <SubpageLayout
         title="Event Registration"
-        subtitle="Register for upcoming events and retreats"
+        subtitle="Register for upcoming group events and retreats"
         breadcrumbs={[
           { name: 'Events', href: '/events' },
           { name: 'Registration', href: '/events/registration' }
@@ -116,7 +116,7 @@ export default function EventRegistrationPage() {
     return (
       <SubpageLayout
         title="Event Registration"
-        subtitle="Register for upcoming events and retreats"
+        subtitle="Register for upcoming group events and retreats"
         breadcrumbs={[
           { name: 'Events', href: '/events' },
           { name: 'Registration', href: '/events/registration' }

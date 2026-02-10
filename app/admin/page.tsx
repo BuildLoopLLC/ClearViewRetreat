@@ -132,7 +132,7 @@ export default function AdminDashboard() {
           fetch('/api/sqlite-blog'),
           fetch('/api/events'),
           fetch('/api/gallery'),
-          fetch('/api/users?action=count')
+          fetch('/api/users?action=count&adminOnly=true')
         ])
 
         const [blogData, eventsData, galleriesData, usersData] = await Promise.all([
@@ -315,8 +315,13 @@ export default function AdminDashboard() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {statsData.map((stat) => (
-            <div key={stat.name} className="bg-white rounded-xl shadow-sm p-6">
+          {statsData.map((stat) => {
+            const href = stat.name === 'Blog Posts' ? '/admin/blog' :
+                        stat.name === 'Events' ? '/admin/events' :
+                        stat.name === 'Gallery Photos' ? '/admin/gallery' :
+                        stat.name === 'Admin Users' ? '/admin/users' : '#'
+            
+            const StatContent = (
               <div className="flex items-center">
                 <div className={`p-3 rounded-lg ${stat.bgColor}`}>
                   <stat.icon className={`h-6 w-6 ${stat.color}`} />
@@ -328,8 +333,22 @@ export default function AdminDashboard() {
                   </p>
                 </div>
               </div>
-            </div>
-          ))}
+            )
+
+            return href !== '#' ? (
+              <Link
+                key={stat.name}
+                href={href}
+                className="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition-shadow cursor-pointer"
+              >
+                {StatContent}
+              </Link>
+            ) : (
+              <div key={stat.name} className="bg-white rounded-xl shadow-sm p-6">
+                {StatContent}
+              </div>
+            )
+          })}
         </div>
 
         {/* Quick Actions */}

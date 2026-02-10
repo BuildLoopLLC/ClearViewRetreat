@@ -71,17 +71,18 @@ export async function GET(request: NextRequest) {
 
 // POST - Create new admin user
 export async function POST(request: NextRequest) {
+  // Parse body once and store email for use in catch block
+  const body = await request.json()
+  const { email, password, displayName } = body
+
+  if (!email || !password) {
+    return NextResponse.json(
+      { error: 'Email and password are required' },
+      { status: 400 }
+    )
+  }
+
   try {
-    const body = await request.json()
-    const { email, password, displayName } = body
-
-    if (!email || !password) {
-      return NextResponse.json(
-        { error: 'Email and password are required' },
-        { status: 400 }
-      )
-    }
-
     // Create the user
     const userRecord = await adminAuth.createUser({
       email,
@@ -111,7 +112,7 @@ export async function POST(request: NextRequest) {
     if (error.code === 'auth/email-already-exists') {
       // User exists, try to update to admin
       try {
-        const existingUser = await adminAuth.getUserByEmail(body.email)
+        const existingUser = await adminAuth.getUserByEmail(email)
         await adminAuth.setCustomUserClaims(existingUser.uid, {
           role: 'admin',
           permissions: ['read', 'write', 'delete', 'admin']

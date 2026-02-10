@@ -27,7 +27,7 @@ const navigation = [
       { name: 'Upcoming Events', href: '/events/upcoming' },
       { name: 'Past Events', href: '/events/past' },
       { name: 'Event Types', href: '/events/types' },
-      { name: 'Event Registration', href: '/events/registration' },
+      { name: 'Group Event Registration', href: '/events/registration' },
       { name: 'Payment', href: '/events/payment' },
     ]
   },

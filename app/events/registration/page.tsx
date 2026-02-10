@@ -97,11 +97,11 @@ export default function EventRegistrationPage() {
   if (loading) {
     return (
       <SubpageLayout
-        title="Event Registration"
+        title="Group Event Registration"
         subtitle="Register for upcoming group events and retreats"
         breadcrumbs={[
           { name: 'Events', href: '/events' },
-          { name: 'Registration', href: '/events/registration' }
+          { name: 'Group Event Registration', href: '/events/registration' }
         ]}
       >
         <div className="max-w-4xl mx-auto text-center py-12">
@@ -115,11 +115,11 @@ export default function EventRegistrationPage() {
   if (error) {
     return (
       <SubpageLayout
-        title="Event Registration"
+        title="Group Event Registration"
         subtitle="Register for upcoming group events and retreats"
         breadcrumbs={[
           { name: 'Events', href: '/events' },
-          { name: 'Registration', href: '/events/registration' }
+          { name: 'Group Event Registration', href: '/events/registration' }
         ]}
       >
         <div className="max-w-4xl mx-auto text-center py-12">
@@ -132,11 +132,11 @@ export default function EventRegistrationPage() {
 
   return (
     <SubpageLayout
-      title="Event Registration"
+      title="Group Event Registration"
       subtitle="Register for upcoming events and retreats"
       breadcrumbs={[
         { name: 'Events', href: '/events' },
-        { name: 'Registration', href: '/events/registration' }
+        { name: 'Group Event Registration', href: '/events/registration' }
       ]}
     >
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

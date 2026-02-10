@@ -66,7 +66,7 @@ const pageSections: PageSection[] = [
     description: 'Events section headers and configuration',
     sections: [
       { id: 'events', title: 'Events Section', description: 'Events section title and subtitle' },
-      { id: 'events-registration', title: 'Event Registration', description: 'Registration page content with links, calendar, and payment instructions' },
+      { id: 'events-registration', title: 'Group Event Registration', description: 'Registration page content with links, calendar, and payment instructions' },
       { id: 'events-type-family-camps', title: 'Family Camps', description: 'Rich text modal content for Family Camps retreat type' },
       { id: 'events-type-marriage-retreats', title: 'Marriage Retreats', description: 'Rich text modal content for Marriage Retreats' },
       { id: 'events-type-pastors-missionaries', title: 'Pastors & Missionaries', description: 'Rich text modal content for Pastors & Missionaries retreats' },

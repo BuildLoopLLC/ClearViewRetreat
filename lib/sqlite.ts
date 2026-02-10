@@ -254,6 +254,21 @@ function initializeDatabase() {
     )
   `)
 
+  // Create registration_event_types table
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS registration_event_types (
+      id TEXT PRIMARY KEY,
+      name TEXT NOT NULL,
+      description TEXT,
+      form_link TEXT,
+      pdf_link TEXT,
+      order_index INTEGER DEFAULT 0,
+      is_active INTEGER DEFAULT 1,
+      created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+      updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+    )
+  `)
+
   // Create indexes for better performance
   db.exec(`
     CREATE INDEX IF NOT EXISTS idx_section ON website_content(section);
@@ -286,6 +301,8 @@ function initializeDatabase() {
     CREATE INDEX IF NOT EXISTS idx_contact_email ON contact_submissions(email);
     CREATE INDEX IF NOT EXISTS idx_newsletter_email ON newsletter_subscribers(email);
     CREATE INDEX IF NOT EXISTS idx_newsletter_active ON newsletter_subscribers(is_active);
+    CREATE INDEX IF NOT EXISTS idx_registration_types_order ON registration_event_types(order_index);
+    CREATE INDEX IF NOT EXISTS idx_registration_types_active ON registration_event_types(is_active);
   `)
 
   console.log('✅ SQLite database initialized')

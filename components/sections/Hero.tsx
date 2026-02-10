@@ -71,7 +71,7 @@ export default function Hero() {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
-            className="text-xl md:text-2xl text-white/95 max-w-4xl mx-auto mb-12 leading-relaxed"
+            className="text-xl md:text-2xl text-white/95 max-w-5xl mx-auto mb-12 leading-relaxed"
             dangerouslySetInnerHTML={{ __html: getContentValue('description') }}
           />
 

@@ -5,6 +5,7 @@ import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import { AuthProvider } from '@/contexts/AuthContext'
 import CacheWarmer from '@/components/providers/CacheWarmer'
+import NewsletterPopup from '@/components/ui/NewsletterPopup'
 
 
 const inter = Inter({ subsets: ['latin'] })
@@ -66,6 +67,7 @@ export default function RootLayout({
               {children}
             </main>
             <Footer />
+            <NewsletterPopup />
           </div>
         </AuthProvider>
       </body>

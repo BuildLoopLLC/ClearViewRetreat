@@ -82,18 +82,36 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     const activeOnly = searchParams.get('active') !== 'false'
+    const page = parseInt(searchParams.get('page') || '1')
+    const limit = parseInt(searchParams.get('limit') || '20')
+    const offset = (page - 1) * limit
 
     const db = getDatabase()
     
-    let query = 'SELECT * FROM newsletter_subscribers'
+    // Build base query
+    let whereClause = ''
     if (activeOnly) {
-      query += ' WHERE is_active = 1'
+      whereClause = 'WHERE is_active = 1'
     }
-    query += ' ORDER BY created_at DESC'
     
-    const subscribers = db.prepare(query).all()
+    // Get total count
+    const countQuery = `SELECT COUNT(*) as total FROM newsletter_subscribers ${whereClause}`
+    const countResult = db.prepare(countQuery).get() as { total: number }
+    const total = countResult.total
+    
+    // Get paginated results
+    const query = `SELECT * FROM newsletter_subscribers ${whereClause} ORDER BY created_at DESC LIMIT ? OFFSET ?`
+    const subscribers = db.prepare(query).all(limit, offset)
 
-    return NextResponse.json(subscribers)
+    return NextResponse.json({
+      subscribers,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit)
+      }
+    })
 
   } catch (error: any) {
     console.error('Get subscribers error:', error)
@@ -101,12 +119,13 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// DELETE - Unsubscribe
+// DELETE - Unsubscribe or Delete
 export async function DELETE(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     const email = searchParams.get('email')
     const id = searchParams.get('id')
+    const permanent = searchParams.get('permanent') === 'true' // Admin can permanently delete
 
     if (!email && !id) {
       return NextResponse.json({ error: 'Email or ID required' }, { status: 400 })
@@ -114,28 +133,41 @@ export async function DELETE(request: NextRequest) {
 
     const db = getDatabase()
 
-    if (id) {
-      db.prepare(`
-        UPDATE newsletter_subscribers 
-        SET is_active = 0, unsubscribed_at = CURRENT_TIMESTAMP
-        WHERE id = ?
-      `).run(id)
+    if (permanent) {
+      // Permanently delete the subscriber (admin only)
+      if (id) {
+        db.prepare('DELETE FROM newsletter_subscribers WHERE id = ?').run(id)
+      } else {
+        db.prepare('DELETE FROM newsletter_subscribers WHERE email = ?').run(email)
+      }
+      return NextResponse.json({ 
+        success: true, 
+        message: 'Subscriber has been permanently deleted.' 
+      })
     } else {
-      db.prepare(`
-        UPDATE newsletter_subscribers 
-        SET is_active = 0, unsubscribed_at = CURRENT_TIMESTAMP
-        WHERE email = ?
-      `).run(email)
+      // Just unsubscribe (deactivate) - for public unsubscribe links
+      if (id) {
+        db.prepare(`
+          UPDATE newsletter_subscribers 
+          SET is_active = 0, unsubscribed_at = CURRENT_TIMESTAMP
+          WHERE id = ?
+        `).run(id)
+      } else {
+        db.prepare(`
+          UPDATE newsletter_subscribers 
+          SET is_active = 0, unsubscribed_at = CURRENT_TIMESTAMP
+          WHERE email = ?
+        `).run(email)
+      }
+      return NextResponse.json({ 
+        success: true, 
+        message: 'You have been unsubscribed from our newsletter.' 
+      })
     }
 
-    return NextResponse.json({ 
-      success: true, 
-      message: 'You have been unsubscribed from our newsletter.' 
-    })
-
   } catch (error: any) {
-    console.error('Unsubscribe error:', error)
-    return NextResponse.json({ error: 'Failed to unsubscribe' }, { status: 500 })
+    console.error('Delete/Unsubscribe error:', error)
+    return NextResponse.json({ error: 'Failed to delete/unsubscribe' }, { status: 500 })
   }
 }
 

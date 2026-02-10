@@ -41,7 +41,7 @@ const navigation = {
     { name: 'Event Photos', href: '/gallery/events' },
     { name: 'Nature & Grounds', href: '/gallery/nature' },
     { name: 'Community Life', href: '/gallery/community' },
-    { name: 'Testimonials Gallery', href: '/gallery/testimonials' },
+    { name: 'Cabins', href: '/gallery/cabins' },
   ],
 }
 

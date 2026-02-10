@@ -127,25 +127,31 @@ export default function EventRegistrationPage() {
     setSubmitting(true)
 
     try {
-      // Submit to contact API with type info
-      const response = await fetch('/api/contact', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-          email: formData.email,
-          phone: formData.phone,
-          subject: `Group Registration Request: ${selectedType?.name}`,
-          message: `
+      // Submit to registrations API for group retreat registration
+      const specialRequests = `
 Organization: ${formData.organization || 'Not provided'}
 Group Size: ${formData.groupSize || 'Not provided'}
 Preferred Dates: ${formData.preferredDates || 'Not provided'}
 
 Message:
 ${formData.message}
-          `.trim(),
-          newsletterOptIn: false
+      `.trim()
+
+      // Use registration type ID as event_id for group retreat registrations
+      const eventId = selectedType ? `group-retreat-${selectedType.id}` : 'group-retreat-general'
+      
+      const response = await fetch('/api/registrations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          eventId: eventId,
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          phone: formData.phone || '',
+          specialRequests: specialRequests,
+          registrationTypeId: selectedType?.id,
+          registrationTypeName: selectedType?.name
         })
       })
 
@@ -166,7 +172,8 @@ ${formData.message}
           })
         }, 3000)
       } else {
-        throw new Error('Failed to submit')
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to submit')
       }
     } catch (error) {
       console.error('Form submission error:', error)
@@ -231,7 +238,7 @@ ${formData.message}
                 Click on a retreat type below to begin registration. You can fill out our online form or download a PDF to mail in.
               </p>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {registrationTypes.map((type) => (
                   <div
                     key={type.id}

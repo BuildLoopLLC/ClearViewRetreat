@@ -123,6 +123,7 @@ function initializeDatabase() {
   `)
 
   // Create registrations table
+  // Note: Foreign key constraint removed to allow group retreat registrations with special event_id format
   db.exec(`
     CREATE TABLE IF NOT EXISTS registrations (
       id TEXT PRIMARY KEY,
@@ -134,8 +135,7 @@ function initializeDatabase() {
       special_requests TEXT,
       status TEXT DEFAULT 'pending',
       created_at TEXT DEFAULT CURRENT_TIMESTAMP,
-      updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
-      FOREIGN KEY (event_id) REFERENCES events(id)
+      updated_at TEXT DEFAULT CURRENT_TIMESTAMP
     )
   `)
 

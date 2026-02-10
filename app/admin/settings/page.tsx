@@ -19,6 +19,7 @@ import {
 } from '@heroicons/react/24/outline'
 import ContentManager from '@/components/admin/ContentManager'
 import StaffManager from '@/components/admin/StaffManager'
+import RegistrationTypesManager from '@/components/admin/RegistrationTypesManager'
 
 interface PageSection {
   id: string
@@ -66,14 +67,7 @@ const pageSections: PageSection[] = [
     description: 'Events section headers and configuration',
     sections: [
       { id: 'events', title: 'Events Section', description: 'Events section title and subtitle' },
-      { id: 'events-registration', title: 'Group Event Registration', description: 'Registration page content with links, calendar, and payment instructions' },
-      { id: 'events-type-family-camps', title: 'Family Camps', description: 'Rich text modal content for Family Camps retreat type' },
-      { id: 'events-type-marriage-retreats', title: 'Marriage Retreats', description: 'Rich text modal content for Marriage Retreats' },
-      { id: 'events-type-pastors-missionaries', title: 'Pastors & Missionaries', description: 'Rich text modal content for Pastors & Missionaries retreats' },
-      { id: 'events-type-grieving-families', title: 'Grieving Families', description: 'Rich text modal content for Grieving Families retreats' },
-      { id: 'events-type-facility-rental', title: 'Cabins & Facility Rental', description: 'Rich text modal content for Facility Rental' },
-      { id: 'events-type-mission-trips', title: 'Family Mission Trips', description: 'Rich text modal content for Family Mission Trips' },
-      { id: 'events-type-other-options', title: 'Other Options', description: 'Rich text modal content for Other Options' },
+      { id: 'events-registration-types', title: 'Registration Event Types', description: 'Manage event types shown on registration page (with form/PDF links)' }
     ]
   },
   {
@@ -328,11 +322,13 @@ export default function SiteSettingsPage() {
             {activeSection ? (
               activeSection.section === 'contact-staff' ? (
                 <StaffManager />
+              ) : activeSection.section === 'events-registration-types' ? (
+                <RegistrationTypesManager />
               ) : (
-              <ContentManager 
-                section={activeSection.section} 
-                title={`${pageSections.find(p => p.id === activeSection.page)?.title} - ${pageSections.find(p => p.id === activeSection.page)?.sections.find(s => s.id === activeSection.section)?.title}`}
-              />
+                <ContentManager 
+                  section={activeSection.section} 
+                  title={`${pageSections.find(p => p.id === activeSection.page)?.title} - ${pageSections.find(p => p.id === activeSection.page)?.sections.find(s => s.id === activeSection.section)?.title}`}
+                />
               )
             ) : (
               <div className="bg-white rounded-xl shadow-sm p-12 text-center">

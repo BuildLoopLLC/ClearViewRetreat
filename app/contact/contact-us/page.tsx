@@ -96,124 +96,124 @@ export default function ContactUsPage() {
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label htmlFor="firstName" className="block text-sm font-medium text-secondary-700 mb-2">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label htmlFor="firstName" className="block text-sm font-medium text-secondary-700 mb-2">
                     First Name *
-                  </label>
-                  <input
-                    type="text"
-                    id="firstName"
-                    name="firstName"
+                </label>
+                <input
+                  type="text"
+                  id="firstName"
+                  name="firstName"
                     required
                     value={formData.firstName}
                     onChange={handleChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                    placeholder="Your first name"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="lastName" className="block text-sm font-medium text-secondary-700 mb-2">
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                  placeholder="Your first name"
+                />
+              </div>
+              <div>
+                <label htmlFor="lastName" className="block text-sm font-medium text-secondary-700 mb-2">
                     Last Name *
-                  </label>
-                  <input
-                    type="text"
-                    id="lastName"
-                    name="lastName"
+                </label>
+                <input
+                  type="text"
+                  id="lastName"
+                  name="lastName"
                     required
                     value={formData.lastName}
                     onChange={handleChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                    placeholder="Your last name"
-                  />
-                </div>
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                  placeholder="Your last name"
+                />
               </div>
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium text-secondary-700 mb-2">
+            </div>
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium text-secondary-700 mb-2">
                   Email Address *
-                </label>
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
+              </label>
+              <input
+                type="email"
+                id="email"
+                name="email"
                   required
                   value={formData.email}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                  placeholder="your.email@example.com"
-                />
-              </div>
-              <div>
-                <label htmlFor="phone" className="block text-sm font-medium text-secondary-700 mb-2">
-                  Phone Number (Optional)
-                </label>
-                <input
-                  type="tel"
-                  id="phone"
-                  name="phone"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                placeholder="your.email@example.com"
+              />
+            </div>
+            <div>
+              <label htmlFor="phone" className="block text-sm font-medium text-secondary-700 mb-2">
+                Phone Number (Optional)
+              </label>
+              <input
+                type="tel"
+                id="phone"
+                name="phone"
                   value={formData.phone}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                  placeholder="(555) 123-4567"
-                />
-              </div>
-              <div>
-                <label htmlFor="subject" className="block text-sm font-medium text-secondary-700 mb-2">
-                  Subject
-                </label>
-                <select
-                  id="subject"
-                  name="subject"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                placeholder="(555) 123-4567"
+              />
+            </div>
+            <div>
+              <label htmlFor="subject" className="block text-sm font-medium text-secondary-700 mb-2">
+                Subject
+              </label>
+              <select
+                id="subject"
+                name="subject"
                   value={formData.subject}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                >
-                  <option value="">Select a topic</option>
-                  <option value="retreat-booking">Retreat Booking</option>
-                  <option value="general-inquiry">General Inquiry</option>
-                  <option value="volunteer">Volunteer Opportunities</option>
-                  <option value="prayer">Prayer Request</option>
-                  <option value="other">Other</option>
-                </select>
-              </div>
-              <div>
-                <label htmlFor="message" className="block text-sm font-medium text-secondary-700 mb-2">
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+              >
+                <option value="">Select a topic</option>
+                <option value="retreat-booking">Retreat Booking</option>
+                <option value="general-inquiry">General Inquiry</option>
+                <option value="volunteer">Volunteer Opportunities</option>
+                <option value="prayer">Prayer Request</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+            <div>
+              <label htmlFor="message" className="block text-sm font-medium text-secondary-700 mb-2">
                   Message *
-                </label>
-                <textarea
-                  id="message"
-                  name="message"
-                  rows={6}
+              </label>
+              <textarea
+                id="message"
+                name="message"
+                rows={6}
                   required
                   value={formData.message}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                  placeholder="Tell us how we can help you..."
-                ></textarea>
-              </div>
-              <div className="flex items-center">
-                <input
-                  id="newsletter"
-                  name="newsletter"
-                  type="checkbox"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                placeholder="Tell us how we can help you..."
+              ></textarea>
+            </div>
+            <div className="flex items-center">
+              <input
+                id="newsletter"
+                name="newsletter"
+                type="checkbox"
                   checked={formData.newsletter}
                   onChange={handleChange}
-                  className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
-                />
-                <label htmlFor="newsletter" className="ml-2 block text-sm text-secondary-700">
-                  I would like to receive updates about retreats and ministry news
-                </label>
-              </div>
-              <div className="text-center">
-                <button
-                  type="submit"
+                className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+              />
+              <label htmlFor="newsletter" className="ml-2 block text-sm text-secondary-700">
+                I would like to receive updates about retreats and ministry news
+              </label>
+            </div>
+            <div className="text-center">
+              <button
+                type="submit"
                   disabled={isSubmitting}
                   className="btn-primary text-lg px-8 py-4 inline-flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
-                >
+              >
                   {isSubmitting ? 'Sending...' : 'Send Message'}
-                </button>
-              </div>
-            </form>
+              </button>
+            </div>
+          </form>
           )}
         </div>
 

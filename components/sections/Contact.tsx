@@ -48,12 +48,12 @@ export default function Contact() {
       })
 
       if (response.ok) {
-        setIsSubmitted(true)
-        // Reset form after 3 seconds
-        setTimeout(() => {
-          setIsSubmitted(false)
-          setFormData({ name: '', email: '', phone: '', subject: '', message: '' })
-        }, 3000)
+    setIsSubmitted(true)
+    // Reset form after 3 seconds
+    setTimeout(() => {
+      setIsSubmitted(false)
+      setFormData({ name: '', email: '', phone: '', subject: '', message: '' })
+    }, 3000)
       } else {
         throw new Error('Failed to submit')
       }

@@ -4,6 +4,13 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import SubpageLayout from '@/components/ui/SubpageLayout'
 import EventCalendar from '@/components/calendar/EventCalendar'
+import { 
+  LinkIcon, 
+  DocumentIcon, 
+  XMarkIcon,
+  CheckCircleIcon,
+  CalendarDaysIcon
+} from '@heroicons/react/24/outline'
 
 interface EventData {
   id: string
@@ -23,50 +30,53 @@ interface BlockedDate {
   isActive: boolean
 }
 
+interface RegistrationEventType {
+  id: string
+  name: string
+  description: string | null
+  form_link: string | null
+  pdf_link: string | null
+  is_active: boolean
+}
+
 export default function EventRegistrationPage() {
-  const [content, setContent] = useState('')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [events, setEvents] = useState<EventData[]>([])
   const [blockedDates, setBlockedDates] = useState<BlockedDate[]>([])
+  const [registrationTypes, setRegistrationTypes] = useState<RegistrationEventType[]>([])
+  
+  // Modal state
+  const [showModal, setShowModal] = useState(false)
+  const [selectedType, setSelectedType] = useState<RegistrationEventType | null>(null)
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    organization: '',
+    groupSize: '',
+    preferredDates: '',
+    message: ''
+  })
+  const [submitting, setSubmitting] = useState(false)
+  const [submitted, setSubmitted] = useState(false)
 
-  // Fetch content and events from the database
+  // Fetch data
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true)
         
-        // Fetch content, events, and blocked dates in parallel
-        const [contentRes, eventsRes, blockedDatesRes] = await Promise.all([
-          fetch('/api/sqlite-content?section=events&subsection=registration'),
+        const [eventsRes, blockedDatesRes, typesRes] = await Promise.all([
           fetch('/api/events'),
-          fetch('/api/blocked-dates')
+          fetch('/api/blocked-dates'),
+          fetch('/api/registration-types')
         ])
-
-        // Process content
-        if (contentRes.ok) {
-          const contentData = await contentRes.json()
-          if (contentData.length > 0) {
-            setContent(contentData[0].content || '')
-          } else {
-            // Set default content if none exists
-            setContent(`
-              <h1>Register For Retreat</h1>
-              <h2>Click a retreat to register:</h2>
-              <h4>Group Planning Forms (online | pdf)</h4>
-              <h4>Individual Family Registration (online | pdf)</h4>
-              <h4>Marriage Retreat (online | pdf)</h4>
-              <h4>Pastor/Missionary Retreats (online | pdf)</h4>
-              <h4>Grieving Retreat (online | pdf)</h4>
-              <h4>Family Mission Trip (online | pdf)</h4>
-            `)
-          }
-        }
 
         // Process events
         if (eventsRes.ok) {
           const eventsData = await eventsRes.json()
-          // Convert database events to calendar format
           const calendarEvents = eventsData.map((event: any) => ({
             id: event.id,
             title: event.title,
@@ -83,6 +93,12 @@ export default function EventRegistrationPage() {
           const blockedDatesData = await blockedDatesRes.json()
           setBlockedDates(blockedDatesData)
         }
+
+        // Process registration types
+        if (typesRes.ok) {
+          const typesData = await typesRes.json()
+          setRegistrationTypes(typesData.filter((t: RegistrationEventType) => t.is_active))
+        }
       } catch (err) {
         console.error('Error fetching data:', err)
         setError('Failed to load content')
@@ -93,6 +109,72 @@ export default function EventRegistrationPage() {
 
     fetchData()
   }, [])
+
+  const handleTypeClick = (type: RegistrationEventType) => {
+    // If there's a form link, open it
+    if (type.form_link) {
+      window.open(type.form_link, '_blank')
+      return
+    }
+    
+    // Otherwise, show the registration modal
+    setSelectedType(type)
+    setShowModal(true)
+  }
+
+  const handleFormSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setSubmitting(true)
+
+    try {
+      // Submit to contact API with type info
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          phone: formData.phone,
+          subject: `Group Registration Request: ${selectedType?.name}`,
+          message: `
+Organization: ${formData.organization || 'Not provided'}
+Group Size: ${formData.groupSize || 'Not provided'}
+Preferred Dates: ${formData.preferredDates || 'Not provided'}
+
+Message:
+${formData.message}
+          `.trim(),
+          newsletterOptIn: false
+        })
+      })
+
+      if (response.ok) {
+        setSubmitted(true)
+        setTimeout(() => {
+          setShowModal(false)
+          setSubmitted(false)
+          setFormData({
+            firstName: '',
+            lastName: '',
+            email: '',
+            phone: '',
+            organization: '',
+            groupSize: '',
+            preferredDates: '',
+            message: ''
+          })
+        }, 3000)
+      } else {
+        throw new Error('Failed to submit')
+      }
+    } catch (error) {
+      console.error('Form submission error:', error)
+      alert('There was an error submitting your request. Please try again.')
+    } finally {
+      setSubmitting(false)
+    }
+  }
 
   if (loading) {
     return (
@@ -140,18 +222,66 @@ export default function EventRegistrationPage() {
       ]}
     >
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Main Content */}
-        <div className="bg-white rounded-xl shadow-sm overflow-hidden mb-8">
-          <div className="p-6">
-            <div className="prose prose-lg max-w-none">
-              <div dangerouslySetInnerHTML={{ __html: content }} />
+        {/* Registration Types */}
+        {registrationTypes.length > 0 && (
+          <div className="bg-white rounded-2xl overflow-hidden mb-8">
+            <div className="p-8">
+              <h2 className="text-2xl font-bold text-secondary-900 mb-4">Register for a Retreat</h2>
+              <p className="text-lg text-secondary-600 mb-8">
+                Click on a retreat type below to begin registration. You can fill out our online form or download a PDF to mail in.
+              </p>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {registrationTypes.map((type) => (
+                  <div
+                    key={type.id}
+                    className="group bg-white rounded-xl border-2 border-secondary-200 shadow-sm p-6 hover:shadow-xl hover:border-primary-300 hover:-translate-y-1 transition-all duration-300 cursor-pointer"
+                    onClick={() => handleTypeClick(type)}
+                  >
+                    <h3 className="text-xl font-bold text-secondary-900 mb-3 group-hover:text-primary-600 transition-colors duration-200">
+                      {type.name}
+                    </h3>
+                    {type.description && (
+                      <p className="text-secondary-600 mb-5 leading-relaxed">{type.description}</p>
+                    )}
+                    
+                    <div className="flex flex-wrap gap-3">
+                      {/* Online form button */}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          handleTypeClick(type)
+                        }}
+                        className="inline-flex items-center px-4 py-2.5 text-sm font-semibold text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition-all duration-200 shadow-sm hover:shadow-md"
+                      >
+                        <LinkIcon className="h-4 w-4 mr-2" />
+                        {type.form_link ? 'Online Form' : 'Register Online'}
+                      </button>
+                      
+                      {/* PDF link if available */}
+                      {type.pdf_link && (
+                        <a
+                          href={type.pdf_link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={(e) => e.stopPropagation()}
+                          className="inline-flex items-center px-4 py-2.5 text-sm font-semibold text-secondary-700 bg-secondary-100 rounded-lg hover:bg-secondary-200 transition-all duration-200 border border-secondary-300 hover:border-secondary-400"
+                        >
+                          <DocumentIcon className="h-4 w-4 mr-2" />
+                          Download PDF
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
         {/* Interactive Calendar Section */}
         <div className="mb-8">
-          <h2 className="text-2xl font-bold text-secondary-900 mb-6">Interactive Calendar</h2>
+          <h2 className="text-2xl font-bold text-secondary-900 mb-6">View Available Dates</h2>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2">
               <EventCalendar 
@@ -221,6 +351,161 @@ export default function EventRegistrationPage() {
           </div>
         </div>
       </div>
+
+      {/* Registration Modal */}
+      {showModal && selectedType && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+              <div>
+                <h3 className="text-lg font-semibold text-secondary-900">
+                  {selectedType.name}
+                </h3>
+                <p className="text-sm text-secondary-600">Registration Request Form</p>
+              </div>
+              <button
+                onClick={() => setShowModal(false)}
+                className="p-2 text-gray-400 hover:text-gray-600 rounded-lg"
+              >
+                <XMarkIcon className="h-5 w-5" />
+              </button>
+            </div>
+            
+            {submitted ? (
+              <div className="p-8 text-center">
+                <CheckCircleIcon className="h-16 w-16 text-green-500 mx-auto mb-4" />
+                <h4 className="text-xl font-semibold text-secondary-900 mb-2">Request Submitted!</h4>
+                <p className="text-secondary-600">
+                  Thank you for your registration request. We'll contact you within 24-48 hours to confirm your booking.
+                </p>
+              </div>
+            ) : (
+              <form onSubmit={handleFormSubmit} className="p-6 space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-secondary-700 mb-1">
+                      First Name *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={formData.firstName}
+                      onChange={(e) => setFormData(prev => ({ ...prev, firstName: e.target.value }))}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-secondary-700 mb-1">
+                      Last Name *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={formData.lastName}
+                      onChange={(e) => setFormData(prev => ({ ...prev, lastName: e.target.value }))}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                    />
+                  </div>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-secondary-700 mb-1">
+                    Email *
+                  </label>
+                  <input
+                    type="email"
+                    required
+                    value={formData.email}
+                    onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-secondary-700 mb-1">
+                    Phone
+                  </label>
+                  <input
+                    type="tel"
+                    value={formData.phone}
+                    onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-secondary-700 mb-1">
+                    Organization/Church Name
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.organization}
+                    onChange={(e) => setFormData(prev => ({ ...prev, organization: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                  />
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-secondary-700 mb-1">
+                      Estimated Group Size
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.groupSize}
+                      onChange={(e) => setFormData(prev => ({ ...prev, groupSize: e.target.value }))}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                      placeholder="e.g., 20-30 people"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-secondary-700 mb-1">
+                      Preferred Dates
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.preferredDates}
+                      onChange={(e) => setFormData(prev => ({ ...prev, preferredDates: e.target.value }))}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                      placeholder="e.g., June 2026"
+                    />
+                  </div>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-secondary-700 mb-1">
+                    Additional Information
+                  </label>
+                  <textarea
+                    rows={3}
+                    value={formData.message}
+                    onChange={(e) => setFormData(prev => ({ ...prev, message: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                    placeholder="Any special requirements or questions..."
+                  />
+                </div>
+                
+                <div className="flex justify-end space-x-3 pt-4">
+                  <button
+                    type="button"
+                    onClick={() => setShowModal(false)}
+                    className="px-4 py-2 text-secondary-700 hover:bg-secondary-100 rounded-lg transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={submitting}
+                    className="btn-primary disabled:opacity-50"
+                  >
+                    {submitting ? 'Submitting...' : 'Submit Request'}
+                  </button>
+                </div>
+              </form>
+            )}
+          </div>
+        </div>
+      )}
     </SubpageLayout>
   )
 }

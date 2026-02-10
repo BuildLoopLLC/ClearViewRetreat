@@ -6,6 +6,7 @@ import Footer from '@/components/layout/Footer'
 import { AuthProvider } from '@/contexts/AuthContext'
 import CacheWarmer from '@/components/providers/CacheWarmer'
 import NewsletterPopup from '@/components/ui/NewsletterPopup'
+import CookieBanner from '@/components/ui/CookieBanner'
 
 
 const inter = Inter({ subsets: ['latin'] })
@@ -68,6 +69,7 @@ export default function RootLayout({
             </main>
             <Footer />
             <NewsletterPopup />
+            <CookieBanner />
           </div>
         </AuthProvider>
       </body>

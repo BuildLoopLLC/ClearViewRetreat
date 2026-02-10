@@ -28,6 +28,7 @@ export default function ContentManager({ section, title }: ContentManagerProps) 
   const isEventsRegistration = section === 'events-registration'
   const isEventTypeSection = section.startsWith('events-type-')
   const isBlockedDates = section === 'blocked-dates'
+  const isLegalSection = section.startsWith('legal-')
   const actualSection = isStatisticsSubsection ? 'statistics' : 
                        isFooterSocial ? 'footer' : 
                        isAboutSubpage ? 'about' : 
@@ -38,6 +39,7 @@ export default function ContentManager({ section, title }: ContentManagerProps) 
                        isEventsRegistration ? 'events' :
                        isEventTypeSection ? 'events' :
                        isBlockedDates ? 'blocked-dates' :
+                       isLegalSection ? 'legal' :
                        section
   
   const { content: allContent, loading, error, refreshContent } = useWebsiteContent(actualSection)
@@ -192,7 +194,17 @@ export default function ContentManager({ section, title }: ContentManagerProps) 
   ) : isSupportOptionSection ? allContent.filter(item => 
     // Show only content for this specific support option
     item.subsection === section
-  ) : allContent
+  ) : isLegalSection ? allContent.filter(item => {
+    // Map legal section IDs to subsections
+    if (section === 'legal-privacy') {
+      return item.subsection === 'privacy-policy'
+    } else if (section === 'legal-terms') {
+      return item.subsection === 'terms-conditions'
+    } else if (section === 'legal-cookie') {
+      return item.subsection === 'cookie-policy'
+    }
+    return false
+  }) : allContent
 
 
 
@@ -306,16 +318,35 @@ export default function ContentManager({ section, title }: ContentManagerProps) 
       const formData = editForms[id]
       if (!formData) return
 
-      const response = await fetch(`/api/sqlite-content?id=${id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          ...formData,
-          user: user?.email || 'admin@clearviewretreat.com'
-        }),
-      })
+      // Check if this is a new item (starts with 'new-')
+      const isNewItem = id.startsWith('new-')
+      
+      let response: Response
+      if (isNewItem) {
+        // Create new item
+        response = await fetch('/api/sqlite-content', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            ...formData,
+            user: user?.email || 'admin@clearviewretreat.com'
+          }),
+        })
+      } else {
+        // Update existing item
+        response = await fetch(`/api/sqlite-content?id=${id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            ...formData,
+            user: user?.email || 'admin@clearviewretreat.com'
+          }),
+        })
+      }
 
       if (response.ok) {
         setEditingItems(prev => {
@@ -639,6 +670,51 @@ export default function ContentManager({ section, title }: ContentManagerProps) 
                   Create Attractions Content
                 </button>
               </div>
+            ) : isLegalSection ? (
+              <div className="mt-4">
+                <p className="text-sm mb-3">
+                  Create rich text content for your {section === 'legal-privacy' ? 'Privacy Policy' : section === 'legal-terms' ? 'Terms & Conditions' : 'Cookie Policy'} page.
+                  Use the rich text editor to format headings, paragraphs, lists, and create comprehensive legal content.
+                </p>
+                <button 
+                  onClick={async () => {
+                    try {
+                      const subsection = section === 'legal-privacy' ? 'privacy-policy' : section === 'legal-terms' ? 'terms-conditions' : 'cookie-policy'
+                      const title = section === 'legal-privacy' ? 'Privacy Policy' : section === 'legal-terms' ? 'Terms & Conditions' : 'Cookie Policy'
+                      const defaultContent = section === 'legal-privacy' 
+                        ? '<h2>Privacy Policy</h2><p><strong>Last updated:</strong> [Date]</p><p>Clear View Retreat ("we", "our", or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website.</p><h3>Information We Collect</h3><p>We may collect information about you in a variety of ways. The information we may collect includes:</p><ul><li>Personal information you provide to us</li><li>Information automatically collected when you visit our website</li><li>Information from third-party sources</li></ul><h3>How We Use Your Information</h3><p>We use the information we collect to:</p><ul><li>Provide, maintain, and improve our services</li><li>Process your requests and transactions</li><li>Send you updates and communications</li><li>Respond to your inquiries</li></ul><h3>Contact Us</h3><p>If you have questions about this Privacy Policy, please contact us at <a href="mailto:info@clearviewretreat.org">info@clearviewretreat.org</a>.</p>'
+                        : section === 'legal-terms'
+                        ? '<h2>Terms & Conditions</h2><p><strong>Last updated:</strong> [Date]</p><p>Please read these Terms and Conditions ("Terms") carefully before using the Clear View Retreat website operated by Clear View Retreat ("us", "we", or "our").</p><h3>Acceptance of Terms</h3><p>By accessing and using this website, you accept and agree to be bound by these Terms. If you do not agree to these Terms, you should not use this website.</p><h3>Use of Website</h3><p>You agree to use this website only for lawful purposes and in a way that does not infringe the rights of, restrict, or inhibit anyone else\'s use and enjoyment of the website.</p><h3>Intellectual Property</h3><p>All content on this website, including text, graphics, logos, images, and software, is the property of Clear View Retreat and is protected by copyright and other intellectual property laws.</p><h3>Contact Us</h3><p>If you have questions about these Terms, please contact us at <a href="mailto:info@clearviewretreat.org">info@clearviewretreat.org</a>.</p>'
+                        : '<h2>Cookie Policy</h2><p><strong>Last updated:</strong> [Date]</p><p>Clear View Retreat ("we", "our", or "us") uses cookies and similar tracking technologies to track activity on our website and hold certain information.</p><h3>What Are Cookies</h3><p>Cookies are small text files that are placed on your computer or mobile device when you visit a website. They are widely used to make websites work more efficiently and provide information to the website owners.</p><h3>How We Use Cookies</h3><p>We use cookies for the following purposes:</p><ul><li><strong>Essential Cookies:</strong> These cookies are necessary for the website to function properly. They enable core functionality such as security, network management, and accessibility.</li><li><strong>Analytics Cookies:</strong> These cookies help us understand how visitors interact with our website by collecting and reporting information anonymously.</li><li><strong>Functional Cookies:</strong> These cookies allow the website to remember choices you make and provide enhanced, personalized features.</li></ul><h3>Managing Cookies</h3><p>You can control and manage cookies in various ways. Please keep in mind that removing or blocking cookies can impact your user experience and parts of our website may no longer be fully accessible.</p><h3>Contact Us</h3><p>If you have questions about our use of cookies, please contact us at <a href="mailto:info@clearviewretreat.org">info@clearviewretreat.org</a>.</p>'
+                      
+                      const response = await fetch('/api/sqlite-content', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                          section: 'legal',
+                          subsection: subsection,
+                          contentType: 'html',
+                          content: defaultContent,
+                          metadata: { 
+                            name: `${title} Content`,
+                            isRichText: true 
+                          },
+                          order: 1,
+                          isActive: true
+                        })
+                      })
+                      if (response.ok) {
+                        refreshContent()
+                      }
+                    } catch (error) {
+                      console.error('Error creating legal content:', error)
+                    }
+                  }}
+                  className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+                >
+                  Create {section === 'legal-privacy' ? 'Privacy Policy' : section === 'legal-terms' ? 'Terms & Conditions' : 'Cookie Policy'} Content
+                </button>
+              </div>
             ) : (
               <button 
                 onClick={refreshContent}
@@ -748,13 +824,24 @@ export default function ContentManager({ section, title }: ContentManagerProps) 
           // Special layout for social media links
           (() => {
             const platforms = ['facebook', 'instagram', 'youtube', 'twitter', 'linkedin']
+            const platformOrders: Record<string, number> = {
+              facebook: 10,
+              instagram: 12,
+              youtube: 14,
+              twitter: 16,
+              linkedin: 18
+            }
+            
             return (
               <div className="space-y-4">
                 {platforms.map(platform => {
                   const urlItem = content.find(item => item.subsection === `social-${platform}-url`)
                   const enabledItem = content.find(item => item.subsection === `social-${platform}-enabled`)
                   
-                  if (!urlItem || !enabledItem) return null
+                  // Create placeholder items if they don't exist
+                  const urlItemId = urlItem?.id || `new-${platform}-url`
+                  const enabledItemId = enabledItem?.id || `new-${platform}-enabled`
+                  const isNew = !urlItem || !enabledItem
                   
                   return (
                     <div key={platform} className="border border-gray-200 rounded-lg p-4 bg-gray-50">
@@ -763,13 +850,20 @@ export default function ContentManager({ section, title }: ContentManagerProps) 
                           {platform} Link
                         </h5>
                         <div className="flex items-center space-x-2">
-                          <span className={`text-xs px-2 py-1 rounded ${
-                            enabledItem.content === 'true' 
-                              ? 'bg-green-100 text-green-800' 
-                              : 'bg-red-100 text-red-800'
-                          }`}>
-                            {enabledItem.content === 'true' ? 'Enabled' : 'Disabled'}
-                          </span>
+                          {enabledItem && (
+                            <span className={`text-xs px-2 py-1 rounded ${
+                              enabledItem.content === 'true' 
+                                ? 'bg-green-100 text-green-800' 
+                                : 'bg-red-100 text-red-800'
+                            }`}>
+                              {enabledItem.content === 'true' ? 'Enabled' : 'Disabled'}
+                            </span>
+                          )}
+                          {isNew && (
+                            <span className="text-xs px-2 py-1 rounded bg-yellow-100 text-yellow-800">
+                              Not Configured
+                            </span>
+                          )}
                         </div>
                       </div>
                       
@@ -777,50 +871,122 @@ export default function ContentManager({ section, title }: ContentManagerProps) 
                         {/* URL Field */}
                         <div className="space-y-2">
                           <label className="text-sm font-medium text-secondary-700">URL</label>
-                          {editingItems.has(urlItem.id) ? (
-                            <input
-                              type="url"
-                              value={editForms[urlItem.id]?.content || ''}
-                              onChange={(e) => handleFieldChange(urlItem.id, 'content', e.target.value)}
-                              className="input w-full"
-                              placeholder="https://facebook.com/yourpage"
-                            />
+                          {editingItems.has(urlItemId) ? (
+                            <>
+                              <input
+                                type="url"
+                                value={editForms[urlItemId]?.content || ''}
+                                onChange={(e) => handleFieldChange(urlItemId, 'content', e.target.value)}
+                                className="input w-full"
+                                placeholder="https://facebook.com/yourpage"
+                              />
+                              <div className="flex space-x-2">
+                                <button
+                                  onClick={() => handleSave(urlItemId)}
+                                  className="text-xs text-primary-600 hover:text-primary-700 underline"
+                                >
+                                  Save
+                                </button>
+                                <button
+                                  onClick={() => handleCancel(urlItemId)}
+                                  className="text-xs text-gray-600 hover:text-gray-700 underline"
+                                >
+                                  Cancel
+                                </button>
+                              </div>
+                            </>
                           ) : (
-                            <div className="text-secondary-900 bg-white p-3 rounded border">
-                              {urlItem.content || 'No URL set'}
-                            </div>
+                            <>
+                              <div className="text-secondary-900 bg-white p-3 rounded border">
+                                {urlItem?.content || 'No URL set'}
+                              </div>
+                              <button
+                                onClick={() => {
+                                  if (urlItem) {
+                                    handleEdit(urlItem)
+                                  } else {
+                                    // Create new item for editing
+                                    setEditingItems(prev => new Set(prev).add(urlItemId))
+                                    setEditForms(prev => ({
+                                      ...prev,
+                                      [urlItemId]: {
+                                        section: 'footer',
+                                        subsection: `social-${platform}-url`,
+                                        contentType: 'link',
+                                        content: '',
+                                        order: platformOrders[platform] || 0,
+                                        isActive: true
+                                      }
+                                    }))
+                                  }
+                                }}
+                                className="text-xs text-primary-600 hover:text-primary-700 underline"
+                              >
+                                {urlItem ? 'Edit URL' : 'Add URL'}
+                              </button>
+                            </>
                           )}
-                          <button
-                            onClick={() => handleEdit(urlItem)}
-                            className="text-xs text-primary-600 hover:text-primary-700 underline"
-                          >
-                            {editingItems.has(urlItem.id) ? 'Editing...' : 'Edit URL'}
-                          </button>
                         </div>
                         
                         {/* Enabled Field */}
                         <div className="space-y-2">
                           <label className="text-sm font-medium text-secondary-700">Status</label>
-                          {editingItems.has(enabledItem.id) ? (
-                            <select
-                              value={editForms[enabledItem.id]?.content || ''}
-                              onChange={(e) => handleFieldChange(enabledItem.id, 'content', e.target.value)}
-                              className="input w-full"
-                            >
-                              <option value="true">Enabled</option>
-                              <option value="false">Disabled</option>
-                            </select>
+                          {editingItems.has(enabledItemId) ? (
+                            <>
+                              <select
+                                value={editForms[enabledItemId]?.content || 'false'}
+                                onChange={(e) => handleFieldChange(enabledItemId, 'content', e.target.value)}
+                                className="input w-full"
+                              >
+                                <option value="true">Enabled</option>
+                                <option value="false">Disabled</option>
+                              </select>
+                              <div className="flex space-x-2">
+                                <button
+                                  onClick={() => handleSave(enabledItemId)}
+                                  className="text-xs text-primary-600 hover:text-primary-700 underline"
+                                >
+                                  Save
+                                </button>
+                                <button
+                                  onClick={() => handleCancel(enabledItemId)}
+                                  className="text-xs text-gray-600 hover:text-gray-700 underline"
+                                >
+                                  Cancel
+                                </button>
+                              </div>
+                            </>
                           ) : (
-                            <div className="text-secondary-900 bg-white p-3 rounded border">
-                              {enabledItem.content === 'true' ? 'Enabled' : 'Disabled'}
-                            </div>
+                            <>
+                              <div className="text-secondary-900 bg-white p-3 rounded border">
+                                {enabledItem?.content === 'true' ? 'Enabled' : 'Disabled'}
+                              </div>
+                              <button
+                                onClick={() => {
+                                  if (enabledItem) {
+                                    handleEdit(enabledItem)
+                                  } else {
+                                    // Create new item for editing
+                                    setEditingItems(prev => new Set(prev).add(enabledItemId))
+                                    setEditForms(prev => ({
+                                      ...prev,
+                                      [enabledItemId]: {
+                                        section: 'footer',
+                                        subsection: `social-${platform}-enabled`,
+                                        contentType: 'text',
+                                        content: 'false',
+                                        order: (platformOrders[platform] || 0) + 1,
+                                        isActive: true
+                                      }
+                                    }))
+                                  }
+                                }}
+                                className="text-xs text-primary-600 hover:text-primary-700 underline"
+                              >
+                                {enabledItem ? 'Edit Status' : 'Add Status'}
+                              </button>
+                            </>
                           )}
-                          <button
-                            onClick={() => handleEdit(enabledItem)}
-                            className="text-xs text-primary-600 hover:text-primary-700 underline"
-                          >
-                            {editingItems.has(enabledItem.id) ? 'Editing...' : 'Edit Status'}
-                          </button>
                         </div>
                       </div>
                     </div>
@@ -2718,7 +2884,7 @@ export default function ContentManager({ section, title }: ContentManagerProps) 
                     
                     {editingItems.has(item.id) ? (
                       <div className="space-y-3">
-                        {section === 'payment' || section === 'donation' || isEventsRegistration || isEventTypeSection || isSupportOptionSection || section === 'contact-location' || section === 'contact-volunteer' ? (
+                        {section === 'payment' || section === 'donation' || isEventsRegistration || isEventTypeSection || isSupportOptionSection || section === 'contact-location' || section === 'contact-volunteer' || isLegalSection ? (
                           <RichTextEditor
                             value={editForms[item.id]?.content || ''}
                             onChange={(value) => handleFieldChange(item.id, 'content', value)}
@@ -2734,6 +2900,12 @@ export default function ContentManager({ section, title }: ContentManagerProps) 
                               ? "Enter location and directions information here. Use the rich text editor to format text, add maps, and provide detailed directions..."
                               : section === 'contact-volunteer'
                               ? "Enter volunteer opportunities information here. Use the rich text editor to describe how visitors can get involved and serve..."
+                              : isLegalSection
+                              ? section === 'legal-privacy'
+                              ? "Enter your privacy policy content here. Use the rich text editor to format text, add headings, lists, and create a comprehensive privacy policy..."
+                              : section === 'legal-terms'
+                              ? "Enter your terms and conditions content here. Use the rich text editor to format text, add headings, lists, and create comprehensive terms..."
+                              : "Enter your cookie policy content here. Use the rich text editor to format text, add headings, lists, and create a comprehensive cookie policy for GDPR compliance..."
                               : item.subsection === 'events-registration-links'
                               ? "Enter registration links and forms here. Use the rich text editor to format text, add links, and create engaging content..."
                               : item.subsection === 'events-registration-calendar'
@@ -2773,8 +2945,8 @@ export default function ContentManager({ section, title }: ContentManagerProps) 
                       </div>
                     ) : (
                       <div className="text-secondary-900">
-                        {isEventsRegistration || isEventTypeSection || isSupportOptionSection ? (
-                          <div dangerouslySetInnerHTML={{ __html: item.content }} />
+                        {isEventsRegistration || isEventTypeSection || isSupportOptionSection || isLegalSection || item.metadata?.isRichText || item.contentType === 'html' ? (
+                          <div className="prose prose-lg max-w-none" dangerouslySetInnerHTML={{ __html: item.content }} />
                         ) : (
                           item.content
                         )}

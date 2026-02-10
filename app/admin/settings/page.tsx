@@ -15,7 +15,8 @@ import {
   ChevronDownIcon,
   ChevronRightIcon,
   ChartBarIcon,
-  HeartIcon
+  HeartIcon,
+  DocumentTextIcon
 } from '@heroicons/react/24/outline'
 import ContentManager from '@/components/admin/ContentManager'
 import StaffManager from '@/components/admin/StaffManager'
@@ -124,6 +125,16 @@ const pageSections: PageSection[] = [
     sections: [
       { id: 'donation', title: 'Donation Information', description: 'Donation methods, impact information, and giving options' }
     ]
+  },
+  {
+    id: 'legal',
+    title: 'Legal Pages',
+    description: 'Terms of service and privacy policy',
+    sections: [
+      { id: 'legal-privacy', title: 'Privacy Policy', description: 'Privacy policy content and information' },
+      { id: 'legal-terms', title: 'Terms & Conditions', description: 'Terms of service and conditions content' },
+      { id: 'legal-cookie', title: 'Cookie Policy', description: 'Cookie policy and GDPR compliance information' }
+    ]
   }
 ]
 
@@ -219,6 +230,7 @@ export default function SiteSettingsPage() {
       case 'statistics': return ChartBarIcon
       case 'blog': return CogIcon
       case 'custom': return CogIcon
+      case 'legal': return DocumentTextIcon
       default: return CogIcon
     }
   }

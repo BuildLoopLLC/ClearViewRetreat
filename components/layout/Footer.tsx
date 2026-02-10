@@ -14,6 +14,7 @@ const navigation = {
     { name: 'Contact', href: '/contact' },
     { name: 'Privacy Policy', href: '/privacy' },
     { name: 'Terms of Service', href: '/terms' },
+    { name: 'Cookie Policy', href: '/cookie-policy' },
   ],
   about: [
     { name: 'History', href: '/about/history' },

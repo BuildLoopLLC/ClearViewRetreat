@@ -176,7 +176,12 @@ export default function FileManagerPage() {
 
   const handleCopyLink = async (url: string) => {
     try {
-      await navigator.clipboard.writeText(url)
+      // Ensure URL includes the full domain
+      const fullUrl = url.startsWith('http') 
+        ? url 
+        : `${window.location.origin}${url.startsWith('/') ? url : `/${url}`}`
+      
+      await navigator.clipboard.writeText(fullUrl)
       setCopiedUrl(url)
       setTimeout(() => setCopiedUrl(null), 2000)
     } catch (err) {

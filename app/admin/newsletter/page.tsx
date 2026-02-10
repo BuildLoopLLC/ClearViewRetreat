@@ -129,7 +129,7 @@ export default function NewsletterSignupsPage() {
         // Convert to CSV
         const csvContent = [
           headers.join(','),
-          ...rows.map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(','))
+          ...rows.map((row: (string | number)[]) => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(','))
         ].join('\n')
         
         // Create blob and download

@@ -15,7 +15,8 @@ import {
   XMarkIcon,
   CodeBracketIcon,
   ServerIcon,
-  BookOpenIcon
+  BookOpenIcon,
+  FolderIcon
 } from '@heroicons/react/24/outline'
 import Link from 'next/link'
 
@@ -274,6 +275,7 @@ export default function AdminDashboard() {
     { name: 'Group Events', href: '/admin/events-management', icon: CalendarIcon, color: 'text-indigo-600' },
     { name: 'Event Registrations', href: '/admin/registrations', icon: UserGroupIcon, color: 'text-emerald-600' },
     { name: 'Newsletter Signups', href: '/admin/newsletter', icon: EnvelopeIcon, color: 'text-cyan-600' },
+    { name: 'File Manager', href: '/admin/files', icon: FolderIcon, color: 'text-amber-600' },
     { name: 'Manage Photo Gallery', href: '/admin/gallery', icon: PhotoIcon, color: 'text-purple-600' },
     { name: 'Email Notifications', href: '/admin/email', icon: EnvelopeIcon, color: 'text-rose-600' },
     { name: 'Site Settings', href: '/admin/settings', icon: CogIcon, color: 'text-gray-600' },

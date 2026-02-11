@@ -19,6 +19,8 @@ import {
   FolderIcon
 } from '@heroicons/react/24/outline'
 import Link from 'next/link'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 
 // Real-time stats interface
 interface DashboardStats {
@@ -542,10 +544,54 @@ export default function AdminDashboard() {
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
                 </div>
               ) : (
-                <div className="prose prose-sm max-w-none prose-headings:text-gray-900 prose-p:text-gray-600 prose-a:text-blue-600 prose-code:bg-gray-100 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-pre:bg-gray-900 prose-pre:text-gray-100">
-                  <pre className="whitespace-pre-wrap font-mono text-sm leading-relaxed text-gray-800 bg-gray-50 p-4 rounded-lg overflow-x-auto">
+                <div className="prose prose-sm max-w-none prose-headings:text-gray-900 prose-p:text-gray-600 prose-a:text-blue-600 hover:prose-a:text-blue-700 prose-code:bg-gray-100 prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:text-red-600 prose-pre:bg-gray-900 prose-pre:text-gray-100 prose-pre:border prose-pre:border-gray-700 prose-strong:text-gray-900 prose-ul:text-gray-700 prose-ol:text-gray-700 prose-li:text-gray-700 prose-blockquote:border-l-blue-500 prose-blockquote:bg-gray-50 prose-blockquote:py-2 prose-blockquote:px-4 prose-blockquote:rounded prose-blockquote:text-gray-700 prose-table:text-sm prose-th:bg-gray-100 prose-th:font-semibold prose-th:text-gray-900 prose-td:border-gray-200">
+                  <ReactMarkdown
+                    remarkPlugins={[remarkGfm]}
+                    components={{
+                      code: ({ node, inline, className, children, ...props }: any) => {
+                        const match = /language-(\w+)/.exec(className || '')
+                        return !inline && match ? (
+                          <pre className="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto border border-gray-700">
+                            <code className={className} {...props}>
+                              {children}
+                            </code>
+                          </pre>
+                        ) : (
+                          <code className="bg-gray-100 text-red-600 px-1 py-0.5 rounded text-sm" {...props}>
+                            {children}
+                          </code>
+                        )
+                      },
+                      a: ({ node, ...props }: any) => (
+                        <a className="text-blue-600 hover:text-blue-700 underline" target="_blank" rel="noopener noreferrer" {...props} />
+                      ),
+                      h1: ({ node, ...props }: any) => (
+                        <h1 className="text-2xl font-bold text-gray-900 mt-6 mb-4 pb-2 border-b border-gray-200" {...props} />
+                      ),
+                      h2: ({ node, ...props }: any) => (
+                        <h2 className="text-xl font-bold text-gray-900 mt-5 mb-3 pb-2 border-b border-gray-200" {...props} />
+                      ),
+                      h3: ({ node, ...props }: any) => (
+                        <h3 className="text-lg font-semibold text-gray-900 mt-4 mb-2" {...props} />
+                      ),
+                      blockquote: ({ node, ...props }: any) => (
+                        <blockquote className="border-l-4 border-blue-500 bg-gray-50 py-2 px-4 rounded my-4 text-gray-700 italic" {...props} />
+                      ),
+                      table: ({ node, ...props }: any) => (
+                        <div className="overflow-x-auto my-4">
+                          <table className="min-w-full border-collapse border border-gray-200" {...props} />
+                        </div>
+                      ),
+                      th: ({ node, ...props }: any) => (
+                        <th className="bg-gray-100 font-semibold text-gray-900 border border-gray-200 px-4 py-2 text-left" {...props} />
+                      ),
+                      td: ({ node, ...props }: any) => (
+                        <td className="border border-gray-200 px-4 py-2 text-gray-700" {...props} />
+                      ),
+                    }}
+                  >
                     {readmeContent}
-                  </pre>
+                  </ReactMarkdown>
                 </div>
               )}
             </div>

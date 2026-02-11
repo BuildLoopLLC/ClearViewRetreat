@@ -19,9 +19,9 @@ export const metadata: Metadata = {
   creator: 'Clear View Retreat',
   robots: 'index, follow',
   icons: {
-    icon: '/favicon.svg',
-    shortcut: '/favicon.svg',
-    apple: '/favicon.svg',
+    icon: '/icon.png',
+    shortcut: '/icon.png',
+    apple: '/icon.png',
   },
   openGraph: {
     title: 'Clear View Retreat - A Place of Peace & Renewal',

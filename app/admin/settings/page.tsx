@@ -86,7 +86,6 @@ const pageSections: PageSection[] = [
     sections: [
       { id: 'contact', title: 'Main Contact Content', description: 'Primary contact information and forms' },
       { id: 'contact-location', title: 'Location & Directions', description: 'Rich text content for location and directions page' },
-      { id: 'contact-staff', title: 'Staff Directory', description: 'Team members and contact information' },
       { id: 'contact-volunteer', title: 'Volunteer Opportunities', description: 'Rich text content for volunteer opportunities page' }
     ]
   },

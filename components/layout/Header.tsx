@@ -48,7 +48,6 @@ const navigation = [
     href: '/contact',
     sublinks: [
       { name: 'Location & Directions', href: '/contact/location' },
-      { name: 'Staff Directory', href: '/contact/staff' },
       { name: 'Volunteer Opportunities', href: '/contact/volunteer' },
       { name: 'Support Us', href: '/contact/support-us' },
     ]

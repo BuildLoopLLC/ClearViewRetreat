@@ -8,11 +8,6 @@ const contactSubpages = [
     description: 'Find our retreat center and get directions.'
   },
   {
-    title: 'Staff Directory',
-    href: '/contact/staff',
-    description: 'Meet our team and find the right person to contact.'
-  },
-  {
     title: 'Volunteer Opportunities',
     href: '/contact/volunteer',
     description: 'Learn how you can get involved and serve with us.'

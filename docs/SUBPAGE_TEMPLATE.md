@@ -49,7 +49,6 @@ export default function PageNamePage() {
 ### Contact Section (`/contact/`)
 - [ ] `/contact/contact-us` → `app/contact/contact-us/page.tsx`
 - [ ] `/contact/location` → `app/contact/location/page.tsx`
-- [ ] `/contact/staff` → `app/contact/staff/page.tsx`
 - [ ] `/contact/volunteer` → `app/contact/volunteer/page.tsx`
 - [ ] `/contact/prayer` → `app/contact/prayer/page.tsx`
 

@@ -502,11 +502,6 @@ export default function ContentManager({ section, title }: ContentManagerProps) 
         description: 'Content for the Contact > Location & Directions page (/contact/location).',
         example: 'Address, directions, maps, parking information, and location details'
       }
-    } else if (section === 'contact-staff') {
-      return {
-        description: 'Content for the Contact > Staff Directory page (/contact/staff).',
-        example: 'Staff profiles, contact information, and team member details'
-      }
     } else if (section === 'contact-volunteer') {
       return {
         description: 'Content for the Contact > Volunteer Opportunities page (/contact/volunteer).',

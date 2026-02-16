@@ -108,11 +108,34 @@ export async function POST(request: NextRequest) {
 
     // Generate permanent URLs using Railway bucket URLs
     // Include domain for storage in database
-    // Get the origin from the request URL
-    const requestUrl = new URL(request.url)
-    const origin = requestUrl.origin || 
-                   process.env.NEXT_PUBLIC_SITE_URL || 
-                   (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : '')
+    // Get origin from referer header (which has the client's origin) or Host header
+    const referer = request.headers.get('referer')
+    const host = request.headers.get('host')
+    const forwardedProto = request.headers.get('x-forwarded-proto') || 'https'
+    
+    let origin: string = ''
+    
+    // Try to get origin from referer header first (most reliable - comes from client)
+    if (referer) {
+      try {
+        const refererUrl = new URL(referer)
+        origin = refererUrl.origin
+      } catch (e) {
+        // Referer might be malformed, continue to other methods
+      }
+    }
+    
+    // If referer didn't work, try Host header (Railway provides this)
+    if (!origin && host && !host.includes('localhost') && !host.includes('127.0.0.1') && !host.includes(':8080')) {
+      origin = `${forwardedProto}://${host}`
+    }
+    
+    // Fallback to environment variables
+    if (!origin) {
+      origin = process.env.NEXT_PUBLIC_SITE_URL || 
+               (process.env.RAILWAY_PUBLIC_DOMAIN ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}` : '') ||
+               (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : '')
+    }
     
     const imageUrl = origin 
       ? `${origin}/api/images/${mainImageKey}`

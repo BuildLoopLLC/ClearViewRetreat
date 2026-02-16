@@ -65,8 +65,8 @@ export default function Header() {
           <Link href="/" className="-m-1.5 p-1.5">
             <span className="sr-only">Clear View Retreat</span>
             <div className="flex items-center space-x-2">
-              <div className="w-10 h-10 bg-primary-600 rounded-lg flex items-center justify-center">
-                <AFrameIcon className="text-white" size="sm" />
+              <div className="w-10 h-10 bg-transparent border-2 border-secondary-500 rounded-lg flex items-center justify-center">
+                <AFrameIcon className="text-secondary-900" size="md" />
               </div>
               <span className="text-2xl font-display font-bold text-secondary-900">Clear View</span>
             </div>
@@ -142,8 +142,8 @@ export default function Header() {
                 <Link href="/" className="-m-1.5 p-1.5">
                   <span className="sr-only">Clear View Retreat</span>
                   <div className="flex items-center space-x-2">
-                    <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center">
-                      <AFrameIcon className="text-white" size="sm" />
+                    <div className="w-8 h-8 bg-transparent border-2 border-primary-50 rounded-lg flex items-center justify-center">
+                      <AFrameIcon className="text-secondary-900" size="sm" />
                     </div>
                     <span className="text-xl font-display font-bold text-secondary-900">Clear View</span>
                   </div>

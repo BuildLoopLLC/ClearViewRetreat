@@ -130,8 +130,8 @@ export default function Footer() {
           {/* Brand and Description */}
           <div className="lg:col-span-2 space-y-6">
             <div className="flex items-center space-x-2">
-              <div className="w-12 h-12 bg-primary-600 rounded-lg flex items-center justify-center">
-                <AFrameIcon className="text-white" size="md" />
+              <div className="w-12 h-12 bg-transparent border-2 border-primary-50 rounded-lg flex items-center justify-center">
+                <AFrameIcon size="md" />
               </div>
               <span className="text-3xl font-display font-bold text-white">Clear View</span>
             </div>

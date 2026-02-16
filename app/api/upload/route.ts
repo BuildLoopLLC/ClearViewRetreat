@@ -107,8 +107,19 @@ export async function POST(request: NextRequest) {
     ])
 
     // Generate permanent URLs using Railway bucket URLs
-    const imageUrl = generatePublicUrl(mainImageKey)
-    const thumbnailUrl = generatePublicUrl(thumbnailKey)
+    // Include domain for storage in database
+    // Get the origin from the request URL
+    const requestUrl = new URL(request.url)
+    const origin = requestUrl.origin || 
+                   process.env.NEXT_PUBLIC_SITE_URL || 
+                   (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : '')
+    
+    const imageUrl = origin 
+      ? `${origin}/api/images/${mainImageKey}`
+      : generatePublicUrl(mainImageKey, true)
+    const thumbnailUrl = origin
+      ? `${origin}/api/images/${thumbnailKey}`
+      : generatePublicUrl(thumbnailKey, true)
 
 
     return NextResponse.json({

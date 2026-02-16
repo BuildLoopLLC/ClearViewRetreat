@@ -13,7 +13,7 @@ export default function Home() {
       <Features />
       <About showCTA={true} />
       <Events showCTA={true} />
-      <Gallery />
+      <Gallery maxImages={12} />
       <Testimonials />
       <Contact />
     </>

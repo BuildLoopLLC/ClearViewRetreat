@@ -82,7 +82,7 @@ export default function BlogPostCard({ post, featured = false, category }: BlogP
           </div>
 
           {/* Tags */}
-          {post.tags && post.tags.length > 0 && (
+          {post.tags && Array.isArray(post.tags) && post.tags.length > 0 && (
             <div className="mt-4 flex flex-wrap gap-2">
               {post.tags.slice(0, 3).map((tag, index) => (
                 <span

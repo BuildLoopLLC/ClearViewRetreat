@@ -21,6 +21,25 @@ interface BlogPost {
 
 // Helper function to convert database fields to camelCase
 function convertDbPostToResponse(post: any): BlogPost {
+  // Safely parse tags - ensure it's always an array
+  let tags: string[] = []
+  if (post.tags) {
+    try {
+      // If it's already an array, use it directly
+      if (Array.isArray(post.tags)) {
+        tags = post.tags
+      } else if (typeof post.tags === 'string') {
+        // Try to parse JSON string
+        const parsed = JSON.parse(post.tags)
+        tags = Array.isArray(parsed) ? parsed : []
+      }
+    } catch (error) {
+      // If parsing fails, default to empty array
+      console.warn('Failed to parse tags for post:', post.id, error)
+      tags = []
+    }
+  }
+
   return {
     id: post.id,
     title: post.title,
@@ -35,7 +54,7 @@ function convertDbPostToResponse(post: any): BlogPost {
     publishedAt: post.published_at,
     createdAt: post.created_at,
     updatedAt: post.updated_at,
-    tags: post.tags ? JSON.parse(post.tags) : [],
+    tags: tags,
     category: post.category
   }
 }

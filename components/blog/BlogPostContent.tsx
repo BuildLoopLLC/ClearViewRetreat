@@ -55,7 +55,7 @@ export default function BlogPostContent({ post }: BlogPostContentProps) {
         )}
 
         {/* Tags */}
-        {post.tags && post.tags.length > 0 && (
+        {post.tags && Array.isArray(post.tags) && post.tags.length > 0 && (
           <div className="flex items-center space-x-2 mb-8">
             <TagIcon className="h-5 w-5 text-gray-400" />
             <div className="flex flex-wrap gap-2">

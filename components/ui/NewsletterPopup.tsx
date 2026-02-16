@@ -113,7 +113,7 @@ export default function NewsletterPopup() {
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: 100 }}
           transition={{ duration: 0.3, type: 'spring', damping: 25, stiffness: 300 }}
-          className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 w-[calc(100%-2rem)] sm:w-full max-w-sm"
+          className="fixed bottom-4 right-4 md:bottom-6 md:right-6 z-50 w-[calc(100%-2rem)] md:w-full max-w-md"
         >
           <div className="bg-white rounded-xl shadow-2xl border border-gray-200 overflow-hidden">
             {/* Header */}

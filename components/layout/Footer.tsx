@@ -243,19 +243,12 @@ export default function Footer() {
                   </li>
                 ))}
                 <li>
-                  <button
-                    onClick={() => {
-                      // Scroll to top and trigger newsletter popup
-                      window.scrollTo({ top: 0, behavior: 'smooth' })
-                      // Trigger popup by removing dismissal from localStorage
-                      localStorage.removeItem('newsletter_popup_dismissed')
-                      // Dispatch custom event to show popup
-                      window.dispatchEvent(new CustomEvent('showNewsletterPopup'))
-                    }}
+                  <Link
+                    href="/newsletter"
                     className="text-secondary-300 hover:text-primary-400 transition-colors duration-200 text-sm"
                   >
                     Newsletter Sign Up
-                  </button>
+                  </Link>
                 </li>
               </ul>
             </div>

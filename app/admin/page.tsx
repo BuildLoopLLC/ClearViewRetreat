@@ -131,7 +131,7 @@ export default function AdminDashboard() {
         hasFetchedData.current = true
         setLoading(true)
         const [blogRes, eventsRes, galleriesRes, usersRes] = await Promise.all([
-          fetch('/api/sqlite-blog'),
+          fetch('/api/sqlite-blog?page=1&pageSize=1'),
           fetch('/api/events'),
           fetch('/api/gallery'),
           fetch('/api/users?action=count&adminOnly=true')
@@ -145,7 +145,7 @@ export default function AdminDashboard() {
         ])
 
         setStats({
-          blogPosts: Array.isArray(blogData) ? blogData.length : 0,
+          blogPosts: typeof blogData?.total === 'number' ? blogData.total : (Array.isArray(blogData) ? blogData.length : 0),
           events: Array.isArray(eventsData) ? eventsData.length : 0,
           galleries: Array.isArray(galleriesData) ? galleriesData.length : 0,
           users: usersData.count || 0

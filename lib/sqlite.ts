@@ -173,6 +173,17 @@ function initializeDatabase() {
     )
   `)
 
+  // Create podcast_feed_settings table (RSS feed URL for podcast sync)
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS podcast_feed_settings (
+      id TEXT PRIMARY KEY DEFAULT 'main',
+      feed_url TEXT NOT NULL DEFAULT '',
+      last_synced_at DATETIME,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+  `)
+
   // Create email_settings table (SMTP configuration)
   db.exec(`
     CREATE TABLE IF NOT EXISTS email_settings (

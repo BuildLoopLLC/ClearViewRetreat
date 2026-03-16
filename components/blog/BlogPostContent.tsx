@@ -1,12 +1,28 @@
 import { CalendarIcon, UserIcon, TagIcon, DocumentTextIcon } from '@heroicons/react/24/outline'
 import { BlogPost } from '@/types/firebase'
 import SecureImage from '@/components/ui/SecureImage'
+import PodcastAudioPlayer from './PodcastAudioPlayer'
 
 interface BlogPostContentProps {
   post: BlogPost
 }
 
+function getPodcastAudioUrl(content: string): string | null {
+  const match = content.match(/<audio[^>]+src=["']([^"']+)["']/)
+  return match ? match[1] : null
+}
+
+function contentWithoutEmbeddedAudio(content: string): string {
+  return content.replace(/<div class=["']podcast-audio[^"']*["'][^>]*>[\s\S]*?<\/div>\n?\n?/i, '').trim()
+}
+
 export default function BlogPostContent({ post }: BlogPostContentProps) {
+  const podcastAudioUrl = post.category === 'podcast' ? getPodcastAudioUrl(post.content) : null
+  const displayContent =
+    post.category === 'podcast' && podcastAudioUrl
+      ? contentWithoutEmbeddedAudio(post.content)
+      : post.content
+
   return (
     <article className="max-w-4xl mx-auto">
       {/* Header */}
@@ -42,8 +58,8 @@ export default function BlogPostContent({ post }: BlogPostContentProps) {
           </p>
         )}
 
-        {/* Featured Image */}
-        {post.mainImage && (
+        {/* Featured Image (hidden for podcasts; thumbnail shown in audio player) */}
+        {post.mainImage && post.category !== 'podcast' && (
           <div className="mb-8">
             <SecureImage
               src={post.mainImage}
@@ -72,12 +88,16 @@ export default function BlogPostContent({ post }: BlogPostContentProps) {
         )}
       </header>
 
+      {/* Podcast audio player (custom UI) */}
+      {podcastAudioUrl && (
+        <div className="mb-8">
+          <PodcastAudioPlayer src={podcastAudioUrl} thumbnailUrl={post.mainImage} title={post.title} />
+        </div>
+      )}
+
       {/* Content */}
       <div className="prose prose-lg max-w-none">
-        <div 
-          className="rich-content"
-          dangerouslySetInnerHTML={{ __html: post.content }}
-        />
+        <div className="rich-content" dangerouslySetInnerHTML={{ __html: displayContent }} />
       </div>
 
       <style jsx global>{`

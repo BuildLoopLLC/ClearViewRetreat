@@ -28,7 +28,8 @@
     "create-events-table": "npx tsx scripts/create-events-table.ts",
     "create-blocked-dates-table": "npx tsx scripts/create-blocked-dates-table.ts",
     "migrate-s3-to-railway": "npx tsx scripts/migrate-s3-to-railway.ts",
-    "update-database-urls": "npx tsx scripts/update-database-urls.ts"
+    "update-database-urls": "npx tsx scripts/update-database-urls.ts",
+    "migrate-wordpress-posts": "npx tsx scripts/migrate-wordpress-posts.ts"
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.868.0",
@@ -66,6 +67,7 @@
     "react-syntax-highlighter": "^15.5.0",
     "remark-gfm": "^4.0.0",
     "resend": "^6.9.1",
+    "rss-parser": "^3.13.0",
     "sharp": "^0.32.6",
     "tailwindcss": "^3.3.0",
     "uuid": "^13.0.0"
@@ -82,6 +84,7 @@
     "@types/react-dom": "^18.2.0",
     "eslint": "^8.51.0",
     "eslint-config-next": "^14.0.0",
+    "fast-xml-parser": "^5.5.3",
     "ts-node": "^10.9.2",
     "tsx": "^4.20.4",
     "typescript": "^5.2.0"

@@ -95,28 +95,56 @@ export async function GET(request: NextRequest) {
       return NextResponse.json(convertDbPostToResponse(post))
     }
 
-    // Build query for multiple blog posts
-    let query = 'SELECT * FROM blog_posts WHERE 1=1'
+    // Pagination and search (only when page is explicitly set)
+    const pageParam = searchParams.get('page')
+    const pageSizeParam = searchParams.get('pageSize')
+    const search = (searchParams.get('search') ?? searchParams.get('q') ?? '').trim()
+    const usePagination = pageParam != null && pageParam !== ''
+    const page = usePagination ? Math.max(1, parseInt(pageParam, 10) || 1) : 1
+    const pageSize = pageSizeParam ? Math.min(100, Math.max(1, parseInt(pageSizeParam, 10) || 12)) : 12
+
+    // Build base WHERE for list
+    let where = 'WHERE 1=1'
     const params: any[] = []
-    
+
     if (published !== null) {
-      query += ' AND published = ?'
+      where += ' AND published = ?'
       params.push(published === 'true' ? 1 : 0)
     }
-    
+
     if (category) {
-      query += ' AND category = ?'
+      where += ' AND category = ?'
       params.push(category)
     }
-    
-    query += ' ORDER BY COALESCE(published_at, created_at) DESC, created_at DESC LIMIT ?'
-    params.push(limit)
-    
-    const posts = db.prepare(query).all(...params)
-    
-    // Convert all posts to camelCase format
+
+    if (search) {
+      const term = `%${search}%`
+      where += ' AND (title LIKE ? OR excerpt LIKE ? OR content LIKE ? OR tags LIKE ?)'
+      params.push(term, term, term, term)
+    }
+
+    const orderBy = 'ORDER BY COALESCE(published_at, created_at) DESC, created_at DESC'
+
+    // Paginated response (when ?page= is provided)
+    if (usePagination) {
+      const countRow = db.prepare(`SELECT COUNT(*) as total FROM blog_posts ${where}`).get(...params) as { total: number }
+      const total = countRow.total
+      const offset = (page - 1) * pageSize
+      const listQuery = `SELECT * FROM blog_posts ${where} ${orderBy} LIMIT ? OFFSET ?`
+      const posts = db.prepare(listQuery).all(...params, pageSize, offset)
+      const convertedPosts = posts.map((post: any) => convertDbPostToResponse(post))
+      return NextResponse.json({
+        posts: convertedPosts,
+        total,
+        page,
+        pageSize,
+      })
+    }
+
+    // Legacy: no page param – return plain array with limit
+    const listQuery = `SELECT * FROM blog_posts ${where} ${orderBy} LIMIT ?`
+    const posts = db.prepare(listQuery).all(...params, limit)
     const convertedPosts = posts.map((post: any) => convertDbPostToResponse(post))
-    
     return NextResponse.json(convertedPosts)
   } catch (error) {
     console.error('Error fetching blog posts:', error)

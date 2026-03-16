@@ -108,6 +108,8 @@ A modern, responsive website for ClearViewRetreat.org, a Christian retreat cente
    npm run setup
    ```
 
+   To import blog posts from a WordPress export (WXR XML), see [WordPress migration (production)](docs/WORDPRESS_MIGRATION.md). Locally: `npm run migrate-wordpress-posts -- /path/to/export.xml`.
+
 5. **Set up Firebase Admin**
    ```bash
    # Create your first admin user

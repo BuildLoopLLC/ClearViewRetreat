@@ -118,7 +118,7 @@ function ensureCategoriesInFile(usedSlugs: Set<string>, categoriesFilePath: stri
   const existingSlugs = new Set(categories.map((c) => c.slug))
   let added = 0
   let colorIndex = categories.length
-  for (const slug of usedSlugs) {
+  for (const slug of Array.from(usedSlugs)) {
     if (existingSlugs.has(slug)) continue
     const name = slugToName[slug] ?? slug.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
     categories.push({

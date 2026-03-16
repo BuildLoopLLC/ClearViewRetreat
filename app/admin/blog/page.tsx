@@ -267,20 +267,22 @@ export default function BlogManagementPage() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Import from WordPress */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 mb-8">
-          <div className="px-6 py-4 border-b border-gray-200">
-            <h2 className="text-lg font-semibold text-secondary-900 flex items-center gap-2">
-              <ArrowUpTrayIcon className="h-5 w-5 text-primary-600" />
-              Import from WordPress
-            </h2>
-            <p className="text-sm text-secondary-600 mt-1">
-              Upload a WordPress WXR export (XML) to import published posts. Dates, content, images, categories, and tags are preserved. Podcast posts are auto-categorized.
-            </p>
-          </div>
-          <form onSubmit={handleImportSubmit} className="p-6">
-            <div className="flex flex-wrap items-end gap-4">
-              <div className="flex-1 min-w-[200px]">
+        {/* Import from WordPress + Podcast RSS feed — side by side */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          {/* Import from WordPress */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 min-w-0">
+            <div className="px-6 py-4 border-b border-gray-200">
+              <h2 className="text-lg font-semibold text-secondary-900 flex items-center gap-2">
+                <ArrowUpTrayIcon className="h-5 w-5 text-primary-600" />
+                Import from WordPress
+              </h2>
+              <p className="text-sm text-secondary-600 mt-1">
+                Upload a WordPress WXR export (XML) to import published posts. Dates, content, images, categories, and tags are preserved. Podcast posts are skipped (use RSS below).
+              </p>
+            </div>
+            <form onSubmit={handleImportSubmit} className="p-6">
+              <div className="flex flex-wrap items-end gap-4">
+                <div className="flex-1 min-w-0">
                 <label htmlFor="wordpress-xml" className="block text-sm font-medium text-gray-700 mb-1">
                   XML file
                 </label>
@@ -333,26 +335,26 @@ export default function BlogManagementPage() {
               </div>
             )}
           </form>
-        </div>
-
-        {/* Podcast RSS feed */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 mb-8">
-          <div className="px-6 py-4 border-b border-gray-200">
-            <h2 className="text-lg font-semibold text-secondary-900 flex items-center gap-2">
-              <MicrophoneIcon className="h-5 w-5 text-primary-600" />
-              Podcast RSS feed
-            </h2>
-            <p className="text-sm text-secondary-600 mt-1">
-              Set an RSS feed URL to pull new podcast episodes into the blog under the Podcast category. Sync runs on save or manually; for hourly updates, call the cron endpoint (see docs).
-            </p>
           </div>
-          <form onSubmit={handlePodcastSettingsSave} className="p-6">
-            {podcastSettingsLoading ? (
-              <p className="text-sm text-secondary-500">Loading settings…</p>
-            ) : (
-              <>
-                <div className="flex flex-wrap items-end gap-4">
-                  <div className="flex-1 min-w-[280px]">
+
+          {/* Podcast RSS feed */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 min-w-0">
+            <div className="px-6 py-4 border-b border-gray-200">
+              <h2 className="text-lg font-semibold text-secondary-900 flex items-center gap-2">
+                <MicrophoneIcon className="h-5 w-5 text-primary-600" />
+                Podcast RSS feed
+              </h2>
+              <p className="text-sm text-secondary-600 mt-1">
+                Set an RSS feed URL to pull new podcast episodes into the blog under the Podcast category. Sync on save or manually; for hourly updates use an external cron (see docs).
+              </p>
+            </div>
+            <form onSubmit={handlePodcastSettingsSave} className="p-6">
+              {podcastSettingsLoading ? (
+                <p className="text-sm text-secondary-500">Loading settings…</p>
+              ) : (
+                <>
+                  <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-end gap-4">
+                    <div className="flex-1 min-w-0">
                     <label htmlFor="podcast-feed-url" className="block text-sm font-medium text-gray-700 mb-1">
                       Feed URL
                     </label>
@@ -414,6 +416,7 @@ export default function BlogManagementPage() {
               </>
             )}
           </form>
+          </div>
         </div>
 
         {error && (

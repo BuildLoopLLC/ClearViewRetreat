@@ -45,7 +45,49 @@ Authorization: Bearer YOUR_CRON_SECRET
 ### Schedulers
 
 - **cron-job.org / EasyCron:** Create a job that runs every hour and calls the URL above.
-- **Railway:** Use a cron service or a separate worker that hits this URL.
 - **Vercel:** Add a cron in `vercel.json` that triggers this route (see [Vercel Cron](https://vercel.com/docs/cron-jobs)).
 
 If `CRON_SECRET` is not set, the endpoint accepts unauthenticated requests (suitable only for trusted/private environments).
+
+---
+
+## Railway: hourly podcast sync
+
+Railway doesn’t run cron inside your Next.js app. Use an **external cron service** to call your deployed app every hour.
+
+### 1. Set `CRON_SECRET` in Railway
+
+1. Open your project on [Railway](https://railway.app).
+2. Select your **service** (the Next.js app).
+3. Go to **Variables** and add:
+   - **Name:** `CRON_SECRET`
+   - **Value:** a long random string (e.g. from `openssl rand -hex 32`).
+
+Redeploy so the new variable is applied.
+
+### 2. Use a free cron service to call the endpoint
+
+Use a scheduler that sends an HTTP request every hour.
+
+**Option A: cron-job.org (free)**
+
+1. Sign up at [cron-job.org](https://cron-job.org).
+2. Create a new cron job:
+   - **Title:** e.g. `Podcast RSS sync`
+   - **URL:**  
+     `https://YOUR-RAILWAY-APP.up.railway.app/api/cron/podcast-sync?secret=YOUR_CRON_SECRET`  
+     (replace with your real Railway URL and the same value as `CRON_SECRET`).
+   - **Schedule:** every hour (e.g. `0 * * * *` or the hourly preset).
+   - **Request method:** GET.
+3. Save and enable the job.
+
+**Option B: EasyCron or similar**
+
+Same idea: create a job that runs every hour and performs a GET request to:
+
+`https://YOUR-RAILWAY-APP.up.railway.app/api/cron/podcast-sync?secret=YOUR_CRON_SECRET`
+
+### 3. Check it works
+
+- In the cron service, check the last run result (status 200 and JSON body with `inserted` / `skipped`).
+- In **Admin → Blog**, set the podcast feed URL, save, and run **Sync now** once. After that, the hourly cron will pull new episodes automatically.

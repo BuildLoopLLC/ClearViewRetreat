@@ -7,5 +7,50 @@
     "color": "bg-red-100 text-red-800",
     "createdAt": "2025-09-13T04:44:17.249Z",
     "updatedAt": "2025-09-13T04:44:17.249Z"
+  },
+  {
+    "id": "cat-wp-prayer-requests-1773355439522",
+    "name": "Prayer requests",
+    "slug": "prayer-requests",
+    "description": "",
+    "color": "bg-green-100 text-green-800",
+    "createdAt": "2026-03-12T22:43:59.522Z",
+    "updatedAt": "2026-03-12T22:43:59.522Z"
+  },
+  {
+    "id": "cat-wp-blog-1773355439522",
+    "name": "Blog",
+    "slug": "blog",
+    "description": "",
+    "color": "bg-purple-100 text-purple-800",
+    "createdAt": "2026-03-12T22:43:59.522Z",
+    "updatedAt": "2026-03-12T22:43:59.522Z"
+  },
+  {
+    "id": "cat-wp-relationships-1773355439522",
+    "name": "Relationships",
+    "slug": "relationships",
+    "description": "",
+    "color": "bg-orange-100 text-orange-800",
+    "createdAt": "2026-03-12T22:43:59.522Z",
+    "updatedAt": "2026-03-12T22:43:59.522Z"
+  },
+  {
+    "id": "cat-wp-uncategorized-1773355439522",
+    "name": "Uncategorized",
+    "slug": "uncategorized",
+    "description": "",
+    "color": "bg-pink-100 text-pink-800",
+    "createdAt": "2026-03-12T22:43:59.522Z",
+    "updatedAt": "2026-03-12T22:43:59.522Z"
+  },
+  {
+    "id": "cat-wp-podcast-1773356168013",
+    "name": "Podcast",
+    "slug": "podcast",
+    "description": "",
+    "color": "bg-teal-100 text-teal-800",
+    "createdAt": "2026-03-12T22:56:08.013Z",
+    "updatedAt": "2026-03-12T22:56:08.013Z"
   }
 ]
